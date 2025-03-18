@@ -1,22 +1,22 @@
-# Load Gtk
-import gi
-gi.require_version('Gtk', '4.0')
-from gi.repository import Gtk
+import sys
+from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel
 
-# When the application is launched…
-def on_activate(app):
-    # … create a new window…
-    win = Gtk.ApplicationWindow(application=app)
-    # … with a button in it…
-    btn = Gtk.Button(label='Hello, World!')
-    # … which closes the window when clicked
-    btn.connect('clicked', lambda x: win.close())
-    win.set_child(btn)
-    win.present()
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
 
-# Create a new application
-app = Gtk.Application(application_id='com.example.GtkApplication')
-app.connect('activate', on_activate)
+def main():
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.setGeometry(50, 50, 1000, 500)
+    window.setWindowTitle("Mod Tracker")
 
-# Run the application
-app.run(None)
+    label = QLabel(window)
+    label.setText("Mod Tracker")
+    label.move(10, 10)
+
+    window.show()
+    sys.exit(app.exec())
+
+if __name__ == "__main__":
+    main()
