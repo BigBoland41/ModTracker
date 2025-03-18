@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import sys
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QPainter, QPen
-from PySide6.QtWidgets import QMainWindow, QApplication
-from PySide6.QtCharts import QChart, QChartView, QPieSeries
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QPainter, QColor
+from PyQt6.QtWidgets import QMainWindow, QApplication
+from PyQt6.QtCharts import QChart, QChartView, QPieSeries
 
 
 class TestChart(QMainWindow):
@@ -16,17 +16,22 @@ class TestChart(QMainWindow):
 
         self.series = QPieSeries()
 
-        self.series.append('Jane', 1)
-        self.series.append('Joe', 2)
-        self.series.append('Andy', 3)
-        self.series.append('Barbara', 4)
-        self.series.append('Axel', 5)
+        self.series.append('Ready', 3)
+        self.series.append('High Priority', 1)
+        self.series.append('Non-essential', 1)
+
+        self.slice = self.series.slices()[0]
+        # self.slice.setExploded()
+        self.slice.setLabelVisible()
+        self.slice.setBrush(QColor(0, 255, 0))
 
         self.slice = self.series.slices()[1]
-        self.slice.setExploded()
         self.slice.setLabelVisible()
-        self.slice.setPen(QPen(Qt.darkGreen, 2))
-        self.slice.setBrush(Qt.green)
+        self.slice.setBrush(QColor(255, 85, 0))
+
+        self.slice = self.series.slices()[2]
+        self.slice.setLabelVisible()
+        self.slice.setBrush(QColor(255, 255, 0))
 
         self.chart = QChart()
         self.chart.addSeries(self.series)
@@ -37,7 +42,6 @@ class TestChart(QMainWindow):
         self._chart_view.setRenderHint(QPainter.RenderHint.Antialiasing)
 
         self.setCentralWidget(self._chart_view)
-
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
