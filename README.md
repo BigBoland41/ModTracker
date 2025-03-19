@@ -2,15 +2,38 @@
 
 Mod tracker is an app that helps you keep track of the mods you've been so patiently waiting on updating to the newest Minecraft version. Say goodbye to that mile long bookmark folder of Mondrinth and CurseForge links - Mod Tracker will do the job for you!
 
-This app was originally made for a college class. Below is a snipit from our project report assignment:
+# How To Run
 
-## Motivation
+Run the prototypeUI executable found in dist\prototypeUI
 
-Many dedicated Minecraft players install a wide variety of mods to their game to improve their experience. These mods are almost always maintained by independent solo developers in their free time, so when a new Minecraft version is released, they all update to support it at very different and unpredictable rates. While waiting, the primary way of keeping track of all these mods is by manually visiting the download site for each mod regularly to see if it’s been updated. This task is tedious and difficult to keep track of.
-We want to create a desktop application that would keep track of all these mods for you. By simply adding each mod’s download link to a list, the software will use the APIs of the most popular download sites to check if new versions have been released or not. Instead of manually going down a list of download links, the user can open the software, and it will check automatically, greatly simplifying the process. The user would also have access to additional features that will be discussed later in this proposal, including various organization options and a pie chart displaying visually how many of their mods are ready for the newest Minecraft version.
-There are currently no good alternatives to the role that Mod Tracker will fill. While the two major download sites for Minecraft mods - CurseForge and Modrinth - both have a system allowing the user to view a list of all mods they “follow,” neither following list displays the latest Minecraft version the mod is compatible with directly in that view, and will only allow the user to follow mods from their site. In the Minecraft community there is not one place where everyone uploads their mods, however, CurseForge and Modrinth’s catalog of mods is quite extensive and includes almost all popular mods. No other pre-existing solution in the Minecraft space has a feature allowing the user to view a custom list of mods and their supported versions of Minecraft at a glance, and certainly not the organization options and charts that our software will offer. Mod Tracker will fill a unique role that has no alternatives in the Minecraft space.
+Alternatively:
+- Install Python 3, then install the PyQt6 and requests libraries using pip install PyQt6 and pip install requests.
+- Run the prototypeUI.py file.
 
-## Objectives
+To run unit tests, run the tests.py file.
 
-The main objective of Mod Tracker is to easily track which of their mods are available for a given version of Minecraft. Mod Tracker will allow the user to select a mod they want to track and add it to a profile. When adding a mod to a profile, the user will also select a supported repository where Mod Tracker will pull the mod and its information from when requested. The user can then view that profile and see all the mods they’ve added to that list, as well as the latest versions of Minecraft they’re compatible with. Each mod should also have a customizable priority level the user can set, which will be displayed if the mod is not available for the selected version of Minecraft. A pie chart will also be displayed, to show visually how many mods are ready for the selected version. The proposed UI for the profile view follows the spreadsheet displayed in figure 1.
-While Mod Tracker is going to be able to track and download mods, it is not a tool for managing the installation of mods. Minecraft mods utilize mod loaders such as fabric and forge. These loaders ensure all installed mods are compatible with each other and the current minecraft version. It is up to the user to install the mods themselves and check for errors thrown by their mod loader of choice. It may be possible in the future to support the full installation and management of installed mods, but that is not planned for the initial version of Mod Tracker.
+# Project Details
+
+## Motivation and Objective
+
+A large portion of the Minecraft player base installs mods for their game. However, while the community is large, it can be disorganized. Minecraft mods only support specific versions of the game. When a Minecraft update is released, mods become outdated and need to be updated manually by their developer. When installing multiple mods, it can be difficult to keep track of which mods support which versions. While Minecraft mod repositories exist and display the latest version a mod supports, they do not include a simple way to create a list of mods and show the version they all support.
+
+Our goal is to make the experience of keeping track of all your mods easy and seemless.
+
+ModTracker is a desktop application designed to simplify the task of tracking supported game versions for Minecraft mods. Users can create profiles containing a list of selected Minecraft mods to track. The profile will display information based on the Minecraft version the user wishes to target. Each mod in a profile will have a priority level indicating the importance of that mod to be supported by the selected Minecraft version. Using the assigned priority levels and the supported versions of each mod, ModTracker will graph the proportion of supported and unsupported mods for the selected game version.
+
+## Architecture
+
+After opening the app, the user can select a mod profile, which contains a list of mods, or create a new one. The user can then add mods to the profile they want tracked, change the priority level of specific mods, etc. When new information is needed, an API call will be made to get information about all mods.
+
+[Sequence Diagram](https://cdn.discordapp.com/attachments/1336782574403457146/1344455646971695147/Screenshot_2025-02-26_at_6.44.06_PM.png?ex=67db5765&is=67da05e5&hm=f9e517b43c078790626319905b22c6b301c17585f6d148311ffe68b9ffa865e1&)
+
+To accomplish this, we're utilizing several technologies:
+- PyQt6 - A cross-platform GUI framework for building applications in python
+- JSON library for API calls
+- Python unittest library for testing
+
+
+
+There's still a lot of work to be done, but our team is hard at work. We hope to release Mod Tracker some time in the near future!
+<sup> README updated 3/18/2025
