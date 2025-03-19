@@ -1,5 +1,6 @@
 import sys
 from PyQt6 import QtCore, QtGui, QtWidgets, QtCharts
+import data
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
@@ -207,6 +208,8 @@ class Ui_MainWindow(object):
         # When the button is clicked, this function will run. Add your code here
         inputString = self.addModTextField.text()  # this gets the input from the text field
         print(inputString)
+
+        data.mod_info(data.mod_lookup(inputString))
         pass
 
 
