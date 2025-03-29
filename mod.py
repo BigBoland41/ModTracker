@@ -6,12 +6,20 @@ class ModPriority(object):
         self.blueColorValue = blue
 
 class Mod(object):
+    priority:ModPriority
+
+    __name:str
+    __ID:int
+    __versions:list[str]
+    __modrinth:bool
+    __curseforge:bool
+    
     def __init__(self, modName = "Untitled Mod", modID = -1, modVersions = ["No versions found"],
                  modPriority = ModPriority(), fromModrinth = False, fromCurseforge = False):
         self.__name = modName
         self.__ID = modID
         self.__versions = modVersions
-        self.__priority = modPriority
+        self.priority = modPriority
         self.__modrinth = fromModrinth
         self.__curseforge = fromCurseforge
 
@@ -26,9 +34,6 @@ class Mod(object):
 
     def getVersionList(self):
         return self.__versions
-    
-    def getPriorityLevel(self):
-        return self.__priority
 
     def _getCurrentVersion(self):
         pass
