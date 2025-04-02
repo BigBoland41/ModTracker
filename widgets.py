@@ -37,15 +37,14 @@ class ModTable():
         self.__priorityList = priorityList
         self.__selectedVersion = selectedVersion
         self.__reloadFunc = reloadFunc
+        self.__createTable()
         self.loadTable()
 
     def loadTable(self):
-        # create and configure table
-        self.__tableWidget = QtWidgets.QTableWidget(self.__parentWidget)
-        self.__tableWidget.setGeometry(QtCore.QRect(0, 0, self.__tableLength, self.__tableHeight))
-        self.__tableWidget.setObjectName("tableWidget")
-        self.__tableWidget.setColumnCount(self.__numColumns)
+        # set the row count to make the amount of mods in the list
         self.__tableWidget.setRowCount(len(self.__modList))
+
+        # prepare font
         font = QtGui.QFont()
         font.setPointSize(self.__fontSize)
         self.__tableWidget.setFont(font)
@@ -64,13 +63,19 @@ class ModTable():
         for row in range(len(self.__modList)):
             self.__setTableRow(row, self.__modList[row])
             self.__tableWidget.setRowHeight(row, self.__rowHeight)
-            # self.__createDropdownBtn(row, self.__modList[row])
 
     def reloadTableRow(self, rowNum):
         self.__setTableRow(rowNum, self.__modList[rowNum])
 
     def getModList(self):
         return self.__modList
+    
+    # create and configure table
+    def __createTable(self):
+        self.__tableWidget = QtWidgets.QTableWidget(self.__parentWidget)
+        self.__tableWidget.setGeometry(QtCore.QRect(0, 0, self.__tableLength, self.__tableHeight))
+        self.__tableWidget.setObjectName("tableWidget")
+        self.__tableWidget.setColumnCount(self.__numColumns)
     
     # adds a row to the table with the proper mod information
     def __setTableRow(self, rowNum, mod):
@@ -101,6 +106,7 @@ class ModTable():
         self.__tableWidget.setCellWidget(rowNum, 2, dropdownBtn.getButtonWidget())
 
 class DropdownBtn():
+    __parentWidget:QtWidgets.QWidget
     __buttonWidget:QtWidgets.QPushButton
     __menuWidget:QtWidgets.QMenu
     __mod:mod.Mod
@@ -110,29 +116,39 @@ class DropdownBtn():
 
     def __init__(self, parentWidget:QtWidgets.QWidget, mod:mod.Mod, priorityList:list[mod.ModPriority],
                  refreshFunc, rowNum:int, isReady:bool, fontSize:int):
+        # set attributes
+        self.__parentWidget = parentWidget
         self.__mod = mod
         self.__priorityList = priorityList
         self.__refreshFunc = refreshFunc
         self.__rowNum = rowNum
         self.__fontSize = fontSize
 
+        # run setup functions
+        self.__createButtonWidget()
+        self.__createMenuWidget()
+        self.__customizeAppearance(isReady)
+
+    def __createButtonWidget(self):
         # create button
-        self.__buttonWidget = QtWidgets.QPushButton(parent=parentWidget)
+        self.__buttonWidget = QtWidgets.QPushButton(parent=self.__parentWidget)
 
         # making the lambda its own function doesn't work for some reason
         self.__buttonWidget.clicked.connect(
             lambda : self.__menuWidget.exec(
                 self.__buttonWidget.mapToGlobal(self.__buttonWidget.rect().bottomLeft())))
+        
+    def __createMenuWidget(self):
+        # create dropdown menu
+        self.__menuWidget = QtWidgets.QMenu(self.__parentWidget)
 
-        self.__menuWidget = QtWidgets.QMenu(parentWidget)
-
+        # add priority levels to action list
         i = 0
         for priorityLevel in self.__priorityList:
             self.__menuWidget.addAction(priorityLevel.name,
                                         lambda index=i : self.__changeModPriority(index))
             i += 1
-
-        self.__customizeAppearance(isReady)
+        self.__menuWidget.addAction("Add Priority Level", self.__showColorPicker)
 
     def __customizeAppearance(self, isReady:bool):
         # If the mod version matches the selected version...
@@ -142,10 +158,7 @@ class DropdownBtn():
             self.__buttonWidget.setText("Ready")
         else:
             # set color to priority level color and set text to priority level name
-            backgroundColor = QtGui.QColor(
-                self.__mod.priority.redColorValue,
-                self.__mod.priority.greenColorValue,
-                self.__mod.priority.blueColorValue)
+            backgroundColor = self.__mod.priority.color
             self.__buttonWidget.setText(self.__mod.priority.name)
         
         # set the background color the one chosen above
@@ -153,9 +166,22 @@ class DropdownBtn():
                                           + f"color: black;"
                                           + f"font-size: {self.__fontSize}px;")
 
-    def __changeModPriority(self, index):
+    def __changeModPriority(self, index, refreshEverything = False):
         self.__mod.priority = self.__priorityList[index]
-        self.__refreshFunc(self.__rowNum)
+        self.__refreshFunc(self.__rowNum, refreshEverything)
+
+    def __showColorPicker(self):
+        inputStr, okPressed = QtWidgets.QInputDialog.getText(self.__parentWidget,
+                                                  "Create new priority level", "Priority name:")
+        
+        if okPressed:
+            selectedColor = QtWidgets.QColorDialog.getColor()
+            if (selectedColor.isValid()):
+                self.__addModPriority(inputStr, selectedColor)
+
+    def __addModPriority(self, modName:str, color:QtGui.QColor):
+        self.__priorityList.append(mod.ModPriority(modName, color=color))
+        self.__changeModPriority(len(self.__priorityList) - 1, True)
     
     def getButtonWidget(self):
         return self.__buttonWidget
@@ -236,14 +262,8 @@ class PieChart():
             if priority == self.__readySlice:
                 slice.setExploded()
 
-            slice.setColor(QtGui.QColor(
-                priority.redColorValue,
-                priority.greenColorValue,
-                priority.blueColorValue))
-            slice.setBorderColor(QtGui.QColor(
-                priority.redColorValue,
-                priority.greenColorValue,
-                priority.blueColorValue))
+            slice.setColor(priority.color)
+            slice.setBorderColor(priority.color)
 
             slice.setLabelVisible()
             slice.setLabelFont(label_font)

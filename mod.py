@@ -1,9 +1,15 @@
+from PyQt6 import QtGui
+
 class ModPriority(object):
-    def __init__(self, newName = "New Priority Level", red = 255, green = 255, blue = 255):
+    name:str
+    color:QtGui.QColor
+
+    def __init__(self, newName = "New Priority Level", red = 255, green = 255, blue = 255, color:QtGui.QColor = None):
         self.name = newName
-        self.redColorValue = red
-        self.greenColorValue = green
-        self.blueColorValue = blue
+        if color == None:
+            self.color = QtGui.QColor(red, green, blue)
+        else:
+            self.color = color
 
 class Mod(object):
     priority:ModPriority
