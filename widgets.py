@@ -41,6 +41,7 @@ class ModTable():
 
     def loadTable(self):
         # create and configure table
+        print(len(self.__modList))
         self.__tableWidget = QtWidgets.QTableWidget(self.__parentWidget)
         self.__tableWidget.setGeometry(QtCore.QRect(0, 0, self.__tableLength, self.__tableHeight))
         self.__tableWidget.setObjectName("tableWidget")
@@ -72,8 +73,12 @@ class ModTable():
     def getModList(self):
         return self.__modList
     
+    def setModList(self, newList):
+        self.__modList = newList
+    
     # adds a row to the table with the proper mod information
     def __setTableRow(self, rowNum, mod):
+        print(f"{mod}, {rowNum}")
         for col in range(self.__numColumns):
             # set the font size
             item = QtWidgets.QTableWidgetItem()

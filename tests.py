@@ -1,13 +1,16 @@
 import data
+import mod
 import unittest
 class testAPICalls(unittest.TestCase):
 
-    def testUrlSearch(self):
-        self.assertEqual(data.mod_lookup("https://www.curseforge.com/minecraft/mc-mods/worldedit"), 225608)
-        self.assertEqual(data.mod_lookup("https://www.curseforge.com/minecraft/mc-mods/sodium"), 394468)
-        self.assertEqual(data.mod_lookup("https://www.curseforge.com/minecraft/mc-mods/lithium"), 360438)
-        self.assertEqual(data.mod_lookup("https://www.curseforge.com/minecraft/mc-mods/old-combat"), 317035)
-        self.assertEqual(data.mod_lookup("https://www.curseforge.com/minecraft/mc-mods/litematica"), 308892)
+    #
+
+
+    def testMod(self):
+        modObj = mod.Mod(url ="https://modrinth.com/mod/sodium")
+        self.assertNotEqual(modObj.modrinth, False)
+        self.assertEqual(modObj.getCurrentVersion(), "1.21.5")
+        self.assertEqual(modObj.getID(), "AANobbMI")
 
 
 if __name__ == "__main__":

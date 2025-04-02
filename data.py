@@ -80,17 +80,17 @@ def mod_info(modID):
         return None
 
     mod = response.json().get("data", [])
-    #with open("mod_info.json", "w") as json_file:
-    #    json.dump(mod, json_file, indent=4)
+    with open("mod_info.json", "w") as json_file:
+        json.dump(mod, json_file, indent=4)
     #print(mod)
     latestFiles = mod['latestFiles']
-    d = latestFiles[0] 
-    print(f"Mod name: {mod['name']}, Mod Version: {d['sortableGameVersions'][0]['gameVersion']}")
+    d = latestFiles[-1] 
+    print(f"Mod name: {mod['name']}, Mod Version: {d['sortableGameVersions'][-1]['gameVersion']}")
 
 
 
 if __name__ == "__main__":
-    results = search_mod("old-combat")
+    results = search_mod("worldedit")
     if(results != None):
         for id, name in results:
             print(f"Mod ID: {id} - name: {name}")
@@ -98,4 +98,4 @@ if __name__ == "__main__":
         print("got noting")
 
     print(mod_lookup("https://www.curseforge.com/minecraft/mc-mods/worldedit"))
-    mod_info(317035)
+    mod_info(225608)

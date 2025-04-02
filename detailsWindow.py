@@ -24,7 +24,7 @@ class DetailsWindow(object):
         
         self.__pieChartWidget = widgets.PieChart(self.__centralwidget, self.__modList, self.__selectedVersion)
         self.__tableWidget = widgets.ModTable(self.__centralwidget, self.__modList, self.__priorityList,
-                                              self.__selectedVersion, self.__reloadWidgets)
+                                              self.__selectedVersion, self.__reloadWidgetsSingle)
 
         self.__createAddModTextField()
         self.__createAddModBtn()
@@ -51,9 +51,10 @@ class DetailsWindow(object):
     def __reloadWidgets(self):
         self.__pieChartWidget.loadChart()
         self.__tableWidget.loadTable()
+        #print(self.__modList[0])
 
     # Only reloads what necessary to account for a single row updating
-    def __reloadWidgets(self, rowNum):
+    def __reloadWidgetsSingle(self, rowNum):
         self.__pieChartWidget.loadChart()
         self.__tableWidget.reloadTableRow(rowNum)
 
@@ -86,7 +87,11 @@ class DetailsWindow(object):
         inputString = self.__addModTextField.text()  # this gets the input from the text field
         print(inputString)
 
-        data.mod_info(data.mod_lookup(inputString))
+        newMod = mod.Mod(url = inputString, modPriority=mod.ModPriority("Low Priority", 255, 255, 0))
+        self.__modList.append(newMod)
+        self.__tableWidget.setModList(self.__modList)
+        #print(self.__tableWidget.getModList()[0])
+        self.__reloadWidgets()
 
 # Main function for testing: open a mock profile with mock information
 if __name__ == "__main__":
@@ -117,4 +122,5 @@ if __name__ == "__main__":
                mod.Mod("Advancements Reloaded", 22, ["1.21.4","1.21.3","1.21.2", "1.21.1", "1.21"], lowPriority),
                mod.Mod("Mod Menu", 23, ["1.21.5","1.21.4","1.21.3","1.21.2", "1.21.1", "1.21"], lowPriority),
                ]
-    profileView = DetailsWindow(modList, priorityList, "1.21.5")
+    newList = []
+    profileView = DetailsWindow(newList, priorityList, "1.21.5")
