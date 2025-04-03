@@ -1,5 +1,5 @@
 ('C:\\Users\\steph\\OneDrive\\Documents\\GitHub\\Mod '
- 'Tracker\\build\\prototypeUI\\PYZ-00.pyz',
+ 'Tracker\\build\\detailsWindow\\PYZ-00.pyz',
  [('PyQt6',
    'c:\\Users\\steph\\OneDrive\\Documents\\GitHub\\Mod '
    'Tracker\\.venv\\Lib\\site-packages\\PyQt6\\__init__.py',
@@ -337,6 +337,9 @@
   ('mimetypes',
    'C:\\Users\\steph\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\mimetypes.py',
    'PYMODULE'),
+  ('mod',
+   'C:\\Users\\steph\\OneDrive\\Documents\\GitHub\\Mod Tracker\\mod.py',
+   'PYMODULE'),
   ('netrc',
    'C:\\Users\\steph\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\netrc.py',
    'PYMODULE'),
@@ -654,6 +657,9 @@
   ('urllib3.util.wait',
    'c:\\Users\\steph\\OneDrive\\Documents\\GitHub\\Mod '
    'Tracker\\.venv\\Lib\\site-packages\\urllib3\\util\\wait.py',
+   'PYMODULE'),
+  ('widgets',
+   'C:\\Users\\steph\\OneDrive\\Documents\\GitHub\\Mod Tracker\\widgets.py',
    'PYMODULE'),
   ('zipfile',
    'C:\\Users\\steph\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\zipfile\\__init__.py',

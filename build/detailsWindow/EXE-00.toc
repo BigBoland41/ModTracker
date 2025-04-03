@@ -1,5 +1,5 @@
 ('C:\\Users\\steph\\OneDrive\\Documents\\GitHub\\Mod '
- 'Tracker\\build\\prototypeUI\\prototypeUI.exe',
+ 'Tracker\\build\\detailsWindow\\detailsWindow.exe',
  True,
  False,
  True,
@@ -32,31 +32,31 @@
  None,
  None,
  'C:\\Users\\steph\\OneDrive\\Documents\\GitHub\\Mod '
- 'Tracker\\build\\prototypeUI\\prototypeUI.pkg',
+ 'Tracker\\build\\detailsWindow\\detailsWindow.pkg',
  [('pyi-contents-directory _internal', '', 'OPTION'),
   ('PYZ-00.pyz',
    'C:\\Users\\steph\\OneDrive\\Documents\\GitHub\\Mod '
-   'Tracker\\build\\prototypeUI\\PYZ-00.pyz',
+   'Tracker\\build\\detailsWindow\\PYZ-00.pyz',
    'PYZ'),
   ('struct',
    'C:\\Users\\steph\\OneDrive\\Documents\\GitHub\\Mod '
-   'Tracker\\build\\prototypeUI\\localpycs\\struct.pyc',
+   'Tracker\\build\\detailsWindow\\localpycs\\struct.pyc',
    'PYMODULE'),
   ('pyimod01_archive',
    'C:\\Users\\steph\\OneDrive\\Documents\\GitHub\\Mod '
-   'Tracker\\build\\prototypeUI\\localpycs\\pyimod01_archive.pyc',
+   'Tracker\\build\\detailsWindow\\localpycs\\pyimod01_archive.pyc',
    'PYMODULE'),
   ('pyimod02_importers',
    'C:\\Users\\steph\\OneDrive\\Documents\\GitHub\\Mod '
-   'Tracker\\build\\prototypeUI\\localpycs\\pyimod02_importers.pyc',
+   'Tracker\\build\\detailsWindow\\localpycs\\pyimod02_importers.pyc',
    'PYMODULE'),
   ('pyimod03_ctypes',
    'C:\\Users\\steph\\OneDrive\\Documents\\GitHub\\Mod '
-   'Tracker\\build\\prototypeUI\\localpycs\\pyimod03_ctypes.pyc',
+   'Tracker\\build\\detailsWindow\\localpycs\\pyimod03_ctypes.pyc',
    'PYMODULE'),
   ('pyimod04_pywin32',
    'C:\\Users\\steph\\OneDrive\\Documents\\GitHub\\Mod '
-   'Tracker\\build\\prototypeUI\\localpycs\\pyimod04_pywin32.pyc',
+   'Tracker\\build\\detailsWindow\\localpycs\\pyimod04_pywin32.pyc',
    'PYMODULE'),
   ('pyiboot01_bootstrap',
    'c:\\Users\\steph\\OneDrive\\Documents\\GitHub\\Mod '
@@ -74,13 +74,14 @@
    'C:\\Users\\steph\\OneDrive\\Documents\\GitHub\\Mod '
    'Tracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_pkgutil.py',
    'PYSOURCE'),
-  ('prototypeUI',
-   'C:\\Users\\steph\\OneDrive\\Documents\\GitHub\\Mod Tracker\\prototypeUI.py',
+  ('detailsWindow',
+   'C:\\Users\\steph\\OneDrive\\Documents\\GitHub\\Mod '
+   'Tracker\\detailsWindow.py',
    'PYSOURCE')],
  [],
  False,
  False,
- 1742347597,
+ 1743638982,
  [('run.exe',
    'c:\\Users\\steph\\OneDrive\\Documents\\GitHub\\Mod '
    'Tracker\\.venv\\Lib\\site-packages\\PyInstaller\\bootloader\\Windows-64bit-intel\\run.exe',
