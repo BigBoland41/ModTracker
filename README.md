@@ -4,11 +4,16 @@ Mod tracker is an app that helps you keep track of the mods you've been so patie
 
 # How To Run
 
-Run the prototypeUI executable found in dist\prototypeUI
+To run application, either...
+- Run dist/detailsWindow/detailsWindow.exe
+OR
+- Install Python 3, then install the PyQt6, requests, and PyQt6-Charts libraries using pip install PyQt6 and pip install requests.
+- Run the detailsWindow.py file.
 
-Alternatively:
-- Install Python 3, then install the PyQt6 and requests libraries using pip install PyQt6 and pip install requests.
-- Run the prototypeUI.py file.
+Generate an executable by:
+- Install the pyinstaller library (make sure you also have other libraries installed)
+- Run pyinstaller detailsWindow.py
+- The executable can then be found in the newly generated dist/detailsWindow directory
 
 To run unit tests, run the tests.py file.
 

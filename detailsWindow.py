@@ -47,16 +47,12 @@ class DetailsWindow(object):
         MainWindow.setStatusBar(self.__statusbar)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-    # Reloads all widgets
-    def __reloadWidgets(self):
+    def __reloadWidgets(self, rowNum, reloadEverything = False):
         self.__pieChartWidget.loadChart()
-        self.__tableWidget.loadTable()
-        #print(self.__modList[0])
-
-    # Only reloads what necessary to account for a single row updating
-    def __reloadWidgetsSingle(self, rowNum):
-        self.__pieChartWidget.loadChart()
-        self.__tableWidget.reloadTableRow(rowNum)
+        if (reloadEverything):
+            self.__tableWidget.loadTable()
+        else:
+            self.__tableWidget.reloadTableRow(rowNum)
 
     # creates the add mod text input field,
     # where the user can input the URL of the mod they want to add.

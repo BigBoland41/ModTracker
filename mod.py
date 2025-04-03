@@ -1,15 +1,15 @@
-import requests
-import re
+from PyQt6 import QtGui
 
 class ModPriority(object):
-    def __init__(self, newName = "New Priority Level", red = 255, green = 255, blue = 255):
-        self.name = newName
-        self.redColorValue = red
-        self.greenColorValue = green
-        self.blueColorValue = blue
+    name:str
+    color:QtGui.QColor
 
-    def __str__(self):
-        return self.name
+    def __init__(self, newName = "New Priority Level", red = 255, green = 255, blue = 255, color:QtGui.QColor = None):
+        self.name = newName
+        if color == None:
+            self.color = QtGui.QColor(red, green, blue)
+        else:
+            self.color = color
 
 class Mod(object):
     priority:ModPriority
