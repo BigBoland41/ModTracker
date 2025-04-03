@@ -1,4 +1,5 @@
 import requests
+import re
 
 class ModPriority(object):
     def __init__(self, newName = "New Priority Level", red = 255, green = 255, blue = 255):
@@ -49,6 +50,9 @@ class Mod(object):
     
     def getVersionList(self):
         return self.versions
+    
+    def getURL(self):
+        return self.url
 
     def _getCurrentVersion(self):
         pass
@@ -60,6 +64,8 @@ class Mod(object):
         pass
 
     def getData(self):
+        apiKey = "$2a$10$QIDeQbKDRhOQZgmcVHKxYeTSI/RlHH8oOzRnPhd6Rb4Dcj2l3k27a"
+        # modrinth data
         mod_slug = self.url.rstrip("/").split("/")[-1]
         url = f"https://api.modrinth.com/v2/project/{mod_slug}"
         response = requests.get(url)
@@ -68,6 +74,20 @@ class Mod(object):
             self.modrinth = response.json()  
         else:
             print(f"Error: {response.status_code}, {response.text}")
+
+        # curseforge data
+        headers = {"x-api-key": apiKey}
+        params = {"gameId": 432, "searchFilter": mod_slug}  # 432 = Minecraft
+        response = requests.get(f"https://api.curseforge.com/v1/mods/search", headers=headers, params=params)
+        if(response.status_code == 200):
+            modList = response.json().get("data", [])
+            for mod in modList:
+                print(mod["slug"])
+                if mod["slug"] == mod_slug:
+                   self.curseforge = mod
+        else: 
+            print(f"Error: {response.status_code}, {response.text}")
+
     
     def extractModrinth(self):
         if (self.modrinth == -1):

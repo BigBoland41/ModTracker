@@ -123,4 +123,4 @@ if __name__ == "__main__":
                mod.Mod("Mod Menu", 23, ["1.21.5","1.21.4","1.21.3","1.21.2", "1.21.1", "1.21"], lowPriority),
                ]
     newList = []
-    profileView = DetailsWindow(newList, priorityList, "1.21.5")
+    profileView = DetailsWindow(modList, priorityList, "1.21.5")
