@@ -14,65 +14,64 @@ class ModPriority(object):
 
 class Mod(object):
     priority:ModPriority
-    name:str
-    url:str
-    ID:int
-    versions:list[str]
-    modrinth:dict
-    curseforge:dict
+    _name:str
+    _url:str
+    _ID:int
+    _versions:list[str]
+    _modrinthData:dict
+    _curseforgeData:dict
     
     # can pass mod info directly for testing, but can also just call constructor with a url and it will get all 
     # relevant info from the api and store it all
     def __init__(self, modName = "Untitled Mod", modID = -1, modVersions = ["No versions found"],
                  modPriority = ModPriority(), fromModrinth = False, fromCurseforge = False, url = -1):
-        self.name = modName
-        self.ID = modID
-        self.url = url
-        self.versions = modVersions
         self.priority = modPriority
-        self.modrinth = fromModrinth
-        self.curseforge = fromCurseforge
+        self._name = modName
+        self._ID = modID
+        self._url = url
+        self._versions = modVersions
+        self._modrinthData = fromModrinth
+        self._curseforgeData = fromCurseforge
 
         if(url != -1):
             self.refreshMod()
 
     def __str__(self):
-        return f"{self.name} version: {self.getCurrentVersion()}, priority: {self.priority}"
-
+        return f"{self._name} version: {self.getCurrentVersion()}, priority: {self.priority}"
 
     def getName(self):
-        return self.name
+        return self._name
     
     def getID(self):
-        return self.ID
+        return self._ID
 
     def getCurrentVersion(self):
-        return self.versions[-1]
+        return self._versions[-1]
     
     def getVersionList(self):
-        return self.versions
+        return self._versions
     
     def getURL(self):
-        return self.url
+        return self._url
 
-    def _getCurrentVersion(self):
-        pass
-
-    def _getVersions(self):
-        pass
+    def getVersions(self):
+        return self._versions
     
-    def _getModID(self):
-        pass
+    def getModrinthData(self):
+        return self._modrinthData
+    
+    def getCurseforgeData(self):
+        return self._curseforgeData
 
     def getData(self):
         apiKey = "$2a$10$QIDeQbKDRhOQZgmcVHKxYeTSI/RlHH8oOzRnPhd6Rb4Dcj2l3k27a"
         # modrinth data
-        mod_slug = self.url.rstrip("/").split("/")[-1]
+        mod_slug = self._url.rstrip("/").split("/")[-1]
         url = f"https://api.modrinth.com/v2/project/{mod_slug}"
         response = requests.get(url)
         
         if response.status_code == 200:
-            self.modrinth = response.json()  
+            self._modrinthData = response.json()  
         else:
             print(f"Error: {response.status_code}, {response.text}")
 
@@ -83,19 +82,19 @@ class Mod(object):
         if(response.status_code == 200):
             modList = response.json().get("data", [])
             for mod in modList:
-                print(mod["slug"])
+                # print(mod["slug"])
                 if mod["slug"] == mod_slug:
-                   self.curseforge = mod
+                   self._curseforgeData = mod
         else: 
             print(f"Error: {response.status_code}, {response.text}")
 
     
     def extractModrinth(self):
-        if (self.modrinth == -1):
+        if (self._modrinthData == -1):
             return -1
-        self.name = self.modrinth["title"]
-        self.ID = self.modrinth["id"]
-        self.versions = self.modrinth["game_versions"]
+        self._name = self._modrinthData["title"]
+        self._ID = self._modrinthData["id"]
+        self._versions = self._modrinthData["game_versions"]
 
     def refreshMod(self):
         self.getData()
