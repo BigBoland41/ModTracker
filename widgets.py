@@ -3,91 +3,92 @@ import mod
 
 class ModTable():
     # How long the table is, in pixels
-    __tableLength = 1000
+    _tableLength = 1000
     # How tall the table is, in pixels
-    __tableHeight = 900
+    _tableHeight = 900
     # Height of the headings
-    __headingHeight = 40
+    _headingHeight = 40
 
     # Number of columns in the table
-    __numColumns = 3
+    _numColumns = 3
     # Names of the columns
-    __columnNames = ["Mod Name", "Latest Version", "Ready/Priority"]
+    _columnNames = ["Mod Name", "Latest Version", "Ready/Priority"]
     # Widths of the columns
-    __columnWidths = [500, 170, 285]
+    _columnWidths = [500, 170, 285]
     # Height of the rows
-    __rowHeight = 50
+    _rowHeight = 50
 
     # The font size for everything in the table
-    __fontSize = 14
+    _fontSize = 14
 
+    # The PyQt6 table widget we are managing
+    _tableWidget:QtWidgets.QTableWidget
     # The parent object this widget is attached to
-    __parentWidget:QtWidgets.QWidget
+    _parentWidget:QtWidgets.QWidget
     # The list of mod to display
-    __modList:list[mod.Mod]
+    _modList:list[mod.Mod]
     # The list of priority levels
-    __priorityList:list[mod.ModPriority]
+    _priorityList:list[mod.ModPriority]
     # The selected version for this profile
-    __selectedVersion:str
+    _selectedVersion:str
     
     def __init__(self, parent:QtWidgets.QWidget, modList:list[mod.Mod], priorityList:list[mod.ModPriority],
                  selectedVersion:str, reloadFunc):
-        self.__parentWidget = parent
-        self.__modList = modList
-        self.__priorityList = priorityList
-        self.__selectedVersion = selectedVersion
-        self.__reloadFunc = reloadFunc
-        self.__createTable()
+        self._parentWidget = parent
+        self._modList = modList
+        self._priorityList = priorityList
+        self._selectedVersion = selectedVersion
+        self._reloadFunc = reloadFunc
+        self._createTable()
         self.loadTable()
 
     def loadTable(self):
         # set the row count to make the amount of mods in the list
-        self.__tableWidget.setRowCount(len(self.__modList))
+        self._tableWidget.setRowCount(len(self._modList))
 
         # prepare font
         font = QtGui.QFont()
-        font.setPointSize(self.__fontSize)
-        self.__tableWidget.setFont(font)
+        font.setPointSize(self._fontSize)
+        self._tableWidget.setFont(font)
 
         # configure headings
-        for col in range(self.__numColumns):
+        for col in range(self._numColumns):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(18)
             item.setFont(font)
-            item.setText(self.__columnNames[col])
-            self.__tableWidget.setHorizontalHeaderItem(col, item)
-            self.__tableWidget.setColumnWidth(col, self.__columnWidths[col])
+            item.setText(self._columnNames[col])
+            self._tableWidget.setHorizontalHeaderItem(col, item)
+            self._tableWidget.setColumnWidth(col, self._columnWidths[col])
 
         # add rows to table and set row height
-        for row in range(len(self.__modList)):
-            self.__setTableRow(row, self.__modList[row])
-            self.__tableWidget.setRowHeight(row, self.__rowHeight)
+        for row in range(len(self._modList)):
+            self._setTableRow(row, self._modList[row])
+            self._tableWidget.setRowHeight(row, self._rowHeight)
 
     def reloadTableRow(self, rowNum):
-        self.__setTableRow(rowNum, self.__modList[rowNum])
+        self._setTableRow(rowNum, self._modList[rowNum])
 
     def getModList(self):
-        return self.__modList
+        return self._modList
     
     def setModList(self, newList):
-        self.__modList = newList
+        self._modList = newList
     # create and configure table
-    def __createTable(self):
-        self.__tableWidget = QtWidgets.QTableWidget(self.__parentWidget)
-        self.__tableWidget.setGeometry(QtCore.QRect(0, 0, self.__tableLength, self.__tableHeight))
-        self.__tableWidget.setObjectName("tableWidget")
-        self.__tableWidget.setColumnCount(self.__numColumns)
+    def _createTable(self):
+        self._tableWidget = QtWidgets.QTableWidget(self._parentWidget)
+        self._tableWidget.setGeometry(QtCore.QRect(0, 0, self._tableLength, self._tableHeight))
+        self._tableWidget.setObjectName("tableWidget")
+        self._tableWidget.setColumnCount(self._numColumns)
     
     
     # adds a row to the table with the proper mod information
-    def __setTableRow(self, rowNum, mod):
-        print(f"{mod}, {rowNum}")
-        for col in range(self.__numColumns):
+    def _setTableRow(self, rowNum, mod):
+        for col in range(self._numColumns):
             # set the font size
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
-            font.setPointSize(self.__fontSize)
+            font.setPointSize(self._fontSize)
             item.setFont(font)
 
             # Set the correct text for each item in the row
@@ -98,136 +99,147 @@ class ModTable():
                     item.setText(mod.getCurrentVersion())
                 case 2:
                     # create dropdown button and put add it to this table item
-                    self.__createDropdownBtn(rowNum, mod)
+                    self._createDropdownBtn(rowNum, mod)
 
             #apply changes
-            self.__tableWidget.setItem(rowNum, col, item)
+            self._tableWidget.setItem(rowNum, col, item)
 
     # creates all the buttons that reveal the priority dropdown menu
-    def __createDropdownBtn(self, rowNum, mod):
-        dropdownBtn = DropdownBtn(self.__parentWidget, mod, self.__priorityList, self.__reloadFunc,
-                                  rowNum, mod.getCurrentVersion() == self.__selectedVersion, self.__fontSize)
-        self.__tableWidget.setCellWidget(rowNum, 2, dropdownBtn.getButtonWidget())
+    def _createDropdownBtn(self, rowNum, mod):
+        dropdownBtn = DropdownBtn(self._parentWidget, mod, self._priorityList, self._reloadFunc,
+                                  rowNum, mod.getCurrentVersion() == self._selectedVersion, self._fontSize)
+        self._tableWidget.setCellWidget(rowNum, 2, dropdownBtn.getButtonWidget())
+
+    # Getters
+    def getRowName(self, rowNum:int):
+        return self._tableWidget.item(rowNum, 0).text()
+    
+    def getRowVersion(self, rowNum:int):
+        return self._tableWidget.item(rowNum, 1).text()
+
+    def getRowPriority(self, rowNum:int):
+        return self._tableWidget.cellWidget(rowNum, 2).text()
+
 
 class DropdownBtn():
-    __parentWidget:QtWidgets.QWidget
-    __buttonWidget:QtWidgets.QPushButton
-    __menuWidget:QtWidgets.QMenu
-    __mod:mod.Mod
-    __priorityList:list[mod.ModPriority]
-    __rowNum:int
-    __fontSize:int
+    _parentWidget:QtWidgets.QWidget
+    _buttonWidget:QtWidgets.QPushButton
+    _menuWidget:QtWidgets.QMenu
+    _mod:mod.Mod
+    _priorityList:list[mod.ModPriority]
+    _rowNum:int
+    _fontSize:int
 
     def __init__(self, parentWidget:QtWidgets.QWidget, mod:mod.Mod, priorityList:list[mod.ModPriority],
                  refreshFunc, rowNum:int, isReady:bool, fontSize:int):
         # set attributes
-        self.__parentWidget = parentWidget
-        self.__mod = mod
-        self.__priorityList = priorityList
-        self.__refreshFunc = refreshFunc
-        self.__rowNum = rowNum
-        self.__fontSize = fontSize
+        self._parentWidget = parentWidget
+        self._mod = mod
+        self._priorityList = priorityList
+        self._refreshFunc = refreshFunc
+        self._rowNum = rowNum
+        self._fontSize = fontSize
 
         # run setup functions
-        self.__createButtonWidget()
-        self.__createMenuWidget()
-        self.__customizeAppearance(isReady)
+        self._createButtonWidget()
+        self._createMenuWidget()
+        self._customizeAppearance(isReady)
 
-    def __createButtonWidget(self):
+    def _createButtonWidget(self):
         # create button
-        self.__buttonWidget = QtWidgets.QPushButton(parent=self.__parentWidget)
+        self._buttonWidget = QtWidgets.QPushButton(parent=self._parentWidget)
 
         # making the lambda its own function doesn't work for some reason
-        self.__buttonWidget.clicked.connect(
-            lambda : self.__menuWidget.exec(
-                self.__buttonWidget.mapToGlobal(self.__buttonWidget.rect().bottomLeft())))
+        self._buttonWidget.clicked.connect(
+            lambda : self._menuWidget.exec(
+                self._buttonWidget.mapToGlobal(self._buttonWidget.rect().bottomLeft())))
         
-    def __createMenuWidget(self):
+    def _createMenuWidget(self):
         # create dropdown menu
-        self.__menuWidget = QtWidgets.QMenu(self.__parentWidget)
+        self._menuWidget = QtWidgets.QMenu(self._parentWidget)
 
         # add priority levels to action list
         i = 0
-        for priorityLevel in self.__priorityList:
-            self.__menuWidget.addAction(priorityLevel.name,
-                                        lambda index=i : self.__changeModPriority(index))
+        for priorityLevel in self._priorityList:
+            self._menuWidget.addAction(priorityLevel.name,
+                                        lambda index=i : self._changeModPriority(index))
             i += 1
-        self.__menuWidget.addAction("Add Priority Level", self.__showColorPicker)
+        self._menuWidget.addAction("Add Priority Level", self._showColorPicker)
 
-    def __customizeAppearance(self, isReady:bool):
+    def _customizeAppearance(self, isReady:bool):
         # If the mod version matches the selected version...
         if (isReady):
             # set color to green and set text to ready
             backgroundColor = QtGui.QColor(0, 255, 0)
-            self.__buttonWidget.setText("Ready")
+            self._buttonWidget.setText("Ready")
         else:
             # set color to priority level color and set text to priority level name
-            backgroundColor = self.__mod.priority.color
-            self.__buttonWidget.setText(self.__mod.priority.name)
+            backgroundColor = self._mod.priority.color
+            self._buttonWidget.setText(self._mod.priority.name)
         
         # set the background color the one chosen above
-        self.__buttonWidget.setStyleSheet(f"background-color: {backgroundColor.name()};"
+        self._buttonWidget.setStyleSheet(f"background-color: {backgroundColor.name()};"
                                           + f"color: black;"
-                                          + f"font-size: {self.__fontSize}px;")
+                                          + f"font-size: {self._fontSize}px;")
 
-    def __changeModPriority(self, index, refreshEverything = False):
-        self.__mod.priority = self.__priorityList[index]
-        self.__refreshFunc(self.__rowNum, refreshEverything)
+    def _changeModPriority(self, index, refreshEverything = False):
+        self._mod.priority = self._priorityList[index]
+        self._refreshFunc(self._rowNum, refreshEverything)
 
-    def __showColorPicker(self):
-        inputStr, okPressed = QtWidgets.QInputDialog.getText(self.__parentWidget,
+    def _showColorPicker(self):
+        inputStr, okPressed = QtWidgets.QInputDialog.getText(self._parentWidget,
                                                   "Create new priority level", "Priority name:")
         
         if okPressed:
             selectedColor = QtWidgets.QColorDialog.getColor()
             if (selectedColor.isValid()):
-                self.__addModPriority(inputStr, selectedColor)
+                self._addModPriority(inputStr, selectedColor)
 
-    def __addModPriority(self, modName:str, color:QtGui.QColor):
-        self.__priorityList.append(mod.ModPriority(modName, color=color))
-        self.__changeModPriority(len(self.__priorityList) - 1, True)
+    def _addModPriority(self, modName:str, color:QtGui.QColor):
+        self._priorityList.append(mod.ModPriority(modName, color=color))
+        self._changeModPriority(len(self._priorityList) - 1, True)
     
     def getButtonWidget(self):
-        return self.__buttonWidget
+        return self._buttonWidget
 
 class PieChart():
-    __parentWidget: QtWidgets.QWidget
-    __modList: list[mod.Mod]
-    __selectedVersion: str
+    _parentWidget: QtWidgets.QWidget
+    _modList: list[mod.Mod]
+    _selectedVersion: str
 
-    __chartView: QtCharts.QChartView
-    __series: QtCharts.QPieSeries
-    __readySlice = mod.ModPriority("Ready", 0, 255, 0)
-    __sliceSizes = {__readySlice: 0}
+    _chartView: QtCharts.QChartView
+    _series: QtCharts.QPieSeries
+    _readySlice = mod.ModPriority("Ready", 0, 255, 0)
+    _sliceSizes = {_readySlice: 0}
 
-    __titleFontSize = 24
-    __labelFontSize = 14
+    _titleFontSize = 24
+    _labelFontSize = 14
 
     def __init__(self, parent: QtWidgets.QWidget, modList: list[mod.Mod], selectedVersion: str):
         # Assign variables
-        self.__parentWidget = parent
-        self.__modList = modList
-        self.__selectedVersion = selectedVersion
+        self._parentWidget = parent
+        self._modList = modList
+        self._selectedVersion = selectedVersion
 
-        self.__series = QtCharts.QPieSeries()
-        self.__chartView = QtCharts.QChartView(parent=self.__parentWidget)
-        self.__chartView.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
-        self.__chartView.setGeometry(QtCore.QRect(1000, 50, 900, 900))
+        self._series = QtCharts.QPieSeries()
+        self._chartView = QtCharts.QChartView(parent=self._parentWidget)
+        self._chartView.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
+        self._chartView.setGeometry(QtCore.QRect(1000, 50, 900, 900))
 
         self.loadChart()
 
     def loadChart(self):
         # Calculate the size of each slice
-        self.__calculateSliceSizes()
+        self._calculateSliceSizes()
 
         # Create chart and add pie slices to it
         chart = QtCharts.QChart()
-        self.__createSeries()
-        chart.addSeries(self.__series)
+        self._createSeries()
+        chart.addSeries(self._series)
 
         # Create title text
         title_font = QtGui.QFont()
-        title_font.setPointSize(self.__titleFontSize)
+        title_font.setPointSize(self._titleFontSize)
         chart.setTitle('Mod Priority Chart')
         chart.setTitleFont(title_font)
         chart.setTitleBrush(QtGui.QBrush(QtGui.QColor("white")))
@@ -237,33 +249,33 @@ class PieChart():
         chart.setBackgroundBrush(QtGui.QColor(0, 0, 0, 0))
 
         # Update the existing chart view
-        self.__chartView.setChart(chart)
+        self._chartView.setChart(chart)
 
-    def __calculateSliceSizes(self):
-        self.__sliceSizes = {self.__readySlice: 0}
-        for mod in self.__modList:
-            if mod.getCurrentVersion() == self.__selectedVersion:
-                self.__sliceSizes[self.__readySlice] += 1
+    def _calculateSliceSizes(self):
+        self._sliceSizes = {self._readySlice: 0}
+        for mod in self._modList:
+            if mod.getCurrentVersion() == self._selectedVersion:
+                self._sliceSizes[self._readySlice] += 1
             else:
-                if mod.priority in self.__sliceSizes:
-                    self.__sliceSizes[mod.priority] += 1
+                if mod.priority in self._sliceSizes:
+                    self._sliceSizes[mod.priority] += 1
                 else:
-                    self.__sliceSizes[mod.priority] = 1
+                    self._sliceSizes[mod.priority] = 1
 
-    def __createSeries(self):
+    def _createSeries(self):
         label_font = QtGui.QFont()
-        label_font.setPointSize(self.__labelFontSize)
+        label_font.setPointSize(self._labelFontSize)
 
         # Create and populate chart series
-        if not self.__series.isEmpty():
-            self.__series.clear()
+        if not self._series.isEmpty():
+            self._series.clear()
 
         i = 0
-        for priority, count in self.__sliceSizes.items():
-            self.__series.append(priority.name, count)
-            slice = self.__series.slices()[i]
+        for priority, count in self._sliceSizes.items():
+            self._series.append(priority.name, count)
+            slice = self._series.slices()[i]
 
-            if priority == self.__readySlice:
+            if priority == self._readySlice:
                 slice.setExploded()
 
             slice.setColor(priority.color)
