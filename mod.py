@@ -1,4 +1,5 @@
 from PyQt6 import QtGui
+import requests
 
 class ModPriority(object):
     name:str

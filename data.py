@@ -1,7 +1,7 @@
 import requests
 import json
 import re
-
+# was used for testing stuff, not part of build
 CFKEY = "$2a$10$QIDeQbKDRhOQZgmcVHKxYeTSI/RlHH8oOzRnPhd6Rb4Dcj2l3k27a"
 
 URL = "https://api.curseforge.com/v1/"
