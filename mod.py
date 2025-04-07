@@ -12,6 +12,9 @@ class ModPriority(object):
         else:
             self.color = color
 
+    def __str__(self):
+        return f"{self.name}"
+
 class Mod(object):
     priority:ModPriority
     _name:str

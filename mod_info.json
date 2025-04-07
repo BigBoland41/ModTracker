@@ -45,7 +45,7 @@
     },
     "summary": "The fastest and most compatible rendering optimization mod for Minecraft. Now available for both NeoForge and Fabric!",
     "status": 4,
-    "downloadCount": 60130591,
+    "downloadCount": 60685350,
     "isFeatured": false,
     "primaryCategoryId": 6814,
     "categories": [
@@ -79,202 +79,8 @@
         "thumbnailUrl": "https://media.forgecdn.net/avatars/thumbnails/284/773/256/256/637298471098686391.png",
         "url": "https://media.forgecdn.net/avatars/284/773/637298471098686391.png"
     },
-    "mainFileId": 6260639,
+    "mainFileId": 6382666,
     "latestFiles": [
-        {
-            "id": 6240357,
-            "gameId": 432,
-            "modId": 394468,
-            "isAvailable": true,
-            "displayName": "Sodium 0.6.10 for NeoForge",
-            "fileName": "sodium-neoforge-0.6.10+mc1.21.4.jar",
-            "releaseType": 1,
-            "fileStatus": 4,
-            "hashes": [
-                {
-                    "value": "f2274ef9999262dd6051257477f601c1aa5106a2",
-                    "algo": 1
-                },
-                {
-                    "value": "a1b3b5a853a17dd6b5c50c08339cd044",
-                    "algo": 2
-                }
-            ],
-            "fileDate": "2025-02-26T17:57:16.27Z",
-            "fileLength": 1160597,
-            "downloadCount": 31095,
-            "fileSizeOnDisk": 2211979,
-            "downloadUrl": "https://edge.forgecdn.net/files/6240/357/sodium-neoforge-0.6.10%2bmc1.21.4.jar",
-            "gameVersions": [
-                "Client",
-                "1.21.4",
-                "NeoForge"
-            ],
-            "sortableGameVersions": [
-                {
-                    "gameVersionName": "Client",
-                    "gameVersionPadded": "0",
-                    "gameVersion": "",
-                    "gameVersionReleaseDate": "2022-12-08T00:00:00Z",
-                    "gameVersionTypeId": 75208
-                },
-                {
-                    "gameVersionName": "1.21.4",
-                    "gameVersionPadded": "0000000001.0000000021.0000000004",
-                    "gameVersion": "1.21.4",
-                    "gameVersionReleaseDate": "2024-12-03T16:26:15.35Z",
-                    "gameVersionTypeId": 77784
-                },
-                {
-                    "gameVersionName": "NeoForge",
-                    "gameVersionPadded": "0",
-                    "gameVersion": "",
-                    "gameVersionReleaseDate": "2023-07-25T00:00:00Z",
-                    "gameVersionTypeId": 68441
-                }
-            ],
-            "dependencies": [],
-            "alternateFileId": 0,
-            "isServerPack": false,
-            "fileFingerprint": 2616831757,
-            "modules": [
-                {
-                    "name": "META-INF",
-                    "fingerprint": 3427806203
-                },
-                {
-                    "name": "net",
-                    "fingerprint": 641377297
-                },
-                {
-                    "name": "assets",
-                    "fingerprint": 4058891964
-                },
-                {
-                    "name": "sodium-icon.png",
-                    "fingerprint": 3041543243
-                },
-                {
-                    "name": "programmer_art",
-                    "fingerprint": 1942856804
-                },
-                {
-                    "name": "sodium-neoforge.mixins.json",
-                    "fingerprint": 2311644430
-                },
-                {
-                    "name": "sodium-common.mixins.json",
-                    "fingerprint": 3108063822
-                },
-                {
-                    "name": "LICENSE.md",
-                    "fingerprint": 2033162507
-                }
-            ]
-        },
-        {
-            "id": 6260639,
-            "gameId": 432,
-            "modId": 394468,
-            "isAvailable": true,
-            "displayName": "Sodium 0.5.13 for Fabric",
-            "fileName": "sodium-fabric-0.5.13+mc1.20.1.jar",
-            "releaseType": 1,
-            "fileStatus": 4,
-            "hashes": [
-                {
-                    "value": "bcdbf37d9494e405cba210d7a80ed58e756297b5",
-                    "algo": 1
-                },
-                {
-                    "value": "76e0349865f91f315aae087a6e88a84a",
-                    "algo": 2
-                }
-            ],
-            "fileDate": "2025-03-03T17:52:35.583Z",
-            "fileLength": 971552,
-            "downloadCount": 13050,
-            "fileSizeOnDisk": 1677523,
-            "downloadUrl": "https://edge.forgecdn.net/files/6260/639/sodium-fabric-0.5.13%2bmc1.20.1.jar",
-            "gameVersions": [
-                "Fabric",
-                "Client",
-                "1.20.1",
-                "Quilt"
-            ],
-            "sortableGameVersions": [
-                {
-                    "gameVersionName": "Fabric",
-                    "gameVersionPadded": "0",
-                    "gameVersion": "",
-                    "gameVersionReleaseDate": "2022-09-01T00:00:00Z",
-                    "gameVersionTypeId": 68441
-                },
-                {
-                    "gameVersionName": "Client",
-                    "gameVersionPadded": "0",
-                    "gameVersion": "",
-                    "gameVersionReleaseDate": "2022-12-08T00:00:00Z",
-                    "gameVersionTypeId": 75208
-                },
-                {
-                    "gameVersionName": "1.20.1",
-                    "gameVersionPadded": "0000000001.0000000020.0000000001",
-                    "gameVersion": "1.20.1",
-                    "gameVersionReleaseDate": "2023-06-12T14:26:38.477Z",
-                    "gameVersionTypeId": 75125
-                },
-                {
-                    "gameVersionName": "Quilt",
-                    "gameVersionPadded": "0",
-                    "gameVersion": "",
-                    "gameVersionReleaseDate": "2022-05-26T00:00:00Z",
-                    "gameVersionTypeId": 68441
-                }
-            ],
-            "dependencies": [],
-            "alternateFileId": 0,
-            "isServerPack": false,
-            "fileFingerprint": 2838862230,
-            "modules": [
-                {
-                    "name": "META-INF",
-                    "fingerprint": 749833142
-                },
-                {
-                    "name": "LICENSE.md",
-                    "fingerprint": 2033162507
-                },
-                {
-                    "name": "assets",
-                    "fingerprint": 325354063
-                },
-                {
-                    "name": "fabric.mod.json",
-                    "fingerprint": 903390105
-                },
-                {
-                    "name": "me",
-                    "fingerprint": 3611223524
-                },
-                {
-                    "name": "net",
-                    "fingerprint": 2520544528
-                },
-                {
-                    "name": "programmer_art",
-                    "fingerprint": 3326265311
-                },
-                {
-                    "name": "sodium.accesswidener",
-                    "fingerprint": 2039005151
-                },
-                {
-                    "name": "sodium.mixins.json",
-                    "fingerprint": 4005473548
-                }
-            ]
-        },
         {
             "id": 6348518,
             "gameId": 432,
@@ -472,9 +278,335 @@
                     "fingerprint": 2033162507
                 }
             ]
+        },
+        {
+            "id": 6382664,
+            "gameId": 432,
+            "modId": 394468,
+            "isAvailable": true,
+            "displayName": "Sodium 0.6.13 for Fabric",
+            "fileName": "sodium-fabric-0.6.13+mc1.21.5.jar",
+            "releaseType": 1,
+            "fileStatus": 4,
+            "hashes": [
+                {
+                    "value": "6a7132ea86653541fa53ef88c764c8ac0cde81cc",
+                    "algo": 1
+                },
+                {
+                    "value": "d36008a72882b8ccef234e715cf1e785",
+                    "algo": 2
+                }
+            ],
+            "fileDate": "2025-04-04T00:16:45.737Z",
+            "fileLength": 1336477,
+            "downloadCount": 0,
+            "fileSizeOnDisk": 2450991,
+            "downloadUrl": "https://edge.forgecdn.net/files/6382/664/sodium-fabric-0.6.13%2bmc1.21.5.jar",
+            "gameVersions": [
+                "1.21.5",
+                "Fabric",
+                "Client",
+                "Quilt"
+            ],
+            "sortableGameVersions": [
+                {
+                    "gameVersionName": "1.21.5",
+                    "gameVersionPadded": "0000000001.0000000021.0000000005",
+                    "gameVersion": "1.21.5",
+                    "gameVersionReleaseDate": "2025-03-25T16:46:25.94Z",
+                    "gameVersionTypeId": 77784
+                },
+                {
+                    "gameVersionName": "Fabric",
+                    "gameVersionPadded": "0",
+                    "gameVersion": "",
+                    "gameVersionReleaseDate": "2022-09-01T00:00:00Z",
+                    "gameVersionTypeId": 68441
+                },
+                {
+                    "gameVersionName": "Client",
+                    "gameVersionPadded": "0",
+                    "gameVersion": "",
+                    "gameVersionReleaseDate": "2022-12-08T00:00:00Z",
+                    "gameVersionTypeId": 75208
+                },
+                {
+                    "gameVersionName": "Quilt",
+                    "gameVersionPadded": "0",
+                    "gameVersion": "",
+                    "gameVersionReleaseDate": "2022-05-26T00:00:00Z",
+                    "gameVersionTypeId": 68441
+                }
+            ],
+            "dependencies": [],
+            "alternateFileId": 0,
+            "isServerPack": false,
+            "fileFingerprint": 3908175583,
+            "modules": [
+                {
+                    "name": "META-INF",
+                    "fingerprint": 1057345082
+                },
+                {
+                    "name": "LICENSE.md",
+                    "fingerprint": 2033162507
+                },
+                {
+                    "name": "assets",
+                    "fingerprint": 1442414562
+                },
+                {
+                    "name": "fabric.mod.json",
+                    "fingerprint": 881703643
+                },
+                {
+                    "name": "net",
+                    "fingerprint": 1436163366
+                },
+                {
+                    "name": "programmer_art",
+                    "fingerprint": 1942856804
+                },
+                {
+                    "name": "sodium-common.mixins.json",
+                    "fingerprint": 1904392073
+                },
+                {
+                    "name": "sodium-fabric.accesswidener",
+                    "fingerprint": 3298106147
+                },
+                {
+                    "name": "sodium-fabric.mixins.json",
+                    "fingerprint": 882284540
+                },
+                {
+                    "name": "sodium-icon.png",
+                    "fingerprint": 3041543243
+                }
+            ]
+        },
+        {
+            "id": 6382666,
+            "gameId": 432,
+            "modId": 394468,
+            "isAvailable": true,
+            "displayName": "Sodium 0.6.13 for NeoForge",
+            "fileName": "sodium-neoforge-0.6.13+mc1.21.5.jar",
+            "releaseType": 1,
+            "fileStatus": 4,
+            "hashes": [
+                {
+                    "value": "8e46bbbc115724bb830ca786a756f730d5b85a48",
+                    "algo": 1
+                },
+                {
+                    "value": "cb9665b1bd463a6186cdd2d80ea3a29d",
+                    "algo": 2
+                }
+            ],
+            "fileDate": "2025-04-04T00:17:10.47Z",
+            "fileLength": 1202318,
+            "downloadCount": 0,
+            "fileSizeOnDisk": 2271634,
+            "downloadUrl": "https://edge.forgecdn.net/files/6382/666/sodium-neoforge-0.6.13%2bmc1.21.5.jar",
+            "gameVersions": [
+                "1.21.5",
+                "Client",
+                "NeoForge"
+            ],
+            "sortableGameVersions": [
+                {
+                    "gameVersionName": "1.21.5",
+                    "gameVersionPadded": "0000000001.0000000021.0000000005",
+                    "gameVersion": "1.21.5",
+                    "gameVersionReleaseDate": "2025-03-25T16:46:25.94Z",
+                    "gameVersionTypeId": 77784
+                },
+                {
+                    "gameVersionName": "Client",
+                    "gameVersionPadded": "0",
+                    "gameVersion": "",
+                    "gameVersionReleaseDate": "2022-12-08T00:00:00Z",
+                    "gameVersionTypeId": 75208
+                },
+                {
+                    "gameVersionName": "NeoForge",
+                    "gameVersionPadded": "0",
+                    "gameVersion": "",
+                    "gameVersionReleaseDate": "2023-07-25T00:00:00Z",
+                    "gameVersionTypeId": 68441
+                }
+            ],
+            "dependencies": [],
+            "alternateFileId": 0,
+            "isServerPack": false,
+            "fileFingerprint": 1183023508,
+            "modules": [
+                {
+                    "name": "META-INF",
+                    "fingerprint": 1041227669
+                },
+                {
+                    "name": "net",
+                    "fingerprint": 1862197548
+                },
+                {
+                    "name": "assets",
+                    "fingerprint": 1442414562
+                },
+                {
+                    "name": "sodium-icon.png",
+                    "fingerprint": 3041543243
+                },
+                {
+                    "name": "programmer_art",
+                    "fingerprint": 1942856804
+                },
+                {
+                    "name": "sodium-neoforge.mixins.json",
+                    "fingerprint": 3809295926
+                },
+                {
+                    "name": "sodium-common.mixins.json",
+                    "fingerprint": 1904392073
+                },
+                {
+                    "name": "LICENSE.md",
+                    "fingerprint": 2033162507
+                }
+            ]
         }
     ],
     "latestFilesIndexes": [
+        {
+            "gameVersion": "1.21.5",
+            "fileId": 6382666,
+            "filename": "sodium-neoforge-0.6.13+mc1.21.5.jar",
+            "releaseType": 1,
+            "gameVersionTypeId": 77784,
+            "modLoader": 6
+        },
+        {
+            "gameVersion": "1.21.5",
+            "fileId": 6382664,
+            "filename": "sodium-fabric-0.6.13+mc1.21.5.jar",
+            "releaseType": 1,
+            "gameVersionTypeId": 77784,
+            "modLoader": 4
+        },
+        {
+            "gameVersion": "1.21.5",
+            "fileId": 6382664,
+            "filename": "sodium-fabric-0.6.13+mc1.21.5.jar",
+            "releaseType": 1,
+            "gameVersionTypeId": 77784,
+            "modLoader": 5
+        },
+        {
+            "gameVersion": "1.21.4",
+            "fileId": 6382663,
+            "filename": "sodium-neoforge-0.6.13+mc1.21.4.jar",
+            "releaseType": 1,
+            "gameVersionTypeId": 77784,
+            "modLoader": 6
+        },
+        {
+            "gameVersion": "1.21.4",
+            "fileId": 6382661,
+            "filename": "sodium-fabric-0.6.13+mc1.21.4.jar",
+            "releaseType": 1,
+            "gameVersionTypeId": 77784,
+            "modLoader": 4
+        },
+        {
+            "gameVersion": "1.21.4",
+            "fileId": 6382661,
+            "filename": "sodium-fabric-0.6.13+mc1.21.4.jar",
+            "releaseType": 1,
+            "gameVersionTypeId": 77784,
+            "modLoader": 5
+        },
+        {
+            "gameVersion": "1.21.3",
+            "fileId": 6382657,
+            "filename": "sodium-neoforge-0.6.13+mc1.21.3.jar",
+            "releaseType": 1,
+            "gameVersionTypeId": 77784,
+            "modLoader": 6
+        },
+        {
+            "gameVersion": "1.21.3",
+            "fileId": 6382655,
+            "filename": "sodium-fabric-0.6.13+mc1.21.3.jar",
+            "releaseType": 1,
+            "gameVersionTypeId": 77784,
+            "modLoader": 4
+        },
+        {
+            "gameVersion": "1.21.3",
+            "fileId": 6382655,
+            "filename": "sodium-fabric-0.6.13+mc1.21.3.jar",
+            "releaseType": 1,
+            "gameVersionTypeId": 77784,
+            "modLoader": 5
+        },
+        {
+            "gameVersion": "1.21.2",
+            "fileId": 6382655,
+            "filename": "sodium-fabric-0.6.13+mc1.21.3.jar",
+            "releaseType": 1,
+            "gameVersionTypeId": 77784,
+            "modLoader": 4
+        },
+        {
+            "gameVersion": "1.21.2",
+            "fileId": 6382655,
+            "filename": "sodium-fabric-0.6.13+mc1.21.3.jar",
+            "releaseType": 1,
+            "gameVersionTypeId": 77784,
+            "modLoader": 5
+        },
+        {
+            "gameVersion": "1.21.1",
+            "fileId": 6382651,
+            "filename": "sodium-neoforge-0.6.13+mc1.21.1.jar",
+            "releaseType": 1,
+            "gameVersionTypeId": 77784,
+            "modLoader": 6
+        },
+        {
+            "gameVersion": "1.21.1",
+            "fileId": 6382649,
+            "filename": "sodium-fabric-0.6.13+mc1.21.1.jar",
+            "releaseType": 1,
+            "gameVersionTypeId": 77784,
+            "modLoader": 4
+        },
+        {
+            "gameVersion": "1.21.1",
+            "fileId": 6382649,
+            "filename": "sodium-fabric-0.6.13+mc1.21.1.jar",
+            "releaseType": 1,
+            "gameVersionTypeId": 77784,
+            "modLoader": 5
+        },
+        {
+            "gameVersion": "1.21",
+            "fileId": 6382649,
+            "filename": "sodium-fabric-0.6.13+mc1.21.1.jar",
+            "releaseType": 1,
+            "gameVersionTypeId": 77784,
+            "modLoader": 4
+        },
+        {
+            "gameVersion": "1.21",
+            "fileId": 6382649,
+            "filename": "sodium-fabric-0.6.13+mc1.21.1.jar",
+            "releaseType": 1,
+            "gameVersionTypeId": 77784,
+            "modLoader": 5
+        },
         {
             "gameVersion": "1.21.5",
             "fileId": 6348520,
@@ -516,30 +648,6 @@
             "modLoader": 5
         },
         {
-            "gameVersion": "1.21.4",
-            "fileId": 6240357,
-            "filename": "sodium-neoforge-0.6.10+mc1.21.4.jar",
-            "releaseType": 1,
-            "gameVersionTypeId": 77784,
-            "modLoader": 6
-        },
-        {
-            "gameVersion": "1.21.4",
-            "fileId": 6240355,
-            "filename": "sodium-fabric-0.6.10+mc1.21.4.jar",
-            "releaseType": 1,
-            "gameVersionTypeId": 77784,
-            "modLoader": 4
-        },
-        {
-            "gameVersion": "1.21.4",
-            "fileId": 6240355,
-            "filename": "sodium-fabric-0.6.10+mc1.21.4.jar",
-            "releaseType": 1,
-            "gameVersionTypeId": 77784,
-            "modLoader": 5
-        },
-        {
             "gameVersion": "1.20.1",
             "fileId": 6237505,
             "filename": "sodium-fabric-0.5.12-beta.2+mc1.20.1.jar",
@@ -553,86 +661,6 @@
             "filename": "sodium-fabric-0.5.12-beta.2+mc1.20.1.jar",
             "releaseType": 2,
             "gameVersionTypeId": 75125,
-            "modLoader": 5
-        },
-        {
-            "gameVersion": "1.21.3",
-            "fileId": 6211316,
-            "filename": "sodium-neoforge-0.6.9+mc1.21.3.jar",
-            "releaseType": 1,
-            "gameVersionTypeId": 77784,
-            "modLoader": 6
-        },
-        {
-            "gameVersion": "1.21.3",
-            "fileId": 6211313,
-            "filename": "sodium-fabric-0.6.9+mc1.21.3.jar",
-            "releaseType": 1,
-            "gameVersionTypeId": 77784,
-            "modLoader": 4
-        },
-        {
-            "gameVersion": "1.21.3",
-            "fileId": 6211313,
-            "filename": "sodium-fabric-0.6.9+mc1.21.3.jar",
-            "releaseType": 1,
-            "gameVersionTypeId": 77784,
-            "modLoader": 5
-        },
-        {
-            "gameVersion": "1.21.2",
-            "fileId": 6211313,
-            "filename": "sodium-fabric-0.6.9+mc1.21.3.jar",
-            "releaseType": 1,
-            "gameVersionTypeId": 77784,
-            "modLoader": 4
-        },
-        {
-            "gameVersion": "1.21.2",
-            "fileId": 6211313,
-            "filename": "sodium-fabric-0.6.9+mc1.21.3.jar",
-            "releaseType": 1,
-            "gameVersionTypeId": 77784,
-            "modLoader": 5
-        },
-        {
-            "gameVersion": "1.21.1",
-            "fileId": 6211307,
-            "filename": "sodium-neoforge-0.6.9+mc1.21.1.jar",
-            "releaseType": 1,
-            "gameVersionTypeId": 77784,
-            "modLoader": 6
-        },
-        {
-            "gameVersion": "1.21.1",
-            "fileId": 6211305,
-            "filename": "sodium-fabric-0.6.9+mc1.21.1.jar",
-            "releaseType": 1,
-            "gameVersionTypeId": 77784,
-            "modLoader": 4
-        },
-        {
-            "gameVersion": "1.21.1",
-            "fileId": 6211305,
-            "filename": "sodium-fabric-0.6.9+mc1.21.1.jar",
-            "releaseType": 1,
-            "gameVersionTypeId": 77784,
-            "modLoader": 5
-        },
-        {
-            "gameVersion": "1.21",
-            "fileId": 6211305,
-            "filename": "sodium-fabric-0.6.9+mc1.21.1.jar",
-            "releaseType": 1,
-            "gameVersionTypeId": 77784,
-            "modLoader": 4
-        },
-        {
-            "gameVersion": "1.21",
-            "fileId": 6211305,
-            "filename": "sodium-fabric-0.6.9+mc1.21.1.jar",
-            "releaseType": 1,
-            "gameVersionTypeId": 77784,
             "modLoader": 5
         },
         {
@@ -950,10 +978,10 @@
     ],
     "latestEarlyAccessFilesIndexes": [],
     "dateCreated": "2020-07-08T23:18:29.833Z",
-    "dateModified": "2025-03-25T23:12:45.393Z",
-    "dateReleased": "2025-03-25T23:08:13.74Z",
+    "dateModified": "2025-04-04T00:21:35.58Z",
+    "dateReleased": "2025-04-04T00:17:10.47Z",
     "allowModDistribution": true,
-    "gamePopularityRank": 84,
+    "gamePopularityRank": 85,
     "isAvailable": true,
     "thumbsUpCount": 0,
     "featuredProjectTag": 0
