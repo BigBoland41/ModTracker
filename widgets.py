@@ -1,6 +1,9 @@
 from PyQt6 import QtCore, QtGui, QtWidgets, QtCharts
 import mod
 
+# This is the table that displays information about all the mods in a profile, including the
+# mod name, it's latest version, "ready" or it's priority level, and a button to remove the
+# mod from the table. 
 class ModTable():
     # How long the table is, in pixels
     _tableLength = 1000
@@ -10,11 +13,11 @@ class ModTable():
     _headingHeight = 40
 
     # Number of columns in the table
-    _numColumns = 3
+    _numColumns = 4
     # Names of the columns
-    _columnNames = ["Mod Name", "Latest Version", "Ready/Priority"]
+    _columnNames = ["Mod Name", "Latest Version", "Ready/Priority", ""]
     # Widths of the columns
-    _columnWidths = [500, 170, 285]
+    _columnWidths = [500, 160, 250, 10]
     # Height of the rows
     _rowHeight = 50
 
@@ -25,6 +28,9 @@ class ModTable():
     _tableWidget:QtWidgets.QTableWidget
     # The parent object this widget is attached to
     _parentWidget:QtWidgets.QWidget
+    # List of dropdownBtn objects in the table
+    _dropdownBtnList:list['DropdownBtn'] = []
+
     # The list of mod to display
     _modList:list[mod.Mod]
     # The list of priority levels
@@ -69,11 +75,28 @@ class ModTable():
     def reloadTableRow(self, rowNum):
         self._setTableRow(rowNum, self._modList[rowNum])
 
+    # Getters
     def getModList(self):
         return self._modList
+
+    def getRowNameText(self, rowNum:int):
+        return self._tableWidget.item(rowNum, 0).text()
     
-    def setModList(self, newList):
-        self._modList = newList
+    def getRowVersionText(self, rowNum:int):
+        return self._tableWidget.item(rowNum, 1).text()
+
+    def getRowDropdownBtnText(self, rowNum:int):
+        return self._tableWidget.cellWidget(rowNum, 2).text()
+    
+    def getNumRows(self):
+        return self._tableWidget.rowCount()
+
+    def changeRowPriority(self, rowNum:int, dropdownNum:int):
+        self._dropdownBtnList[rowNum].clickDropdownOption(dropdownNum)
+    
+    def clickRowDeleteBtn(self, rowNum:int):
+        self._tableWidget.cellWidget(rowNum, 3).click()
+
     # create and configure table
     def _createTable(self):
         self._tableWidget = QtWidgets.QTableWidget(self._parentWidget)
@@ -100,27 +123,31 @@ class ModTable():
                 case 2:
                     # create dropdown button and put add it to this table item
                     self._createDropdownBtn(rowNum, mod)
+                case 3:
+                    deleteBtn = QtWidgets.QPushButton("X")
+                    deleteBtn.clicked.connect(lambda : self._removeTableRow(mod))
+                    self._tableWidget.setCellWidget(rowNum, 3, deleteBtn)
 
             #apply changes
+            item.setFlags(item.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
             self._tableWidget.setItem(rowNum, col, item)
+
+    # removes a mod from the table and mod list
+    def _removeTableRow(self, mod):
+        self._tableWidget.removeRow(self._modList.index(mod))
+        self._dropdownBtnList.pop(self._modList.index(mod))
+        self._modList.remove(mod)
+        self._reloadFunc()
 
     # creates all the buttons that reveal the priority dropdown menu
     def _createDropdownBtn(self, rowNum, mod):
         dropdownBtn = DropdownBtn(self._parentWidget, mod, self._priorityList, self._reloadFunc,
                                   rowNum, mod.getCurrentVersion() == self._selectedVersion, self._fontSize)
         self._tableWidget.setCellWidget(rowNum, 2, dropdownBtn.getButtonWidget())
+        self._dropdownBtnList.append(dropdownBtn)
 
-    # Getters
-    def getRowName(self, rowNum:int):
-        return self._tableWidget.item(rowNum, 0).text()
-    
-    def getRowVersion(self, rowNum:int):
-        return self._tableWidget.item(rowNum, 1).text()
-
-    def getRowPriority(self, rowNum:int):
-        return self._tableWidget.cellWidget(rowNum, 2).text()
-
-
+# This is the dropdown menu that appears in the third column of the table which allows
+# the user to select a priorty level, or create a new priority level
 class DropdownBtn():
     _parentWidget:QtWidgets.QWidget
     _buttonWidget:QtWidgets.QPushButton
@@ -144,6 +171,10 @@ class DropdownBtn():
         self._createButtonWidget()
         self._createMenuWidget()
         self._customizeAppearance(isReady)
+
+    def clickDropdownOption(self, index):
+        if 0 <= index < len(self._menuWidget.actions()):
+            self._menuWidget.actions()[index].trigger()
 
     def _createButtonWidget(self):
         # create button
@@ -202,6 +233,8 @@ class DropdownBtn():
     def getButtonWidget(self):
         return self._buttonWidget
 
+# This is the pie chart that displays how many of the mods in this profile are ready,
+# and then breaks down the rest by priority level.
 class PieChart():
     _parentWidget: QtWidgets.QWidget
     _modList: list[mod.Mod]
