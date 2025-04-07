@@ -2,7 +2,6 @@ import sys, mod, unittest, json, detailsWindow
 from PyQt6 import QtWidgets
 
 class testAPICalls(unittest.TestCase):
-
     def testMod(self):
         modObj = mod.Mod(url ="https://modrinth.com/mod/sodium")
         modObj2 = mod.Mod(url = "https://modrinth.com/mod/fabric-api")
@@ -38,7 +37,7 @@ class testAPICalls(unittest.TestCase):
 class testDetailsView(unittest.TestCase):
     _modList:list[mod.Mod]
     _selectedVersion = "1.21.5"
-    
+
     def initDetailsView(self, window):
         highPriority = mod.ModPriority("High Priority", 255, 85, 0)
         lowPriority = mod.ModPriority("Low Priority", 255, 255, 0)
@@ -239,7 +238,7 @@ class testDropdownBtn(unittest.TestCase):
         ]
 
         return detailsWindow.DetailsWindow(window, self._modList, priorityList, self._selectedVersion)
-    
+
     def testChangeModPriority(self):
         app = QtWidgets.QApplication(sys.argv)
         mainWindow = QtWidgets.QMainWindow()
