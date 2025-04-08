@@ -41,7 +41,6 @@ class ModTable():
     def __init__(self, parent:QtWidgets.QWidget, modList:list[mod.Mod], priorityList:list[mod.ModPriority],
                  selectedVersion:str, reloadFunc):
         self._parentWidget = parent
-        self._parentWidget.__init__()
         self._modList = modList
         self._priorityList = priorityList
         self._selectedVersion = selectedVersion
@@ -81,22 +80,27 @@ class ModTable():
         return self._modList
 
     def getRowNameText(self, rowNum:int):
-        return self._tableWidget.item(rowNum, 0).text()
+        if 0 <= rowNum < self._tableWidget.rowCount():
+            return self._tableWidget.item(rowNum, 0).text()
     
     def getRowVersionText(self, rowNum:int):
-        return self._tableWidget.item(rowNum, 1).text()
+        if 0 <= rowNum < self._tableWidget.rowCount():
+            return self._tableWidget.item(rowNum, 1).text()
 
     def getRowDropdownBtnText(self, rowNum:int):
-        return self._tableWidget.cellWidget(rowNum, 2).text()
+        if 0 <= rowNum < self._tableWidget.rowCount():
+            return self._tableWidget.cellWidget(rowNum, 2).text()
+
+    def getRowDropdownBtn(self, rowNum:int):
+        if 0 <= rowNum < len(self._dropdownBtnList):
+            return self._dropdownBtnList[rowNum]
     
     def getNumRows(self):
         return self._tableWidget.rowCount()
-
-    def changeRowPriority(self, rowNum:int, dropdownNum:int):
-        self._dropdownBtnList[rowNum].clickDropdownOption(dropdownNum)
     
     def clickRowDeleteBtn(self, rowNum:int):
-        self._tableWidget.cellWidget(rowNum, 3).click()
+        if 0 <= rowNum < self._tableWidget.rowCount():
+            self._tableWidget.cellWidget(rowNum, 3).click()
 
     # create and configure table
     def _createTable(self):
@@ -175,7 +179,14 @@ class DropdownBtn():
 
     def clickDropdownOption(self, index):
         if 0 <= index < len(self._menuWidget.actions()):
-            self._menuWidget.actions()[index].trigger()
+            action:QtGui.QAction = self._menuWidget.actions()[index]
+            action.trigger()
+        else:
+            print("Out of range! You tried to get the " + index
+                  + "th dropdown option out of " + len(self._menuWidget.actions()))
+
+    def getButtonWidget(self):
+        return self._buttonWidget
 
     def _createButtonWidget(self):
         # create button
@@ -230,9 +241,6 @@ class DropdownBtn():
     def _addModPriority(self, modName:str, color:QtGui.QColor):
         self._priorityList.append(mod.ModPriority(modName, color=color))
         self._changeModPriority(len(self._priorityList) - 1, True)
-    
-    def getButtonWidget(self):
-        return self._buttonWidget
 
 # This is the pie chart that displays how many of the mods in this profile are ready,
 # and then breaks down the rest by priority level.
@@ -252,6 +260,7 @@ class PieChart():
     def __init__(self, parent: QtWidgets.QWidget, modList: list[mod.Mod], selectedVersion: str):
         # Assign variables
         self._parentWidget = parent
+        # self._parentWidget.__init__()
         self._modList = modList
         self._selectedVersion = selectedVersion
 
@@ -301,8 +310,8 @@ class PieChart():
         label_font.setPointSize(self._labelFontSize)
 
         # Create and populate chart series
-        if not self._series.isEmpty():
-            self._series.clear()
+        self._series.__init__()
+        self._series.clear()
 
         i = 0
         for priority, count in self._sliceSizes.items():
