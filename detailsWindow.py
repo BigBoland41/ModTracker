@@ -4,22 +4,27 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 class DetailsWindow(object):
     _modList:list[mod.Mod]
     _priorityList:list[mod.ModPriority]
+    _selectedVersion:str
+    _attemptErrorRecovery:bool
     
     _window:QtWidgets.QMainWindow
     _statusbar:QtWidgets.QStatusBar
     _modTable:widgets.ModTable
     _pieChart:widgets.PieChart
+    _addModTextField:QtWidgets.QLineEdit
+    _addModBtn:QtWidgets.QPushButton
     
     # Constructor. Creates window and runs functions to create widgets
     def __init__(self, window:QtWidgets.QMainWindow, modList:list[mod.Mod] = [],
                  priorityList:list[mod.ModPriority] = [
                      mod.ModPriority("High Priority", 255, 85, 0),
                      mod.ModPriority("Low Priority", 255, 255, 0)],
-                 selectedVersion:str = "1.21.5"):
+                 selectedVersion:str = "1.21.5", attemptErrorRecovery = True):
         # assign variables
         self._modList = modList
         self._priorityList = priorityList
         self._selectedVersion = selectedVersion
+        self._attemptErrorRecovery = attemptErrorRecovery
 
         # create app and window
         self._window = window
@@ -33,18 +38,28 @@ class DetailsWindow(object):
         self._createAddModBtn()
         
     def reloadWidgets(self, rowNum = 0, reloadEverything = False):
-        self._pieChart.loadChart()
-        if (reloadEverything):
-            self._modTable.loadTable()
-        else:
-            self._modTable.reloadTableRow(rowNum)
+        # try:
+            self._pieChart.loadChart()
+            if (reloadEverything):
+                self._modTable.loadTable()
+            else:
+                self._modTable.reloadTableRow(rowNum)
+        # except RuntimeError as exception:
+        #     if self._attemptErrorRecovery:
+        #         print("Attempted to access a QtWidget object that was deleted. Retrying.\n"
+        #               + f"Orginal error message:\n'{exception}'")
+        #         self._window.__init__()
+        #         self.__init__(self._window, self._modList, self._priorityList, self._selectedVersion, False)
+        #     else:
+        #         raise RuntimeError("Attempted to recover from a RuntimeError and failed."
+        #                            + f"Orginal error message:\n'{exception}'")
 
     # Getters
-    def getModTable(self):
-        return self._modTable
+    def getModTable(self): return self._modTable
     
-    def getPieChart(self):
-        return self._pieChart
+    def getPieChart(self): return self._pieChart
+
+    def getModList(self): return self._modList
     
     def setAddModTextFieldText(self, text:str):
         self._addModTextField.setText(text)

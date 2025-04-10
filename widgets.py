@@ -38,7 +38,7 @@ class ModTable():
     # The selected version for this profile
     _selectedVersion:str
     
-    def __init__(self, parent:QtWidgets.QWidget, modList:list[mod.Mod], priorityList:list[mod.ModPriority],
+    def __init__(self, parent:QtWidgets.QMainWindow, modList:list[mod.Mod], priorityList:list[mod.ModPriority],
                  selectedVersion:str, reloadFunc):
         self._parentWidget = parent
         self._modList = modList
@@ -76,8 +76,7 @@ class ModTable():
         self._setTableRow(rowNum, self._modList[rowNum])
 
     # Getters
-    def getModList(self):
-        return self._modList
+    def getModList(self): return self._modList
 
     def getRowNameText(self, rowNum:int):
         if 0 <= rowNum < self._tableWidget.rowCount():
@@ -94,9 +93,12 @@ class ModTable():
     def getRowDropdownBtn(self, rowNum:int):
         if 0 <= rowNum < len(self._dropdownBtnList):
             return self._dropdownBtnList[rowNum]
+        
+    def getRowDeleteBtn(self, rowNum:int):
+        if 0 <= rowNum < self._tableWidget.rowCount():
+            return self._tableWidget.cellWidget(rowNum, 3)
     
-    def getNumRows(self):
-        return self._tableWidget.rowCount()
+    def getNumRows(self): return self._tableWidget.rowCount()
     
     def clickRowDeleteBtn(self, rowNum:int):
         if 0 <= rowNum < self._tableWidget.rowCount():
@@ -162,7 +164,7 @@ class DropdownBtn():
     _rowNum:int
     _fontSize:int
 
-    def __init__(self, parentWidget:QtWidgets.QWidget, mod:mod.Mod, priorityList:list[mod.ModPriority],
+    def __init__(self, parentWidget:QtWidgets.QMainWindow, mod:mod.Mod, priorityList:list[mod.ModPriority],
                  refreshFunc, rowNum:int, isReady:bool, fontSize:int):
         # set attributes
         self._parentWidget = parentWidget
@@ -178,15 +180,19 @@ class DropdownBtn():
         self._customizeAppearance(isReady)
 
     def clickDropdownOption(self, index):
-        if 0 <= index < len(self._menuWidget.actions()):
-            action:QtGui.QAction = self._menuWidget.actions()[index]
-            action.trigger()
-        else:
-            print("Out of range! You tried to get the " + index
-                  + "th dropdown option out of " + len(self._menuWidget.actions()))
+        self._changeModPriority(index)
+        # if 0 <= index < len(self._menuWidget.actions()):
+        #     action:QtGui.QAction = self._menuWidget.actions()[index]
+        #     action.trigger()
+        # else:
+        #     print("Out of range! You tried to get the " + index
+        #         + "th dropdown option out of " + len(self._menuWidget.actions()))
 
     def getButtonWidget(self):
         return self._buttonWidget
+    
+    def getMenuWidget(self):
+        return self._menuWidget
 
     def _createButtonWidget(self):
         # create button
@@ -257,7 +263,7 @@ class PieChart():
     _titleFontSize = 24
     _labelFontSize = 14
 
-    def __init__(self, parent: QtWidgets.QWidget, modList: list[mod.Mod], selectedVersion: str):
+    def __init__(self, parent: QtWidgets.QMainWindow, modList: list[mod.Mod], selectedVersion: str):
         # Assign variables
         self._parentWidget = parent
         # self._parentWidget.__init__()
@@ -270,6 +276,8 @@ class PieChart():
         self._chartView.setGeometry(QtCore.QRect(1000, 50, 900, 900))
 
         self.loadChart()
+
+    def getSliceSizes(self): return self._sliceSizes
 
     def loadChart(self):
         # Calculate the size of each slice
