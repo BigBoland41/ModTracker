@@ -36,23 +36,22 @@ class DetailsWindow(object):
 
         self._createAddModTextField()
         self._createAddModBtn()
-        
+
+    def loadNewData(self, modList:list[mod.Mod], priorityList:list[mod.ModPriority], selectedVersion:str):
+        self._modList = modList
+        self._priorityList = priorityList
+        self._selectedVersion = selectedVersion
+
+        self._modTable.loadNewData(self._modList, self._priorityList, self._selectedVersion)
+        self._pieChart.loadNewData(self._modList, self._priorityList, self._selectedVersion)
+
     def reloadWidgets(self, rowNum = 0, reloadEverything = False):
-        # try:
-            self._pieChart.loadChart()
-            if (reloadEverything):
-                self._modTable.loadTable()
-            else:
-                self._modTable.reloadTableRow(rowNum)
-        # except RuntimeError as exception:
-        #     if self._attemptErrorRecovery:
-        #         print("Attempted to access a QtWidget object that was deleted. Retrying.\n"
-        #               + f"Orginal error message:\n'{exception}'")
-        #         self._window.__init__()
-        #         self.__init__(self._window, self._modList, self._priorityList, self._selectedVersion, False)
-        #     else:
-        #         raise RuntimeError("Attempted to recover from a RuntimeError and failed."
-        #                            + f"Orginal error message:\n'{exception}'")
+        self._pieChart.loadChart()
+        if (reloadEverything):
+            self._modTable.loadTable()
+        else:
+            # self._modTable.reloadTableRow(rowNum)
+            self._modTable.loadTable() # required for tests to work properly
 
     # Getters
     def getModTable(self): return self._modTable
@@ -63,9 +62,6 @@ class DetailsWindow(object):
     
     def setAddModTextFieldText(self, text:str):
         self._addModTextField.setText(text)
-
-    def clickAddModBtn(self):
-        self._addModBtn.click()
 
     # configures the window, including name, size, and status bar
     def _configureWindow(self):

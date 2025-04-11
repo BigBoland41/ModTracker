@@ -1,9 +1,6 @@
 import mod, unittest, json
 
-def runTests():
-    unittest.main()
-
-class testAPICalls(unittest.TestCase):
+class TestAPICalls(unittest.TestCase):
     def testAPICalls(self):
         modObj = mod.Mod(url ="https://modrinth.com/mod/sodium")
         modObj2 = mod.Mod(url = "https://modrinth.com/mod/fabric-api")
@@ -37,4 +34,4 @@ class testAPICalls(unittest.TestCase):
         self.assertEqual(modObj4.getURL(), "https://www.curseforge.com/minecraft/mc-mods/sodium")
 
 if __name__ == "__main__":
-    runTests()
+    unittest.main()

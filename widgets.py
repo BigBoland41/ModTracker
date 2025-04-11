@@ -48,6 +48,12 @@ class ModTable():
         self._createTable()
         self.loadTable()
 
+    def loadNewData(self, modList, priorityList, selectedVersion):
+        self._modList = modList
+        self._priorityList = priorityList
+        self._selectedVersion = selectedVersion
+        self.loadTable()
+    
     def loadTable(self):
         # set the row count to make the amount of mods in the list
         self._tableWidget.setRowCount(len(self._modList))
@@ -73,6 +79,7 @@ class ModTable():
             self._tableWidget.setRowHeight(row, self._rowHeight)
 
     def reloadTableRow(self, rowNum):
+        self._tableWidget.setRowCount(len(self._modList))
         self._setTableRow(rowNum, self._modList[rowNum])
 
     # Getters
@@ -278,6 +285,12 @@ class PieChart():
         self.loadChart()
 
     def getSliceSizes(self): return self._sliceSizes
+
+    def loadNewData(self, modList, priorityList, selectedVersion):
+        self._modList = modList
+        self._priorityList = priorityList
+        self._selectedVersion = selectedVersion
+        self.loadChart()
 
     def loadChart(self):
         # Calculate the size of each slice
