@@ -1,5 +1,5 @@
 import sys, mod, unittest, detailsWindow
-from PyQt6 import QtWidgets, QtTest, QtCore
+from PyQt6 import QtWidgets, QtTest, QtCore, QtGui
 from testData import TestData
 
 _testAPICalls = True
@@ -87,9 +87,35 @@ class TestPieChart(unittest.TestCase):
         self.assertEqual(chart.getSliceSizes().get(sliceList[1]), 10)
         self.assertEqual(chart.getSliceSizes().get(sliceList[2]), 7)
 
-#     @unittest.skipIf(not _testAPICalls, "API tests are off")
-#     def testAddMod_NewPriority(self):
-#         pass
+    def testAddNewPriority(self):
+        newPriorityName = "New Priority"
+        newPriorityColor = QtGui.QColor(255, 255, 255)
+
+        self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
+        chart = self._detailsView.getPieChart()
+        sliceList = list(chart.getSliceSizes().keys())
+        modTable = self._detailsView.getModTable()
+
+        for modIndex in range(0, 2):
+            # priorityName = newPriorityName + f" {modIndex}"
+            sliceList = list(chart.getSliceSizes().keys())
+
+            oldPriority = modTable.getRowDropdownBtnText(modIndex)
+            oldSliceLength = len(sliceList)
+            oldSliceSizes = []
+            for i in range(len(sliceList)):
+                oldSliceSizes.append(chart.getSliceSizes().get(sliceList[i]))
+            
+            modTable.getRowDropdownBtn(modIndex).clickDropdownOption(2, newPriorityName, newPriorityColor)
+
+            sliceList = list(chart.getSliceSizes().keys())
+            if oldPriority == "Ready":
+                self.assertEqual(modTable.getRowDropdownBtnText(modIndex), "Ready")
+                self.assertEqual(len(sliceList), oldSliceLength)
+            else:
+                self.assertEqual(modTable.getRowDropdownBtnText(modIndex), newPriorityName)
+                self.assertEqual(len(sliceList), oldSliceLength + 1)
+            self.assertEqual(modTable.getModList()[modIndex].priority.name, newPriorityName)
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

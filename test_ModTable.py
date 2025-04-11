@@ -115,6 +115,18 @@ class TestModTable(unittest.TestCase):
         self.assertEqual(modTable.getRowNameText(10), nextRowName)
         self.assertEqual(modTable.getNumRows(), oldNumRows - 1)
 
+    def testRemoveAllMods(self):
+        self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
+
+        modTable = self._detailsView.getModTable()
+        oldNumRows = modTable.getNumRows()
+        for i in range(modTable.getNumRows()):
+            deleteBtn = modTable.getRowDeleteBtn(0)
+            QtTest.QTest.mouseClick(deleteBtn, QtCore.Qt.MouseButton.LeftButton)
+            self.assertEqual(modTable.getNumRows(), oldNumRows - i - 1)
+        
+        self.assertEqual(modTable.getNumRows(), 0)
+
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     unittest.main(verbosity=2,failfast=True)

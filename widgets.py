@@ -186,8 +186,11 @@ class DropdownBtn():
         self._createMenuWidget()
         self._customizeAppearance(isReady)
 
-    def clickDropdownOption(self, index):
-        self._changeModPriority(index)
+    def clickDropdownOption(self, index, priorityName = "New Priority Level", priorityColor = QtGui.QColor(255, 0, 0)):
+        if 0 <= index < len(self._menuWidget.actions()) - 1:
+            self._changeModPriority(index)
+        elif index == len(self._menuWidget.actions()) - 1:
+            self._addModPriority(priorityName, priorityColor)
         # if 0 <= index < len(self._menuWidget.actions()):
         #     action:QtGui.QAction = self._menuWidget.actions()[index]
         #     action.trigger()
@@ -243,8 +246,9 @@ class DropdownBtn():
         self._refreshFunc(self._rowNum, refreshEverything)
 
     def _showColorPicker(self):
-        inputStr, okPressed = QtWidgets.QInputDialog.getText(self._parentWidget,
-                                                  "Create new priority level", "Priority name:")
+        inputStr, okPressed = QtWidgets.QInputDialog.getText(
+            self._parentWidget, "Create new priority level", "Priority name:"
+        )
         
         if okPressed:
             selectedColor = QtWidgets.QColorDialog.getColor()

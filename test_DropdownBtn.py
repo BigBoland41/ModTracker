@@ -1,5 +1,5 @@
-import sys, unittest, detailsWindow, mod
-from PyQt6 import QtWidgets
+import sys, unittest, detailsWindow
+from PyQt6 import QtWidgets, QtGui
 from testData import TestData
 
 class TestDropdownBtn(unittest.TestCase):
@@ -15,81 +15,50 @@ class TestDropdownBtn(unittest.TestCase):
         self._detailsView.getModTable()._dropdownBtnList.clear()
         # self._app.quit()
 
-    def testChangeModPriority_Ready(self):
-        modIndex = 0
-
+    def testChangeModPriority(self):
         self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
         modTable = self._detailsView.getModTable()
 
-        oldPriority = modTable.getRowDropdownBtnText(modIndex)
-        if oldPriority is None:
-            self.fail(
-                "Attempted to access a row in the mod table that doesn't exist! " +
-                f"Index accessed: {modIndex}. Number of table rows: {modTable.getNumRows()}"
-            )
+        for i in range(modTable.getNumRows()):
+            oldPriority = modTable.getRowDropdownBtnText(i)
+            if oldPriority is None:
+                self.fail(
+                    "Attempted to access a row in the mod table that doesn't exist! " +
+                    f"Index accessed: {i}. Number of table rows: {modTable.getNumRows()}"
+                )
 
-        dropdownBtn = modTable.getRowDropdownBtn(modIndex)
+            dropdownBtn = modTable.getRowDropdownBtn(i)
 
-        if oldPriority == "Ready":
-            dropdownBtn.clickDropdownOption(0)
-            self.assertEqual(modTable.getRowDropdownBtnText(modIndex), "Ready")
-        elif oldPriority == "Low Priority":
-            dropdownBtn.clickDropdownOption(0)
-            self.assertEqual(modTable.getRowDropdownBtnText(modIndex), "High Priority")
-        elif oldPriority == "High Priority":
-            dropdownBtn.clickDropdownOption(1)
-            self.assertEqual(modTable.getRowDropdownBtnText(modIndex), "Low Priority")
+            if oldPriority == "Ready":
+                dropdownBtn.clickDropdownOption(0)
+                self.assertEqual(modTable.getRowDropdownBtnText(i), "Ready")
+            elif oldPriority == "Low Priority":
+                dropdownBtn.clickDropdownOption(0)
+                self.assertEqual(modTable.getRowDropdownBtnText(i), "High Priority")
+            elif oldPriority == "High Priority":
+                dropdownBtn.clickDropdownOption(1)
+                self.assertEqual(modTable.getRowDropdownBtnText(i), "Low Priority")
 
-    def testChangeModPriority_NotReady(self):
-        modIndex = 1
+    def testAddModPriority(self):
+        newPriorityName = "New Priority"
+        newPriorityColor = QtGui.QColor(255, 255, 255)
 
         self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
         modTable = self._detailsView.getModTable()
+        for i in range(modTable.getNumRows()):
+            oldPriority = modTable.getRowDropdownBtnText(i)
+            if oldPriority is None:
+                self.fail(
+                    "Attempted to access a row in the mod table that doesn't exist! " +
+                    f"Index accessed: {i}. Number of table rows: {modTable.getNumRows()}"
+                )
 
-        oldPriority = modTable.getRowDropdownBtnText(modIndex)
-        if oldPriority is None:
-            self.fail(
-                "Attempted to access a row in the mod table that doesn't exist! " +
-                f"Index accessed: {modIndex}. Number of table rows: {modTable.getNumRows()}"
-            )
+            modTable.getRowDropdownBtn(i).clickDropdownOption(2, newPriorityName, newPriorityColor)
 
-        dropdownBtn = modTable.getRowDropdownBtn(modIndex)
-
-        if oldPriority == "Ready":
-            dropdownBtn.clickDropdownOption(0)
-            self.assertEqual(modTable.getRowDropdownBtnText(modIndex), "Ready")
-        elif oldPriority == "Low Priority":
-            dropdownBtn.clickDropdownOption(0)
-            self.assertEqual(modTable.getRowDropdownBtnText(modIndex), "High Priority")
-        elif oldPriority == "High Priority":
-            dropdownBtn.clickDropdownOption(1)
-            self.assertEqual(modTable.getRowDropdownBtnText(modIndex), "Low Priority")
-
-    # TO DO: Uncomment and implement this test
-    # def testAddModPriority(self):
-    #     modIndex = 1
-
-    #     self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
-    #     modTable = self._detailsView.getModTable()
-
-    #     oldPriority = modTable.getRowDropdownBtnText(modIndex)
-    #     if oldPriority is None:
-    #         self.fail(
-    #             "Attempted to access a row in the mod table that doesn't exist! " +
-    #             f"Index accessed: {modIndex}. Number of table rows: {modTable.getNumRows()}"
-    #         )
-
-    #     dropdownBtn = modTable.getRowDropdownBtn(modIndex)
-
-    #     if oldPriority == "Ready":
-    #         dropdownBtn.clickDropdownOption(0)
-    #         self.assertEqual(modTable.getRowDropdownBtnText(modIndex), "Ready")
-    #     elif oldPriority == "Low Priority":
-    #         dropdownBtn.clickDropdownOption(0)
-    #         self.assertEqual(modTable.getRowDropdownBtnText(modIndex), "High Priority")
-    #     elif oldPriority == "High Priority":
-    #         dropdownBtn.clickDropdownOption(1)
-    #         self.assertEqual(modTable.getRowDropdownBtnText(modIndex), "Low Priority")
+            if oldPriority == "Ready":
+                self.assertEqual(modTable.getRowDropdownBtnText(i), "Ready")
+            else:
+                self.assertEqual(modTable.getRowDropdownBtnText(i), newPriorityName)
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
