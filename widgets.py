@@ -41,7 +41,6 @@ class ModTable():
     def __init__(self, parent:QtWidgets.QWidget, modList:list[mod.Mod], priorityList:list[mod.ModPriority],
                  selectedVersion:str, reloadFunc):
         self._parentWidget = parent
-        self._parentWidget.__init__()
         self._modList = modList
         self._priorityList = priorityList
         self._selectedVersion = selectedVersion

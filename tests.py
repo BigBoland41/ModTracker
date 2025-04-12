@@ -43,6 +43,8 @@ class testDetailsView(unittest.TestCase):
         lowPriority = mod.ModPriority("Low Priority", 255, 255, 0)
         priorityList = [highPriority, lowPriority]
 
+
+
         self._modList = [
             mod.Mod("Sodium", 1, ["1.21","1.21.1","1.21.2","1.21.3", "1.21.4", "1.21.5"], highPriority),
             mod.Mod("Lithium", 2, ["1.21","1.21.1","1.21.2","1.21.3", "1.21.4"], highPriority),
