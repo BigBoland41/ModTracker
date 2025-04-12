@@ -38,7 +38,7 @@ class ModTable():
     # The selected version for this profile
     _selectedVersion:str
     
-    def __init__(self, parent:QtWidgets.QWidget, modList:list[mod.Mod], priorityList:list[mod.ModPriority],
+    def __init__(self, parent:QtWidgets.QMainWindow, modList:list[mod.Mod], priorityList:list[mod.ModPriority],
                  selectedVersion:str, reloadFunc):
         self._parentWidget = parent
         self._modList = modList
@@ -48,6 +48,12 @@ class ModTable():
         self._createTable()
         self.loadTable()
 
+    def loadNewData(self, modList, priorityList, selectedVersion):
+        self._modList = modList
+        self._priorityList = priorityList
+        self._selectedVersion = selectedVersion
+        self.loadTable()
+    
     def loadTable(self):
         # set the row count to make the amount of mods in the list
         self._tableWidget.setRowCount(len(self._modList))
@@ -73,29 +79,37 @@ class ModTable():
             self._tableWidget.setRowHeight(row, self._rowHeight)
 
     def reloadTableRow(self, rowNum):
+        self._tableWidget.setRowCount(len(self._modList))
         self._setTableRow(rowNum, self._modList[rowNum])
 
     # Getters
-    def getModList(self):
-        return self._modList
+    def getModList(self): return self._modList
 
     def getRowNameText(self, rowNum:int):
-        return self._tableWidget.item(rowNum, 0).text()
+        if 0 <= rowNum < self._tableWidget.rowCount():
+            return self._tableWidget.item(rowNum, 0).text()
     
     def getRowVersionText(self, rowNum:int):
-        return self._tableWidget.item(rowNum, 1).text()
+        if 0 <= rowNum < self._tableWidget.rowCount():
+            return self._tableWidget.item(rowNum, 1).text()
 
     def getRowDropdownBtnText(self, rowNum:int):
-        return self._tableWidget.cellWidget(rowNum, 2).text()
-    
-    def getNumRows(self):
-        return self._tableWidget.rowCount()
+        if 0 <= rowNum < self._tableWidget.rowCount():
+            return self._tableWidget.cellWidget(rowNum, 2).text()
 
-    def changeRowPriority(self, rowNum:int, dropdownNum:int):
-        self._dropdownBtnList[rowNum].clickDropdownOption(dropdownNum)
+    def getRowDropdownBtn(self, rowNum:int):
+        if 0 <= rowNum < len(self._dropdownBtnList):
+            return self._dropdownBtnList[rowNum]
+        
+    def getRowDeleteBtn(self, rowNum:int):
+        if 0 <= rowNum < self._tableWidget.rowCount():
+            return self._tableWidget.cellWidget(rowNum, 3)
+    
+    def getNumRows(self): return self._tableWidget.rowCount()
     
     def clickRowDeleteBtn(self, rowNum:int):
-        self._tableWidget.cellWidget(rowNum, 3).click()
+        if 0 <= rowNum < self._tableWidget.rowCount():
+            self._tableWidget.cellWidget(rowNum, 3).click()
 
     # create and configure table
     def _createTable(self):
@@ -157,7 +171,7 @@ class DropdownBtn():
     _rowNum:int
     _fontSize:int
 
-    def __init__(self, parentWidget:QtWidgets.QWidget, mod:mod.Mod, priorityList:list[mod.ModPriority],
+    def __init__(self, parentWidget:QtWidgets.QMainWindow, mod:mod.Mod, priorityList:list[mod.ModPriority],
                  refreshFunc, rowNum:int, isReady:bool, fontSize:int):
         # set attributes
         self._parentWidget = parentWidget
@@ -172,9 +186,23 @@ class DropdownBtn():
         self._createMenuWidget()
         self._customizeAppearance(isReady)
 
-    def clickDropdownOption(self, index):
-        if 0 <= index < len(self._menuWidget.actions()):
-            self._menuWidget.actions()[index].trigger()
+    def clickDropdownOption(self, index, priorityName = "New Priority Level", priorityColor = QtGui.QColor(255, 0, 0)):
+        if 0 <= index < len(self._menuWidget.actions()) - 1:
+            self._changeModPriority(index)
+        elif index == len(self._menuWidget.actions()) - 1:
+            self._addModPriority(priorityName, priorityColor)
+        # if 0 <= index < len(self._menuWidget.actions()):
+        #     action:QtGui.QAction = self._menuWidget.actions()[index]
+        #     action.trigger()
+        # else:
+        #     print("Out of range! You tried to get the " + index
+        #         + "th dropdown option out of " + len(self._menuWidget.actions()))
+
+    def getButtonWidget(self):
+        return self._buttonWidget
+    
+    def getMenuWidget(self):
+        return self._menuWidget
 
     def _createButtonWidget(self):
         # create button
@@ -218,8 +246,9 @@ class DropdownBtn():
         self._refreshFunc(self._rowNum, refreshEverything)
 
     def _showColorPicker(self):
-        inputStr, okPressed = QtWidgets.QInputDialog.getText(self._parentWidget,
-                                                  "Create new priority level", "Priority name:")
+        inputStr, okPressed = QtWidgets.QInputDialog.getText(
+            self._parentWidget, "Create new priority level", "Priority name:"
+        )
         
         if okPressed:
             selectedColor = QtWidgets.QColorDialog.getColor()
@@ -229,9 +258,6 @@ class DropdownBtn():
     def _addModPriority(self, modName:str, color:QtGui.QColor):
         self._priorityList.append(mod.ModPriority(modName, color=color))
         self._changeModPriority(len(self._priorityList) - 1, True)
-    
-    def getButtonWidget(self):
-        return self._buttonWidget
 
 # This is the pie chart that displays how many of the mods in this profile are ready,
 # and then breaks down the rest by priority level.
@@ -248,9 +274,10 @@ class PieChart():
     _titleFontSize = 24
     _labelFontSize = 14
 
-    def __init__(self, parent: QtWidgets.QWidget, modList: list[mod.Mod], selectedVersion: str):
+    def __init__(self, parent: QtWidgets.QMainWindow, modList: list[mod.Mod], selectedVersion: str):
         # Assign variables
         self._parentWidget = parent
+        # self._parentWidget.__init__()
         self._modList = modList
         self._selectedVersion = selectedVersion
 
@@ -259,6 +286,14 @@ class PieChart():
         self._chartView.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
         self._chartView.setGeometry(QtCore.QRect(1000, 50, 900, 900))
 
+        self.loadChart()
+
+    def getSliceSizes(self): return self._sliceSizes
+
+    def loadNewData(self, modList, priorityList, selectedVersion):
+        self._modList = modList
+        self._priorityList = priorityList
+        self._selectedVersion = selectedVersion
         self.loadChart()
 
     def loadChart(self):
@@ -300,8 +335,8 @@ class PieChart():
         label_font.setPointSize(self._labelFontSize)
 
         # Create and populate chart series
-        if not self._series.isEmpty():
-            self._series.clear()
+        self._series.__init__()
+        self._series.clear()
 
         i = 0
         for priority, count in self._sliceSizes.items():

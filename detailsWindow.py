@@ -4,70 +4,80 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 class DetailsWindow(object):
     _modList:list[mod.Mod]
     _priorityList:list[mod.ModPriority]
+    _selectedVersion:str
+    _attemptErrorRecovery:bool
     
     _window:QtWidgets.QMainWindow
+    _statusbar:QtWidgets.QStatusBar
     _modTable:widgets.ModTable
     _pieChart:widgets.PieChart
+    _addModTextField:QtWidgets.QLineEdit
+    _addModBtn:QtWidgets.QPushButton
     
     # Constructor. Creates window and runs functions to create widgets
     def __init__(self, window:QtWidgets.QMainWindow, modList:list[mod.Mod] = [],
                  priorityList:list[mod.ModPriority] = [
                      mod.ModPriority("High Priority", 255, 85, 0),
                      mod.ModPriority("Low Priority", 255, 255, 0)],
-                 selectedVersion:str = "1.21.5"):
+                 selectedVersion:str = "1.21.5", attemptErrorRecovery = True):
         # assign variables
         self._modList = modList
         self._priorityList = priorityList
         self._selectedVersion = selectedVersion
+        self._attemptErrorRecovery = attemptErrorRecovery
 
         # create app and window
-        _window = window
-
-        # run setup functions
-        self._configureWindow(_window)
+        self._window = window
+        self._configureWindow()
         
-        self._pieChart = widgets.PieChart(self._centralwidget, self._modList, self._selectedVersion)
-        self._modTable = widgets.ModTable(self._centralwidget, self._modList, self._priorityList,
+        self._pieChart = widgets.PieChart(self._window, self._modList, self._selectedVersion)
+        self._modTable = widgets.ModTable(self._window, self._modList, self._priorityList,
                                               self._selectedVersion, self.reloadWidgets)
 
         self._createAddModTextField()
         self._createAddModBtn()
-        
+
+    def loadNewData(self, modList:list[mod.Mod], priorityList:list[mod.ModPriority], selectedVersion:str):
+        self._modList = modList
+        self._priorityList = priorityList
+        self._selectedVersion = selectedVersion
+
+        self._modTable.loadNewData(self._modList, self._priorityList, self._selectedVersion)
+        self._pieChart.loadNewData(self._modList, self._priorityList, self._selectedVersion)
+
     def reloadWidgets(self, rowNum = 0, reloadEverything = False):
         self._pieChart.loadChart()
         if (reloadEverything):
             self._modTable.loadTable()
         else:
-            self._modTable.reloadTableRow(rowNum)
+            # self._modTable.reloadTableRow(rowNum)
+            self._modTable.loadTable() # required for tests to work properly
 
     # Getters
-    def getModTable(self):
-        return self._modTable
+    def getModTable(self): return self._modTable
+    
+    def getPieChart(self): return self._pieChart
+
+    def getModList(self): return self._modList
     
     def setAddModTextFieldText(self, text:str):
         self._addModTextField.setText(text)
 
-    def clickAddModBtn(self):
-        self._addModBtn.click()
-
     # configures the window, including name, size, and status bar
-    def _configureWindow(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.setWindowTitle("Mod Tracker")
-        MainWindow.resize(1000, 500)
-        self._centralwidget = QtWidgets.QWidget(parent=MainWindow)
-        self._centralwidget.setObjectName("centralwidget")
+    def _configureWindow(self):
+        self._window.setObjectName("MainWindow")
+        self._window.setWindowTitle("Mod Tracker")
+        self._window.resize(1000, 500)
 
-        MainWindow.setCentralWidget(self._centralwidget)
-        self._statusbar = QtWidgets.QStatusBar(parent=MainWindow)
+        self._statusbar = QtWidgets.QStatusBar(parent=self._window)
         self._statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self._statusbar)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self._window.setStatusBar(self._statusbar)
+        QtCore.QMetaObject.connectSlotsByName(self._window)
 
     # creates the add mod text input field,
     # where the user can input the URL of the mod they want to add.
     def _createAddModTextField(self):
-        self._addModTextField = QtWidgets.QLineEdit(parent=self._centralwidget)
+        self._addModTextField = QtWidgets.QLineEdit(parent=self._window)
         self._addModTextField.setGeometry(QtCore.QRect(0, 910, 800, 70))
         font = QtGui.QFont()
         font.setPointSize(12)
@@ -78,7 +88,7 @@ class DetailsWindow(object):
     # creates the add mod button
     # which the user can click to add the mod they've input into the add mod text field.
     def _createAddModBtn(self):
-        self._addModBtn = QtWidgets.QPushButton(parent=self._centralwidget)
+        self._addModBtn = QtWidgets.QPushButton(parent=self._window)
         self._addModBtn.setGeometry(QtCore.QRect(800, 910, 200, 70))
         font = QtGui.QFont()
         font.setPointSize(18)
