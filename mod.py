@@ -1,6 +1,6 @@
 from PyQt6 import QtGui
 import requests
-
+import re
 class ModPriority(object):
     name:str
     color:QtGui.QColor
@@ -65,8 +65,16 @@ class Mod(object):
     
     def getCurseforgeData(self):
         return self._curseforgeData
+    
+    def verifyURL(self):
+        curseforge = re.compile(r"^https:\/\/(www\.)?curseforge\.com\/minecraft\/mc-mods\/[a-zA-Z0-9-_]+\/?$")
+        modrinth = re.compile(r"^https:\/\/(www\.)?modrinth\.com\/mod\/[a-zA-Z0-9-_]+\/?$")
+        return modrinth.match(self._url) or curseforge.match(self._url)
 
     def getData(self):
+        if(not self.verifyURL()):
+            print("no valid url")
+            return
         apiKey = "$2a$10$QIDeQbKDRhOQZgmcVHKxYeTSI/RlHH8oOzRnPhd6Rb4Dcj2l3k27a"
         # modrinth data
         mod_slug = self._url.rstrip("/").split("/")[-1]
@@ -93,7 +101,7 @@ class Mod(object):
 
     
     def extractModrinth(self):
-        if (self._modrinthData == -1):
+        if (self._modrinthData == False):
             return -1
         self._name = self._modrinthData["title"]
         self._ID = self._modrinthData["id"]

@@ -6,6 +6,7 @@ class TestAPICalls(unittest.TestCase):
         modObj2 = mod.Mod(url = "https://modrinth.com/mod/fabric-api")
         modObj3 = mod.Mod(url = "https://modrinth.com/mod/cloth-config")
         modObj4 = mod.Mod(url = "https://www.curseforge.com/minecraft/mc-mods/sodium")
+        modObj5 = mod.Mod(url = "https://www.curseforge.com/minecrafods/sodium")
         self.assertNotEqual(modObj.getModrinthData(), False)
         self.assertEqual(modObj.getCurrentVersion(), "1.21.5")
         self.assertNotEqual(modObj.getCurseforgeData(), False)
@@ -32,6 +33,12 @@ class TestAPICalls(unittest.TestCase):
         self.assertEqual(modObj2.getURL(), "https://modrinth.com/mod/fabric-api")
         self.assertEqual(modObj3.getURL(), "https://modrinth.com/mod/cloth-config")
         self.assertEqual(modObj4.getURL(), "https://www.curseforge.com/minecraft/mc-mods/sodium")
+        self.assertTrue(modObj.verifyURL())
+        self.assertTrue(modObj2.verifyURL())
+        self.assertTrue(modObj3.verifyURL())
+        self.assertTrue(modObj4.verifyURL())
+        self.assertFalse(modObj5.verifyURL())
+
 
 if __name__ == "__main__":
     unittest.main()
