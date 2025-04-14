@@ -54,7 +54,10 @@ class ModTable():
         self._selectedVersion = selectedVersion
         self.loadTable()
     
-    def loadTable(self):
+    def loadTable(self, selectedVersion:str = ""):
+        if selectedVersion != "":
+            self._selectedVersion = selectedVersion
+
         # set the row count to make the amount of mods in the list
         self._tableWidget.setRowCount(len(self._modList))
 
@@ -78,7 +81,7 @@ class ModTable():
             self._setTableRow(row, self._modList[row])
             self._tableWidget.setRowHeight(row, self._rowHeight)
 
-    def reloadTableRow(self, rowNum):
+    def reloadTableRow(self, rowNum:int):
         self._tableWidget.setRowCount(len(self._modList))
         self._setTableRow(rowNum, self._modList[rowNum])
 
@@ -120,7 +123,7 @@ class ModTable():
     
     
     # adds a row to the table with the proper mod information
-    def _setTableRow(self, rowNum, mod):
+    def _setTableRow(self, rowNum:int, mod:mod.Mod):
         for col in range(self._numColumns):
             # set the font size
             item = QtWidgets.QTableWidgetItem()
@@ -147,16 +150,16 @@ class ModTable():
             self._tableWidget.setItem(rowNum, col, item)
 
     # removes a mod from the table and mod list
-    def _removeTableRow(self, mod):
+    def _removeTableRow(self, mod:mod.Mod):
         self._tableWidget.removeRow(self._modList.index(mod))
         self._dropdownBtnList.pop(self._modList.index(mod))
         self._modList.remove(mod)
         self._reloadFunc()
 
     # creates all the buttons that reveal the priority dropdown menu
-    def _createDropdownBtn(self, rowNum, mod):
+    def _createDropdownBtn(self, rowNum:int, mod:mod.Mod):
         dropdownBtn = DropdownBtn(self._parentWidget, mod, self._priorityList, self._reloadFunc,
-                                  rowNum, mod.getCurrentVersion() == self._selectedVersion, self._fontSize)
+                                  rowNum, self._selectedVersion in mod.getVersionList(), self._fontSize)
         self._tableWidget.setCellWidget(rowNum, 2, dropdownBtn.getButtonWidget())
         self._dropdownBtnList.append(dropdownBtn)
 
@@ -191,12 +194,6 @@ class DropdownBtn():
             self._changeModPriority(index)
         elif index == len(self._menuWidget.actions()) - 1:
             self._addModPriority(priorityName, priorityColor)
-        # if 0 <= index < len(self._menuWidget.actions()):
-        #     action:QtGui.QAction = self._menuWidget.actions()[index]
-        #     action.trigger()
-        # else:
-        #     print("Out of range! You tried to get the " + index
-        #         + "th dropdown option out of " + len(self._menuWidget.actions()))
 
     def getButtonWidget(self):
         return self._buttonWidget
@@ -277,7 +274,6 @@ class PieChart():
     def __init__(self, parent: QtWidgets.QMainWindow, modList: list[mod.Mod], selectedVersion: str):
         # Assign variables
         self._parentWidget = parent
-        # self._parentWidget.__init__()
         self._modList = modList
         self._selectedVersion = selectedVersion
 
@@ -296,7 +292,10 @@ class PieChart():
         self._selectedVersion = selectedVersion
         self.loadChart()
 
-    def loadChart(self):
+    def loadChart(self, selectedVersion:str = ""):
+        if selectedVersion != "":
+            self._selectedVersion = selectedVersion
+
         # Calculate the size of each slice
         self._calculateSliceSizes()
 
@@ -322,7 +321,7 @@ class PieChart():
     def _calculateSliceSizes(self):
         self._sliceSizes = {self._readySlice: 0}
         for mod in self._modList:
-            if mod.getCurrentVersion() == self._selectedVersion:
+            if self._selectedVersion in mod.getVersionList():
                 self._sliceSizes[self._readySlice] += 1
             else:
                 if mod.priority in self._sliceSizes:
