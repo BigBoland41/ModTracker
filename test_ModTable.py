@@ -1,4 +1,4 @@
-import sys, unittest, detailsWindow
+import sys, unittest, windows
 from PyQt6 import QtWidgets, QtTest, QtCore
 from testData import TestData
 
@@ -8,7 +8,7 @@ class TestModTable(unittest.TestCase):
     def setUp(self):
         # self._app = QtWidgets.QApplication(sys.argv)
         self._window = QtWidgets.QMainWindow()
-        self._detailsView = detailsWindow.DetailsWindow(self._window)
+        self._detailsView = windows.DetailsWindow(self._window)
         self._data = TestData()
 
         global _testAPICalls
