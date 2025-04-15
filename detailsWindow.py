@@ -1,12 +1,12 @@
 import mod, widgets
-from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets, QtTest
 
 class DetailsWindow(object):
     _modList:list[mod.Mod]
     _priorityList:list[mod.ModPriority]
     _selectedVersion:str
-    _attemptErrorRecovery:bool
     
+    # QWidget objects
     _window:QtWidgets.QMainWindow
     _statusbar:QtWidgets.QStatusBar
     _modTable:widgets.ModTable
@@ -22,12 +22,11 @@ class DetailsWindow(object):
                  priorityList:list[mod.ModPriority] = [
                      mod.ModPriority("High Priority", 255, 85, 0),
                      mod.ModPriority("Low Priority", 255, 255, 0)],
-                 selectedVersion:str = "1.21.5", attemptErrorRecovery = True):
+                 selectedVersion:str = "1.21.5"):
         # assign variables
         self._modList = modList
         self._priorityList = priorityList
         self._selectedVersion = selectedVersion
-        self._attemptErrorRecovery = attemptErrorRecovery
 
         # create app and window
         self._window = window
@@ -57,6 +56,11 @@ class DetailsWindow(object):
         else:
             # self._modTable.reloadTableRow(rowNum)
             self._modTable.loadTable(self._selectedVersion) # required for tests to work properly
+
+    def enterAndAddMod(self, modURL:str):
+        self._addModTextField.setText("")
+        QtTest.QTest.keyClicks(self._addModTextField, modURL)
+        QtTest.QTest.mouseClick(self._addModBtn, QtCore.Qt.MouseButton.LeftButton)
 
     # Getters
     def getModTable(self): return self._modTable
@@ -88,7 +92,7 @@ class DetailsWindow(object):
         font.setPointSize(12)
         self._addModTextField.setFont(font)
         self._addModTextField.setObjectName("addModTextField")
-        self._addModTextField.setText("Enter mod URL here")
+        self._addModTextField.setPlaceholderText("Enter mod URL here")
 
     # creates the add mod button
     # which the user can click to add the mod they've input into the add mod text field.

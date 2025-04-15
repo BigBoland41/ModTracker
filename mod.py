@@ -73,7 +73,7 @@ class Mod(object):
 
     def getData(self):
         if(not self.verifyURL()):
-            print("no valid url")
+            # print("no valid url")
             return
         apiKey = "$2a$10$QIDeQbKDRhOQZgmcVHKxYeTSI/RlHH8oOzRnPhd6Rb4Dcj2l3k27a"
         # modrinth data
