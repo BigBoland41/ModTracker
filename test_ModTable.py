@@ -1,4 +1,4 @@
-import sys, mod, unittest, detailsWindow
+import sys, unittest, detailsWindow
 from PyQt6 import QtWidgets, QtTest, QtCore
 from testData import TestData
 
@@ -58,14 +58,8 @@ class TestModTable(unittest.TestCase):
         modTable = self._detailsView.getModTable()
         oldNumRows = modTable.getNumRows()
 
-        addModTextField = self._window.findChild(QtWidgets.QLineEdit, "addModTextField")
-        addModBtn = self._window.findChild(QtWidgets.QPushButton, "addModBtn")
-
-        QtTest.QTest.keyClicks(addModTextField, "https://modrinth.com/mod/sodium")
-        QtTest.QTest.mouseClick(addModBtn, QtCore.Qt.MouseButton.LeftButton)
-
-        QtTest.QTest.keyClicks(addModTextField, "https://modrinth.com/mod/nether-height-expansion-mod")
-        QtTest.QTest.mouseClick(addModBtn, QtCore.Qt.MouseButton.LeftButton)
+        self._detailsView.enterAndAddMod("https://modrinth.com/mod/sodium")
+        self._detailsView.enterAndAddMod("https://modrinth.com/mod/nether-height-expansion-mod")
 
         self.assertEqual(modTable.getRowNameText(modTable.getNumRows() - 2), "Sodium")
         self.assertEqual(modTable.getRowVersionText(modTable.getNumRows() - 2), "1.21.5")
@@ -82,14 +76,8 @@ class TestModTable(unittest.TestCase):
         modTable = self._detailsView.getModTable()
         oldNumRows = modTable.getNumRows()
 
-        addModTextField = self._window.findChild(QtWidgets.QLineEdit, "addModTextField")
-        addModBtn = self._window.findChild(QtWidgets.QPushButton, "addModBtn")
-
-        QtTest.QTest.keyClicks(addModTextField, "https://modrinth.com/mod/sodium")
-        QtTest.QTest.mouseClick(addModBtn, QtCore.Qt.MouseButton.LeftButton)
-
-        QtTest.QTest.keyClicks(addModTextField, "https://modrinth.com/mod/nether-height-expansion-mod")
-        QtTest.QTest.mouseClick(addModBtn, QtCore.Qt.MouseButton.LeftButton)
+        self._detailsView.enterAndAddMod("https://modrinth.com/mod/sodium")
+        self._detailsView.enterAndAddMod("https://modrinth.com/mod/nether-height-expansion-mod")
 
         self.assertEqual(modTable.getRowNameText(modTable.getNumRows() - 2), "Sodium")
         self.assertEqual(modTable.getRowVersionText(modTable.getNumRows() - 2), "1.21.5")

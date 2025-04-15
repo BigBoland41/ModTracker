@@ -12,7 +12,7 @@ class TestAPICalls(unittest.TestCase):
         self.assertNotEqual(modObj.getCurseforgeData(), False)
         self.assertEqual(modObj.getID(), "AANobbMI")
         self.assertNotEqual(modObj2.getModrinthData(), False)
-        self.assertEqual(modObj2.getCurrentVersion(), "25w15a")
+        self.assertEqual(modObj2.getCurrentVersion(), "25w16a")
         self.assertNotEqual(modObj3.getModrinthData(), False)
         self.assertEqual(modObj3.getCurrentVersion(), "1.21.5")
         with open("mod_info.json", "w") as json_file:
@@ -26,7 +26,7 @@ class TestAPICalls(unittest.TestCase):
         self.assertEqual(modObj3.getName(), "Cloth Config API")
         self.assertEqual(modObj4.getName(), "Sodium")
         self.assertEqual(modObj.getCurrentVersion(), "1.21.5")
-        self.assertEqual(modObj2.getCurrentVersion(), "25w15a")
+        self.assertEqual(modObj2.getCurrentVersion(), "25w16a")
         self.assertEqual(modObj3.getCurrentVersion(), "1.21.5")
         self.assertEqual(modObj4.getCurrentVersion(), "1.21.5")
         self.assertEqual(modObj.getURL(), "https://modrinth.com/mod/sodium")
@@ -41,4 +41,4 @@ class TestAPICalls(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    unittest.main(verbosity=2,failfast=True)

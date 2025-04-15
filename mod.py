@@ -72,9 +72,9 @@ class Mod(object):
         return modrinth.match(self._url) or curseforge.match(self._url)
 
     def getData(self):
-        #if(not self.verifyURL()):
-        #    print("no valid url")
-        #    return
+        if(not self.verifyURL()):
+            # print("no valid url")
+            return
         apiKey = "$2a$10$QIDeQbKDRhOQZgmcVHKxYeTSI/RlHH8oOzRnPhd6Rb4Dcj2l3k27a"
         # modrinth data
         mod_slug = self._url.rstrip("/").split("/")[-1]

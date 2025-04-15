@@ -1,5 +1,5 @@
-import sys, mod, unittest, detailsWindow
-from PyQt6 import QtWidgets, QtTest, QtCore, QtGui
+import sys, unittest, detailsWindow
+from PyQt6 import QtWidgets, QtGui
 from testData import TestData
 
 _testAPICalls = True
@@ -42,11 +42,7 @@ class TestPieChart(unittest.TestCase):
         chart = self._detailsView.getPieChart()
         sliceList = list(chart.getSliceSizes().keys())
 
-        addModTextField = self._window.findChild(QtWidgets.QLineEdit, "addModTextField")
-        addModBtn = self._window.findChild(QtWidgets.QPushButton, "addModBtn")
-
-        QtTest.QTest.keyClicks(addModTextField, "https://modrinth.com/mod/sodium")
-        QtTest.QTest.mouseClick(addModBtn, QtCore.Qt.MouseButton.LeftButton)
+        self._detailsView.enterAndAddMod("https://modrinth.com/mod/sodium")
 
         self.assertEqual(len(sliceList), 1)
         self.assertEqual(chart.getSliceSizes().get(sliceList[0]), 1)
@@ -57,11 +53,7 @@ class TestPieChart(unittest.TestCase):
         chart = self._detailsView.getPieChart()
         sliceList = list(chart.getSliceSizes().keys())
 
-        addModTextField = self._window.findChild(QtWidgets.QLineEdit, "addModTextField")
-        addModBtn = self._window.findChild(QtWidgets.QPushButton, "addModBtn")
-
-        QtTest.QTest.keyClicks(addModTextField, "https://modrinth.com/mod/sodium")
-        QtTest.QTest.mouseClick(addModBtn, QtCore.Qt.MouseButton.LeftButton)
+        self._detailsView.enterAndAddMod("https://modrinth.com/mod/sodium")
 
         self.assertEqual(len(sliceList), 3)
         self.assertEqual(chart.getSliceSizes().get(sliceList[0]), 8)
@@ -74,11 +66,7 @@ class TestPieChart(unittest.TestCase):
         chart = self._detailsView.getPieChart()
         sliceList = list(chart.getSliceSizes().keys())
 
-        addModTextField = self._window.findChild(QtWidgets.QLineEdit, "addModTextField")
-        addModBtn = self._window.findChild(QtWidgets.QPushButton, "addModBtn")
-
-        QtTest.QTest.keyClicks(addModTextField, "https://modrinth.com/mod/nether-height-expansion-mod")
-        QtTest.QTest.mouseClick(addModBtn, QtCore.Qt.MouseButton.LeftButton)
+        self._detailsView.enterAndAddMod("https://modrinth.com/mod/nether-height-expansion-mod")
 
         self.assertEqual(self._detailsView.getModTable().getNumRows(), 24)
 
