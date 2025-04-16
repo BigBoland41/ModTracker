@@ -1,16 +1,24 @@
 from PyQt6 import QtGui
 import requests
+import json
 import re
 class ModPriority(object):
     name:str
     color:QtGui.QColor
+    r:int
+    g:int
+    b:int
 
     def __init__(self, newName = "New Priority Level", red = 255, green = 255, blue = 255, color:QtGui.QColor = None):
         self.name = newName
+        self.r = red
+        self.g = green
+        self.b = blue
         if color == None:
             self.color = QtGui.QColor(red, green, blue)
         else:
             self.color = color
+        
 
     def __str__(self):
         return f"{self.name}"
@@ -38,6 +46,10 @@ class Mod(object):
 
         if(url != -1):
             self.refreshMod()
+
+
+
+        
 
     def __str__(self):
         return f"{self._name} version: {self.getCurrentVersion()}, priority: {self.priority}"
@@ -110,6 +122,20 @@ class Mod(object):
     def refreshMod(self):
         self.getData()
         self.extractModrinth()
+
+    def createDict(self):
+        return {
+            "priorityname" : self.priority.name,
+            "priorityr" : self.priority.r,
+            "priorityg" : self.priority.g,
+            "priorityb" : self.priority.b,
+            "name" : self._name,
+            "id" : self._ID,
+            "url" : self._url,
+            "versions" : self._versions,
+        }
+    
+    
 
 
 

@@ -143,11 +143,14 @@ class DetailsWindow(object):
 
         newMod = mod.Mod(url = inputString, modPriority=self._priorityList[0])
         self._modList.append(newMod)
+        self._modTable.saveModList()
         self.reloadWidgets(reloadEverything=True)
 
     def _refresh(self):
         self._selectedVersion = self._selectedVersionTextField.text()
 
         # refresh API function goes here
+        for mod in self._modList:
+            mod.refreshMod()
 
         self.reloadWidgets()

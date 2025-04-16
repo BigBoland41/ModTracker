@@ -36,6 +36,8 @@ class TestDetailsView(unittest.TestCase):
         self.assertIsNotNone(self._detailsView)
         self.assertEqual(self._detailsView.getModTable().getNumRows(), len(self._data.modNames))
 
+
+
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     unittest.main(verbosity=2,failfast=True)

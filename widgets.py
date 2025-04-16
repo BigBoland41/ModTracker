@@ -1,6 +1,22 @@
 from PyQt6 import QtCore, QtGui, QtWidgets, QtCharts
 import mod
+import json
 
+
+def dictToMod(data):
+        prio = mod.ModPriority(data["priorityname"], red=data["priorityr"], green=data["priorityg"], blue=data["priorityb"])
+        return mod.Mod(modName=data["name"], modPriority=prio, modVersions=data["versions"], url=data["url"], modID=data["id"])
+
+def createModList(filename="mods.json"):
+        newModList = []
+        try:
+            with open(filename, "r") as f:
+                data = json.load(f)
+                for entry in data:
+                    newModList.append(dictToMod(entry))
+        except FileNotFoundError:
+            return []
+        return newModList
 # This is the table that displays information about all the mods in a profile, including the
 # mod name, it's latest version, "ready" or it's priority level, and a button to remove the
 # mod from the table. 
@@ -53,7 +69,13 @@ class ModTable():
         self._priorityList = priorityList
         self._selectedVersion = selectedVersion
         self.loadTable()
-    
+
+    def saveModList(self, filename="mods.json"):
+        with open(filename, "w") as f:
+            json.dump([m.createDict() for m in self._modList], f, indent=4)
+
+
+
     def loadTable(self, selectedVersion:str = ""):
         if selectedVersion != "":
             self._selectedVersion = selectedVersion
@@ -255,6 +277,7 @@ class DropdownBtn():
     def _addModPriority(self, modName:str, color:QtGui.QColor):
         self._priorityList.append(mod.ModPriority(modName, color=color))
         self._changeModPriority(len(self._priorityList) - 1, True)
+
 
 # This is the pie chart that displays how many of the mods in this profile are ready,
 # and then breaks down the rest by priority level.
