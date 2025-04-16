@@ -1,4 +1,4 @@
-import sys, unittest, detailsWindow
+import sys, unittest, windows
 from PyQt6 import QtWidgets, QtGui
 from testData import TestData
 
@@ -6,7 +6,7 @@ class TestDropdownBtn(unittest.TestCase):
     def setUp(self):
         # self._app = QtWidgets.QApplication(sys.argv)
         self._window = QtWidgets.QMainWindow()
-        self._detailsView = detailsWindow.DetailsWindow(self._window)
+        self._detailsView = windows.DetailsWindow(self._window)
         self._data = TestData()
 
     def tearDown(self):
