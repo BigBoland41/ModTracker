@@ -177,6 +177,7 @@ class ModTable():
         self._dropdownBtnList.pop(self._modList.index(mod))
         self._modList.remove(mod)
         self._reloadFunc()
+        self.saveModList()
 
     # creates all the buttons that reveal the priority dropdown menu
     def _createDropdownBtn(self, rowNum:int, mod:mod.Mod):

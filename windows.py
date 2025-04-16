@@ -146,7 +146,7 @@ class DetailsWindow(object):
         # refresh API function goes here
         for mod in self._modList:
             mod.refreshMod()
-
+        self._modTable.saveModList()
         self.reloadWidgets()
 
 class ProfileSelectWindow(object):
