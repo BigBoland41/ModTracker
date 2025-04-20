@@ -8,7 +8,7 @@ class TestPieChart(unittest.TestCase):
     def setUp(self):
         # self._app = QtWidgets.QApplication(sys.argv)
         self._window = QtWidgets.QMainWindow()
-        self._detailsView = windows.DetailsWindow(self._window)
+        self._detailsView = windows.DetailsWindow()
         self._data = TestData()
 
         global _testAPICalls

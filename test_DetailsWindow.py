@@ -16,7 +16,7 @@ class TestDetailsView(unittest.TestCase):
     
     def testCreateWindow_Prepopulated(self):
         self._detailsView =  windows.DetailsWindow(
-            self._window, self._data.constructModList(),
+            self._data.constructModList(),
             self._data.priorityList, self._data.selectedVersion
         )
 
@@ -24,13 +24,13 @@ class TestDetailsView(unittest.TestCase):
         self.assertEqual(self._detailsView.getModTable().getNumRows(), len(self._data.modNames))
 
     def testCreateWindow_Empty(self):
-        self._detailsView = windows.DetailsWindow(self._window)
+        self._detailsView = windows.DetailsWindow()
 
         self.assertIsNotNone(self._detailsView)
         self.assertEqual(self._detailsView.getModTable().getNumRows(), 0)
 
     def testCreateWindow_LoadNewData(self):
-        self._detailsView = windows.DetailsWindow(self._window)
+        self._detailsView = windows.DetailsWindow()
         self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
 
         self.assertIsNotNone(self._detailsView)

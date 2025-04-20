@@ -2,7 +2,6 @@ from PyQt6 import QtCore, QtGui, QtWidgets, QtCharts
 import mod
 import json
 
-
 def dictToMod(data):
         prio = mod.ModPriority(data["priorityname"], red=data["priorityr"], green=data["priorityg"], blue=data["priorityb"])
         return mod.Mod(modName=data["name"], modPriority=prio, modVersions=data["versions"], url=data["url"], modID=data["id"])
@@ -17,6 +16,7 @@ def createModList(filename="mods.json"):
         except FileNotFoundError:
             return []
         return newModList
+
 # This is the table that displays information about all the mods in a profile, including the
 # mod name, it's latest version, "ready" or it's priority level, and a button to remove the
 # mod from the table. 
@@ -54,7 +54,7 @@ class ModTable():
     # The selected version for this profile
     _selectedVersion:str
     
-    def __init__(self, parent:QtWidgets.QMainWindow, modList:list[mod.Mod], priorityList:list[mod.ModPriority],
+    def __init__(self, parent:QtWidgets.QWidget, modList:list[mod.Mod], priorityList:list[mod.ModPriority],
                  selectedVersion:str, reloadFunc):
         self._parentWidget = parent
         self._modList = modList
@@ -73,7 +73,6 @@ class ModTable():
     def saveModList(self, filename="mods.json"):
         with open(filename, "w") as f:
             json.dump([m.createDict() for m in self._modList], f, indent=4)
-
 
 
     def loadTable(self, selectedVersion:str = ""):
@@ -106,6 +105,9 @@ class ModTable():
     def reloadTableRow(self, rowNum:int):
         self._tableWidget.setRowCount(len(self._modList))
         self._setTableRow(rowNum, self._modList[rowNum])
+
+    def deleteWidget(self):
+        self._tableWidget.deleteLater()
 
     # Getters
     def getModList(self): return self._modList
@@ -197,7 +199,7 @@ class DropdownBtn():
     _rowNum:int
     _fontSize:int
 
-    def __init__(self, parentWidget:QtWidgets.QMainWindow, mod:mod.Mod, priorityList:list[mod.ModPriority],
+    def __init__(self, parentWidget:QtWidgets.QWidget, mod:mod.Mod, priorityList:list[mod.ModPriority],
                  refreshFunc, rowNum:int, isReady:bool, fontSize:int):
         # set attributes
         self._parentWidget = parentWidget
@@ -295,7 +297,7 @@ class PieChart():
     _titleFontSize = 24
     _labelFontSize = 14
 
-    def __init__(self, parent: QtWidgets.QMainWindow, modList: list[mod.Mod], selectedVersion: str):
+    def __init__(self, parent: QtWidgets.QWidget, modList: list[mod.Mod], selectedVersion: str):
         # Assign variables
         self._parentWidget = parent
         self._modList = modList
@@ -341,6 +343,9 @@ class PieChart():
 
         # Update the existing chart view
         self._chartView.setChart(chart)
+
+    def deleteWidget(self):
+        self._chartView.deleteLater()
 
     def _calculateSliceSizes(self):
         self._sliceSizes = {self._readySlice: 0}

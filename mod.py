@@ -1,7 +1,6 @@
 from PyQt6 import QtGui
-import requests
-import json
-import re
+import requests, re
+
 class ModPriority(object):
     name:str
     color:QtGui.QColor
@@ -18,10 +17,25 @@ class ModPriority(object):
             self.color = QtGui.QColor(red, green, blue)
         else:
             self.color = color
+            self.r = color.red()
+            self.g = color.green()
+            self.b = color.blue()
         
 
     def __str__(self):
         return f"{self.name}"
+    
+    def __eq__(self, other):
+        if not isinstance(other, ModPriority):
+            return False
+        elif self.name == other.name and self.r == other.r and self.g == other.g and self.b == other.b:
+            return True
+        else:
+            return False
+    
+    # Ensure the object can be used as a dictionary key
+    def __hash__(self):
+        return hash((self.name, self.r, self.g, self.b))
 
 class Mod(object):
     priority:ModPriority
@@ -46,10 +60,6 @@ class Mod(object):
 
         if(url != -1):
             self.refreshMod()
-
-
-
-        
 
     def __str__(self):
         return f"{self._name} version: {self.getCurrentVersion()}, priority: {self.priority}"
@@ -135,7 +145,33 @@ class Mod(object):
             "versions" : self._versions,
         }
     
+class ModProfile(object):
+    modList:list[Mod]
+    priorityList:list[ModPriority]
+    selectedVersion:str
+    name:str
     
+    def __init__(self, modList:list[Mod] = [],
+                 priorityList:list[ModPriority] = [
+                     ModPriority("High Priority", 255, 85, 0),
+                     ModPriority("Low Priority", 255, 255, 0)],
+                 selectedVersion:str = "1.21.5",
+                 name = "New Profile"):
+        # assign variables
+        self.modList = modList
+        self.priorityList = priorityList
+        self.selectedVersion = selectedVersion
+        self.name = name
 
+    def showDetailsWindow(self, window):
+        from windows import DetailsWindow
+        self._profileView = DetailsWindow(window, self.modList, self.priorityList, self.selectedVersion)
 
-
+    def getPercentReady(self):
+        readyMods = 0
+        
+        for mod in self.modList:
+            if self.selectedVersion in mod.getVersionList():
+                readyMods += 1
+        
+        return (readyMods/len(self.modList)) * 100
