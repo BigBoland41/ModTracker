@@ -163,8 +163,9 @@ class DetailsWindow(QtWidgets.QWidget):
         font.setPointSize(18)
         self._refreshBtn.setFont(font)
         self._refreshBtn.setObjectName("backBtn")
-        self._refreshBtn.clicked.connect(self._onBackButtonClick)
         self._refreshBtn.setText("x")
+        if (self._onBackButtonClick is not None):
+            self._refreshBtn.clicked.connect(self._onBackButtonClick)
 
     # Adds a mod to the profile. Triggered when the add mod button is clicked.
     def _addMod(self):
