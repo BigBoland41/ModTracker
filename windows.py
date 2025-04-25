@@ -1,11 +1,38 @@
 import mod, widgets
 from PyQt6 import QtCore, QtGui, QtWidgets, QtTest
 
-# configures the window, including name, size, and status bar
-def configureWindow(window:QtWidgets.QMainWindow):
-    window.setObjectName("MainWindow")
-    window.setWindowTitle("Mod Tracker")
-    window.resize(1000, 500)
+class WindowManager(QtWidgets.QStackedWidget):
+    _selectView:'ProfileSelectWindow'
+    _detailsView:'DetailsWindow'
+    
+    def __init__(self, window:QtWidgets.QMainWindow):
+        super().__init__(window) # Initialize QStackedWidget
+
+        # configure window
+        window.setObjectName("MainWindow")
+        window.setWindowTitle("Mod Tracker")
+        window.resize(1000, 500)
+
+        # update window manager to fit the window
+        self.setGeometry(QtCore.QRect(0, 0, 1920, 1080))
+        window.setCentralWidget(self)
+
+        # create select view
+        self._selectView = ProfileSelectWindow(self._openDetailsView)
+        self._selectView.setParent(self)
+        self._selectView.setGeometry(QtCore.QRect(0, 0, 1920, 1080))
+
+    def addProfile(self, newProfile:mod.ModProfile):
+        self._selectView.addProfile(newProfile)  
+
+    def _openDetailsView(self, profile:mod.ModProfile):
+        self._detailsView = DetailsWindow(profile.modList, profile.priorityList, profile.selectedVersion, self._closeDetailsView)
+        self.addWidget(self._detailsView)
+        self.setCurrentWidget(self._detailsView)
+
+    def _closeDetailsView(self):
+        self.removeWidget(self._detailsView)
+        self._detailsView.deleteLater()
 
 class DetailsWindow(QtWidgets.QWidget):
     _modList:list[mod.Mod]
@@ -26,13 +53,14 @@ class DetailsWindow(QtWidgets.QWidget):
                  priorityList:list[mod.ModPriority] = [
                      mod.ModPriority("High Priority", 255, 85, 0),
                      mod.ModPriority("Low Priority", 255, 255, 0)],
-                 selectedVersion:str = "1.21.5"):
+                 selectedVersion:str = "1.21.5", onBackButtonClick = None):
         super().__init__()
 
         # assign variables
         self._modList = modList
         self._priorityList = priorityList
         self._selectedVersion = selectedVersion
+        self._onBackButtonClick = onBackButtonClick
         
         self._pieChart = widgets.PieChart(self, self._modList, self._selectedVersion)
         self._modTable = widgets.ModTable(self, self._modList, self._priorityList,
@@ -42,6 +70,7 @@ class DetailsWindow(QtWidgets.QWidget):
         self._createAddModBtn()
         self._createSelectedVersionTextField()
         self._createRefreshBtn()
+        self._createBackBtn()
 
     def loadNewData(self, modList:list[mod.Mod], priorityList:list[mod.ModPriority], selectedVersion:str):
         self._modList = modList
@@ -63,17 +92,6 @@ class DetailsWindow(QtWidgets.QWidget):
         self._addModTextField.setText("")
         QtTest.QTest.keyClicks(self._addModTextField, modURL)
         QtTest.QTest.mouseClick(self._addModBtn, QtCore.Qt.MouseButton.LeftButton)
-
-    # properly deletes all the widgets tied to this object, effectively "clearing the screen."
-    def deleteWidgets(self):
-        self._modTable.deleteWidget()
-        self._pieChart.deleteWidget()
-
-        self._addModTextField.deleteLater()
-        self._selectedVersionTextField.deleteLater()
-        self._addModBtn.deleteLater()
-        self._refreshBtn.deleteLater()
-        self._selectedVersionLabel.deleteLater()
 
     # Getters
     def getModTable(self): return self._modTable
@@ -115,13 +133,13 @@ class DetailsWindow(QtWidgets.QWidget):
         font.setPointSize(12)
 
         self._selectedVersionLabel = QtWidgets.QLabel(parent=self)
-        self._selectedVersionLabel.setGeometry(QtCore.QRect(1615, 10, 120, 50))
+        self._selectedVersionLabel.setGeometry(QtCore.QRect(1560, 10, 120, 50))
         self._selectedVersionLabel.setFont(font)
         self._selectedVersionLabel.setObjectName("selectedVersionLabel")
         self._selectedVersionLabel.setText("Selected Version:")
 
         self._selectedVersionTextField = QtWidgets.QLineEdit(parent=self)
-        self._selectedVersionTextField.setGeometry(QtCore.QRect(1740, 10, 120, 50))
+        self._selectedVersionTextField.setGeometry(QtCore.QRect(1685, 10, 120, 50))
         self._selectedVersionTextField.setFont(font)
         self._selectedVersionTextField.setObjectName("selectedVersionTextField")
         self._selectedVersionTextField.setText(self._selectedVersion)
@@ -130,13 +148,23 @@ class DetailsWindow(QtWidgets.QWidget):
     # which the user can click to call the API again, as well as refresh the table and pie chart.
     def _createRefreshBtn(self):
         self._refreshBtn = QtWidgets.QPushButton(parent=self)
-        self._refreshBtn.setGeometry(QtCore.QRect(1865, 10, 50, 50))
+        self._refreshBtn.setGeometry(QtCore.QRect(1810, 10, 50, 50))
         font = QtGui.QFont()
         font.setPointSize(18)
         self._refreshBtn.setFont(font)
         self._refreshBtn.setObjectName("refreshBtn")
         self._refreshBtn.clicked.connect(self._refresh)
         self._refreshBtn.setText("⟳")
+
+    def _createBackBtn(self):
+        self._refreshBtn = QtWidgets.QPushButton(parent=self)
+        self._refreshBtn.setGeometry(QtCore.QRect(1865, 10, 50, 50))
+        font = QtGui.QFont()
+        font.setPointSize(18)
+        self._refreshBtn.setFont(font)
+        self._refreshBtn.setObjectName("backBtn")
+        self._refreshBtn.clicked.connect(self._onBackButtonClick)
+        self._refreshBtn.setText("x")
 
     # Adds a mod to the profile. Triggered when the add mod button is clicked.
     def _addMod(self):
@@ -162,32 +190,44 @@ class ProfileSelectWindow(QtWidgets.QWidget):
     _profileList:list[mod.ModProfile]
     _priorityList:list[mod.ModPriority]
 
-    _stackedWidget:QtWidgets.QStackedWidget
     _profileWidgets:list[QtWidgets.QPushButton] = []
-    _detailsView:DetailsWindow
+    _addProfileWidget:QtWidgets.QPushButton
 
     _widgetSize = 400 # size of the profile widget (width and height)
     _widgetSpacing = 35 # spacing between profile widgets
     _widgetsPerRow = 4 # number of profile widgets per row
-    _maxWidgets = 7 # maximum number of profile widgets to create
+    _maxWidgets = 7 # maximum number of profile widgets
+    _numWidgets = 0 # current number of profile widgets
     _rowPadding = 30 # padding between the first row of profile widgets and the top of the window
-    _titleFontSize = 24
-    _subtitleFontSize = 20
 
-    def __init__(self, stackedWidget: QtWidgets.QStackedWidget, profileList:list[mod.ModProfile], priorityList:list[mod.ModPriority] = []):
+    _titleFontSize = 24 # size of the profile widget's name text
+    _subtitleFontSize = 20 # size of the the rest of the text on a profile widget
+    _plusSignFontSize = 32 # size of the plus sign on the add profile widget
+
+    def __init__(self, onProfileClick, profileList:list[mod.ModProfile] = [], priorityList:list[mod.ModPriority] = []):
         super().__init__()  # Initialize QWidget
-        self._stackedWidget = stackedWidget
+        self._onProfileClick = onProfileClick
         self._profileList = profileList
         self._priorityList = priorityList
 
+        self._addProfileWidget = None
+
         self._createWidgetRows()
 
-    def _createWidgetRows(self):
-        for i in range(len(self._profileList)):
-            self._createProfileWidget(i)
+    def addProfile(self, newProfile):
+        self._profileList.append(newProfile)
+        self._createProfileWidget()
 
-    def _createProfileWidget(self, numWidget:int):
-        if (numWidget >= self._maxWidgets):
+    def _createWidgetRows(self):
+        if (len(self._profileList) == 0):
+            # self._createAddProfileWidget()
+            pass
+        else:
+            for i in range(len(self._profileList)):
+                self._createProfileWidget()
+
+    def _createProfileWidget(self):
+        if (self._numWidgets >= self._maxWidgets):
             return
 
         # create a profile widget, which is a button that will be used to open the profile
@@ -199,13 +239,14 @@ class ProfileSelectWindow(QtWidgets.QWidget):
         colPadding = (1920 - totalRowWidth) // 2
 
         profileWidget.setGeometry(QtCore.QRect(
-            colPadding + (self._widgetSize + self._widgetSpacing) * (numWidget % self._widgetsPerRow),
-            self._rowPadding + (self._widgetSize + self._widgetSpacing) * (int(numWidget / self._widgetsPerRow)),
+            colPadding + (self._widgetSize + self._widgetSpacing) * (self._numWidgets % self._widgetsPerRow),
+            self._rowPadding + (self._widgetSize + self._widgetSpacing) * (int(self._numWidgets / self._widgetsPerRow)),
             self._widgetSize,
             self._widgetSize
         ))
 
-        profileWidget.clicked.connect(lambda checked, id=numWidget: self._openDetailsView(id))
+        # connect _openDetailsView() to the underlying button
+        profileWidget.clicked.connect(lambda checked, id = self._numWidgets: self._openDetailsView(id))
 
         # Prepare fonts
         titleFont = QtGui.QFont()
@@ -218,31 +259,60 @@ class ProfileSelectWindow(QtWidgets.QWidget):
         # Profile name label
         profileNameLabel = QtWidgets.QLabel(parent=profileWidget)
         profileNameLabel.setWordWrap(True)
-        profileNameLabel.setText(self._profileList[numWidget].name)
+        profileNameLabel.setText(self._profileList[self._numWidgets].name)
         profileNameLabel.setFont(titleFont)
         profileNameLabel.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         profileNameLabel.setGeometry(QtCore.QRect(0, 25, self._widgetSize, 40))
 
         # Mod count label
         numModsLabel = QtWidgets.QLabel(parent=profileWidget)
-        numModsLabel.setText(f"{len(self._profileList[numWidget].modList)} mods")
+        numModsLabel.setText(f"{len(self._profileList[self._numWidgets].modList)} mods")
         numModsLabel.setFont(subtitleFont)
         numModsLabel.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         numModsLabel.setGeometry(QtCore.QRect(0, 215, self._widgetSize, 30))
 
         # Readiness label
         readinessLabel = QtWidgets.QLabel(parent=profileWidget)
-        readinessLabel.setText(f"{self._profileList[numWidget].getPercentReady():.2f}% ready\nfor {self._profileList[numWidget].selectedVersion}")
+        readinessLabel.setText(f"{self._profileList[self._numWidgets].getPercentReady():.2f}% ready\nfor {self._profileList[self._numWidgets].selectedVersion}")
         readinessLabel.setFont(subtitleFont)
         readinessLabel.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         readinessLabel.setGeometry(QtCore.QRect(0, 280, self._widgetSize, 60))
 
+        # Add to list of profile widgets
         self._profileWidgets.append(profileWidget)
+
+        # Increment the widget count and create add profile widget
+        self._numWidgets += 1
+        # self._createAddProfileWidget()
+
+    def _createAddProfileWidget(self):
+        if (self._numWidgets >= self._maxWidgets or self._numWidgets < len(self._profileList)):
+            return
+
+        if (self._addProfileWidget is not None):
+            self._addProfileWidget.deleteLater()
+        
+        self._addProfileWidget = QtWidgets.QPushButton(parent=self, text="+")
+        self._addProfileWidget.clicked.connect(lambda : self.addProfile(mod.ModProfile()))
+
+        # determine the how much to offset the first column (start of the first row) in order to center the widgets
+        # in the window. This is done by calculating the total width of all widgets in a row and subtracting it from the window width.
+        totalRowWidth = self._widgetsPerRow * self._widgetSize + (self._widgetsPerRow - 1) * self._widgetSpacing
+        colPadding = (1920 - totalRowWidth) // 2
+
+        self._addProfileWidget.setGeometry(QtCore.QRect(
+            colPadding + (self._widgetSize + self._widgetSpacing) * (self._numWidgets % self._widgetsPerRow),
+            self._rowPadding + (self._widgetSize + self._widgetSpacing) * (int(self._numWidgets / self._widgetsPerRow)),
+            self._widgetSize,
+            self._widgetSize
+        ))
+        
+        # Set font
+        font = QtGui.QFont()
+        font.setPointSize(self._titleFontSize)
+        font.setBold(True)
+        self._addProfileWidget.setFont(font)
 
     def _openDetailsView(self, profileNum:int):
         profile = self._profileList[profileNum]
-        self._detailsView = DetailsWindow(profile.modList, profile.priorityList, profile.selectedVersion)
-        
-        # Add DetailsWindow to QStackedWidget and switch to it
-        self._stackedWidget.addWidget(self._detailsView)
-        self._stackedWidget.setCurrentWidget(self._detailsView)
+        self._onProfileClick(profile)

@@ -106,9 +106,6 @@ class ModTable():
         self._tableWidget.setRowCount(len(self._modList))
         self._setTableRow(rowNum, self._modList[rowNum])
 
-    def deleteWidget(self):
-        self._tableWidget.deleteLater()
-
     # Getters
     def getModList(self): return self._modList
 
@@ -297,7 +294,7 @@ class PieChart():
     _titleFontSize = 24
     _labelFontSize = 14
 
-    def __init__(self, parent: QtWidgets.QWidget, modList: list[mod.Mod], selectedVersion: str):
+    def __init__(self, parent:QtWidgets.QWidget, modList:list[mod.Mod], selectedVersion:str):
         # Assign variables
         self._parentWidget = parent
         self._modList = modList
@@ -343,9 +340,6 @@ class PieChart():
 
         # Update the existing chart view
         self._chartView.setChart(chart)
-
-    def deleteWidget(self):
-        self._chartView.deleteLater()
 
     def _calculateSliceSizes(self):
         self._sliceSizes = {self._readySlice: 0}

@@ -174,4 +174,7 @@ class ModProfile(object):
             if self.selectedVersion in mod.getVersionList():
                 readyMods += 1
         
-        return (readyMods/len(self.modList)) * 100
+        if (len(self.modList) == 0):
+            return 0
+        else:
+            return (readyMods/len(self.modList)) * 100
