@@ -41,6 +41,7 @@ jobs:
         pip install PyQt6
         pip install PyQt6-Charts
         pip install requests
+        pip install pyinstaller
     
     - name: Save test results
       env:
@@ -48,6 +49,10 @@ jobs:
       run: |
           mkdir -p test-results
           python tests.py > test-results/results.txt || true
+
+    - name: Build executable with PyInstaller
+      run: |
+        pyinstaller --onefile main.py
 
     - name: Upload test results
       uses: actions/upload-artifact@v4
