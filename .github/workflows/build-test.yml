@@ -52,7 +52,7 @@ jobs:
 
     - name: Build executable with PyInstaller
       run: |
-        pyinstaller --onefile main.py
+        pyinstaller --name ModTracker --onefile main.py
 
     - name: Upload test results
       uses: actions/upload-artifact@v4
