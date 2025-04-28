@@ -4,18 +4,22 @@ Mod tracker is an app that helps you keep track of the mods you've been so patie
 
 # How To Run
 
-To run application, either...
-- Run dist/detailsWindow/detailsWindow.exe
-OR
+To download and run Mod Tracker:
+- Open your browser and go to our [GitHub Actions page](https://github.com/BigBoland41/ModTracker/actions/workflows/build-test.yml).
+- You can now see a log of all attempted builds, which automatically run after committing to the main branch. Click the most recent one.
+- Download build-executable.zip from the artifacts. You can optionally download the automatic test results in unittest-results.zip.
+Note that there is currently a bug where the unittest results will be blank.
+
+To run Mod Tracker in your IDE:
 - Install Python 3, then install the PyQt6, requests, and PyQt6-Charts libraries using pip install PyQt6 and pip install requests.
-- Run the detailsWindow.py file.
+- Run the main.py file.
 
-Generate an executable by:
+To generate your own executable:
 - Install the pyinstaller library (make sure you also have other libraries installed)
-- Run pyinstaller detailsWindow.py
-- The executable can then be found in the newly generated dist/detailsWindow directory
+- Run pyinstaller --name ModTracker --onefile --noconsole main.py
+- The executable can then be found in the newly generated dist directory
 
-To run unit tests, run the tests.py file.
+To run unit tests, run the tests.py file. You can also test specific modules using a file with the test_ prefix.
 
 # Project Details
 
@@ -31,7 +35,7 @@ ModTracker is a desktop application designed to simplify the task of tracking su
 
 After opening the app, the user can select a mod profile, which contains a list of mods, or create a new one. The user can then add mods to the profile they want tracked, change the priority level of specific mods, etc. When new information is needed, an API call will be made to get information about all mods.
 
-[Sequence Diagram](https://cdn.discordapp.com/attachments/1336782574403457146/1344455646971695147/Screenshot_2025-02-26_at_6.44.06_PM.png?ex=67db5765&is=67da05e5&hm=f9e517b43c078790626319905b22c6b301c17585f6d148311ffe68b9ffa865e1&)
+<img src="https://cdn.discordapp.com/attachments/1336782574403457146/1344455646971695147/Screenshot_2025-02-26_at_6.44.06_PM.png?ex=67db5765&is=67da05e5&hm=f9e517b43c078790626319905b22c6b301c17585f6d148311ffe68b9ffa865e1&" alt="Sequence Diagram" width="600"/>
 
 To accomplish this, we're utilizing several technologies:
 - PyQt6 - A cross-platform GUI framework for building applications in python
@@ -41,4 +45,5 @@ To accomplish this, we're utilizing several technologies:
 
 
 There's still a lot of work to be done, but our team is hard at work. We hope to release Mod Tracker some time in the near future!
-<sup> README updated 3/18/2025
+
+<sup> README updated 4/28/2025
