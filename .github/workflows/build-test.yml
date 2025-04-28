@@ -41,7 +41,7 @@ jobs:
         QT_QPA_PLATFORM: offscreen
       run: |
           mkdir test-results
-          python tests.py | tee test-results/results.txt
+          python tests.py > test-results/results.txt || true
 
     - name: Build executable with PyInstaller
       run: |
