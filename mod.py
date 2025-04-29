@@ -20,6 +20,14 @@ class ModPriority(object):
             self.r = color.red()
             self.g = color.green()
             self.b = color.blue()
+
+    def createDict(self):
+        return {
+            "name": self.name,
+            "r":self.r,
+            "g":self.g,
+            "b":self.b
+        }
         
 
     def __str__(self):
@@ -135,10 +143,7 @@ class Mod(object):
 
     def createDict(self):
         return {
-            "priorityname" : self.priority.name,
-            "priorityr" : self.priority.r,
-            "priorityg" : self.priority.g,
-            "priorityb" : self.priority.b,
+            "priority":self.priority.createDict(),
             "name" : self._name,
             "id" : self._ID,
             "url" : self._url,
@@ -167,6 +172,10 @@ class ModProfile(object):
         from windows import DetailsWindow
         self._profileView = DetailsWindow(window, self.modList, self.priorityList, self.selectedVersion)
 
+    def setPrioList(self, prioList):
+        self.priorityList = prioList
+
+
     def getPercentReady(self):
         readyMods = 0
         
@@ -178,3 +187,13 @@ class ModProfile(object):
             return 0
         else:
             return (readyMods/len(self.modList)) * 100
+        
+    def createDict(self):
+        modlist = []
+        for mod in self.modList:
+            modlist.append(mod.createDict())
+        return {
+            "modlist":modlist,
+            "version":self.selectedVersion,
+            "name":self.name
+        }

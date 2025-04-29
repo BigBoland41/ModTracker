@@ -1,5 +1,6 @@
-import mod, widgets
+import mod, widgets, json
 from PyQt6 import QtCore, QtGui, QtWidgets, QtTest
+
 
 class WindowManager(QtWidgets.QStackedWidget):
     _selectView:'ProfileSelectWindow'
@@ -26,7 +27,7 @@ class WindowManager(QtWidgets.QStackedWidget):
         self._selectView.addProfile(newProfile, False)  
 
     def _openDetailsView(self, profile:mod.ModProfile):
-        self._detailsView = DetailsWindow(profile.modList, profile.priorityList, profile.selectedVersion, self._closeDetailsView)
+        self._detailsView = DetailsWindow(self._selectView.saveJson, profile.modList, profile.priorityList, profile.selectedVersion, self._closeDetailsView)
         self.addWidget(self._detailsView)
         self.setCurrentWidget(self._detailsView)
         self._selectView.hide()
@@ -40,6 +41,7 @@ class DetailsWindow(QtWidgets.QWidget):
     _modList:list[mod.Mod]
     _priorityList:list[mod.ModPriority]
     _selectedVersion:str
+    _profile:mod.ModPriority
     
     # QWidget objects
     _modTable:widgets.ModTable
@@ -51,7 +53,7 @@ class DetailsWindow(QtWidgets.QWidget):
     _selectedVersionLabel:QtWidgets.QLabel
     
     # Constructor. Creates window and runs functions to create widgets
-    def __init__(self, modList:list[mod.Mod] = [],
+    def __init__(self, savefunc, modList:list[mod.Mod] = [],
                  priorityList:list[mod.ModPriority] = [
                      mod.ModPriority("High Priority", 255, 85, 0),
                      mod.ModPriority("Low Priority", 255, 255, 0)],
@@ -63,10 +65,11 @@ class DetailsWindow(QtWidgets.QWidget):
         self._priorityList = priorityList
         self._selectedVersion = selectedVersion
         self._onBackButtonClick = onBackButtonClick
+        self.savefunc = savefunc
         
         self._pieChart = widgets.PieChart(self, self._modList, self._selectedVersion)
         self._modTable = widgets.ModTable(self, self._modList, self._priorityList,
-                                              self._selectedVersion, self.reloadWidgets)
+                                              self._selectedVersion, self.reloadWidgets, self.savefunc)
 
         self._createAddModTextField()
         self._createAddModBtn()
@@ -176,18 +179,20 @@ class DetailsWindow(QtWidgets.QWidget):
 
         newMod = mod.Mod(url = inputString, modPriority=self._priorityList[0])
         self._modList.append(newMod)
-        self._modTable.saveModList()
+        self.savefunc()
         self.reloadWidgets(reloadEverything=True)
 
     def _refresh(self):
         self._selectedVersion = self._selectedVersionTextField.text()
-
+        print(self._selectedVersion)
         # refresh API
         for mod in self._modList:
             mod.refreshMod()
 
-        self._modTable.saveModList()
         self.reloadWidgets()
+        self.savefunc()
+
+        
 
 class ProfileSelectWindow(QtWidgets.QWidget):
     _profileList:list[mod.ModProfile]
@@ -238,7 +243,7 @@ class ProfileSelectWindow(QtWidgets.QWidget):
         if (len(self._profileList) == 0):
             self._createAddProfileWidget()
         else:
-            for i in range(len(self._profileList)):
+            for profile in self._profileList:
                 self._createProfileWidget()
 
     def _createProfileWidget(self):
@@ -295,6 +300,7 @@ class ProfileSelectWindow(QtWidgets.QWidget):
         self._createAddProfileWidget()
 
     def _createAddProfileWidget(self):
+
         if (self._numWidgets >= self._maxWidgets or self._numWidgets < len(self._profileList)):
             return
 
@@ -315,6 +321,13 @@ class ProfileSelectWindow(QtWidgets.QWidget):
         row = self._numWidgets // self._widgetsPerRow
         col = self._numWidgets % self._widgetsPerRow
         self._layout.addWidget(self._addProfileWidget, row, col)
+
+    def saveJson(self, filename="mods.json"):
+        with open(filename, "w") as f:
+            json.dump([profile.createDict() for profile in self._profileList], f, indent=4)
+        self._profileWidgets = []
+        self._numWidgets = 0
+        self._createWidgetRows()
 
     def _openDetailsView(self, profileNum: int):
         profile = self._profileList[profileNum]

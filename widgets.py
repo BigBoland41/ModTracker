@@ -2,20 +2,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets, QtCharts
 import mod
 import json
 
-def dictToMod(data):
-        prio = mod.ModPriority(data["priorityname"], red=data["priorityr"], green=data["priorityg"], blue=data["priorityb"])
-        return mod.Mod(modName=data["name"], modPriority=prio, modVersions=data["versions"], url=data["url"], modID=data["id"])
 
-def createModList(filename="mods.json"):
-        newModList = []
-        try:
-            with open(filename, "r") as f:
-                data = json.load(f)
-                for entry in data:
-                    newModList.append(dictToMod(entry))
-        except FileNotFoundError:
-            return []
-        return newModList
 
 # This is the table that displays information about all the mods in a profile, including the
 # mod name, it's latest version, "ready" or it's priority level, and a button to remove the
@@ -55,12 +42,13 @@ class ModTable():
     _selectedVersion:str
     
     def __init__(self, parent:QtWidgets.QWidget, modList:list[mod.Mod], priorityList:list[mod.ModPriority],
-                 selectedVersion:str, reloadFunc):
+                 selectedVersion:str, reloadFunc, saveFunc):
         self._parentWidget = parent
         self._modList = modList
         self._priorityList = priorityList
         self._selectedVersion = selectedVersion
         self._reloadFunc = reloadFunc
+        self._saveFunc = saveFunc
         self._createTable()
         self.loadTable()
 
@@ -70,9 +58,11 @@ class ModTable():
         self._selectedVersion = selectedVersion
         self.loadTable()
 
-    def saveModList(self, filename="mods.json"):
-        with open(filename, "w") as f:
-            json.dump([m.createDict() for m in self._modList], f, indent=4)
+    def createDict(self):
+        dict = {}
+        for mod in self._modList:
+            dict.append(mod.createDict())
+        return dict
 
 
     def loadTable(self, selectedVersion:str = ""):
@@ -176,7 +166,7 @@ class ModTable():
         self._dropdownBtnList.pop(self._modList.index(mod))
         self._modList.remove(mod)
         self._reloadFunc()
-        self.saveModList()
+        self._saveFunc()
 
     # creates all the buttons that reveal the priority dropdown menu
     def _createDropdownBtn(self, rowNum:int, mod:mod.Mod):

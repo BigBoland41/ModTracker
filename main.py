@@ -1,16 +1,17 @@
 import sys, windows, widgets, mod
 from PyQt6 import QtWidgets
 from testData import TestData
+import load
 
 if __name__ == "__main__":
     # create app
     app = QtWidgets.QApplication(sys.argv)
     mainWindow = QtWidgets.QMainWindow()
     windowManager = windows.WindowManager(mainWindow)
-
+    '''
     # create test data
     data = TestData()
-    jsonModList = widgets.createModList()
+    jsonModList = load.createModList()
     jsonProfile = mod.ModProfile(jsonModList, data.priorityList, data.selectedVersion, "JSON mods")
 
     customModList = [
@@ -22,7 +23,10 @@ if __name__ == "__main__":
     # add test data
     windowManager.addProfile(jsonProfile)
     windowManager.addProfile(customProfile)
-
+    '''
+    profiles = load.createProfileList()
+    for profile in profiles:
+        windowManager.addProfile(profile)
     # show window and configure exit button
     mainWindow.showMaximized()
     sys.exit(app.exec())
