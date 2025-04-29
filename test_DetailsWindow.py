@@ -16,8 +16,8 @@ class TestDetailsView(unittest.TestCase):
     
     def testCreateWindow_Prepopulated(self):
         self._detailsView =  windows.DetailsWindow(
-            self._data.constructModList(),
-            self._data.priorityList, self._data.selectedVersion
+            modList=self._data.constructModList(),
+            priorityList=self._data.priorityList, selectedVersion=self._data.selectedVersion
         )
 
         self.assertIsNotNone(self._detailsView)

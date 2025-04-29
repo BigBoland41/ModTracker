@@ -53,7 +53,7 @@ class DetailsWindow(QtWidgets.QWidget):
     _selectedVersionLabel:QtWidgets.QLabel
     
     # Constructor. Creates window and runs functions to create widgets
-    def __init__(self, savefunc, modList:list[mod.Mod] = [],
+    def __init__(self, savefunc = lambda:0, modList:list[mod.Mod] = [],
                  priorityList:list[mod.ModPriority] = [
                      mod.ModPriority("High Priority", 255, 85, 0),
                      mod.ModPriority("Low Priority", 255, 255, 0)],

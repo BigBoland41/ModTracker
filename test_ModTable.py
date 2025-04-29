@@ -47,7 +47,6 @@ class TestModTable(unittest.TestCase):
     def testModReady(self):
         self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
         modTable = self._detailsView.getModTable()
-        modTable.saveModList()
         for i in range(len(self._data.modNames)):
             self.assertEqual(modTable.getRowVersionText(i), self._data.getModCurrentVersion(i))
 
