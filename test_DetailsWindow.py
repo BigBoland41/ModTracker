@@ -1,4 +1,4 @@
-import sys, mod, unittest, windows
+import sys, unittest, windows
 from PyQt6 import QtWidgets
 from testData import TestData
 

@@ -51,8 +51,12 @@ class Mod(object):
     _url:str
     _ID:int
     _versions:list[str]
+
     _modrinthData:dict
     _curseforgeData:dict
+    
+    _curseforgeRegex = r"^https:\/\/(www\.)?curseforge\.com\/minecraft\/mc-mods\/[a-zA-Z0-9-_]+\/?$"
+    _modrinthRegex = r"^https:\/\/(www\.)?modrinth\.com\/mod\/[a-zA-Z0-9-_]+\/?$"
     
     # can pass mod info directly for testing, but can also just call constructor with a url and it will get all 
     # relevant info from the api and store it all
@@ -72,6 +76,7 @@ class Mod(object):
     def __str__(self):
         return f"{self._name} version: {self.getCurrentVersion()}, priority: {self.priority}"
 
+    # Getters
     def getName(self):
         return self._name
     
@@ -96,16 +101,20 @@ class Mod(object):
     def getCurseforgeData(self):
         return self._curseforgeData
     
+    # Verify if the URL this mod was initialized with is valid
     def verifyURL(self):
-        curseforge = re.compile(r"^https:\/\/(www\.)?curseforge\.com\/minecraft\/mc-mods\/[a-zA-Z0-9-_]+\/?$")
-        modrinth = re.compile(r"^https:\/\/(www\.)?modrinth\.com\/mod\/[a-zA-Z0-9-_]+\/?$")
+        curseforge = re.compile(self._curseforgeRegex)
+        modrinth = re.compile(self._modrinthRegex)
         return modrinth.match(self._url) or curseforge.match(self._url)
 
-    def getData(self):
+    # Use the URL this mod was initialized with to get its data from CurseForge and Modrinth
+    def callAPIs(self):
         if(not self.verifyURL()):
-            # print("no valid url")
             return
+
+        # CurseForge API key
         apiKey = "$2a$10$QIDeQbKDRhOQZgmcVHKxYeTSI/RlHH8oOzRnPhd6Rb4Dcj2l3k27a"
+
         # modrinth data
         mod_slug = self._url.rstrip("/").split("/")[-1]
         url = f"https://api.modrinth.com/v2/project/{mod_slug}"
@@ -120,27 +129,30 @@ class Mod(object):
         headers = {"x-api-key": apiKey}
         params = {"gameId": 432, "searchFilter": mod_slug}  # 432 = Minecraft
         response = requests.get(f"https://api.curseforge.com/v1/mods/search", headers=headers, params=params)
-        if(response.status_code == 200):
+
+        if response.status_code == 200:
             modList = response.json().get("data", [])
             for mod in modList:
-                # print(mod["slug"])
                 if mod["slug"] == mod_slug:
                    self._curseforgeData = mod
         else: 
             print(f"Error: {response.status_code}, {response.text}")
 
-    
+    # Extract modrinth data from API call
     def extractModrinth(self):
         if (self._modrinthData == False):
             return -1
+        
         self._name = self._modrinthData["title"]
         self._ID = self._modrinthData["id"]
         self._versions = self._modrinthData["game_versions"]
 
+    # Runs when the mod's data needs to be reset. Makes an API call and extracts the raw data
     def refreshMod(self):
-        self.getData()
+        self.callAPIs()
         self.extractModrinth()
 
+    # Returns mod information as a dictionary
     def createDict(self):
         return {
             "priority":self.priority.createDict(),
@@ -168,14 +180,7 @@ class ModProfile(object):
         self.selectedVersion = selectedVersion
         self.name = name
 
-    def showDetailsWindow(self, window):
-        from windows import DetailsWindow
-        self._profileView = DetailsWindow(window, self.modList, self.priorityList, self.selectedVersion)
-
-    def setPrioList(self, prioList):
-        self.priorityList = prioList
-
-
+    # Returns a float that represents how many of the mods in this profile are ready for the selected version, in percentage terms.
     def getPercentReady(self):
         readyMods = 0
         
@@ -187,7 +192,8 @@ class ModProfile(object):
             return 0
         else:
             return (readyMods/len(self.modList)) * 100
-        
+
+    # Returns profile information as a dictionary  
     def createDict(self):
         modlist = []
         for mod in self.modList:

@@ -1,8 +1,5 @@
 from PyQt6 import QtCore, QtGui, QtWidgets, QtCharts
 import mod
-import json
-
-
 
 # This is the table that displays information about all the mods in a profile, including the
 # mod name, it's latest version, "ready" or it's priority level, and a button to remove the

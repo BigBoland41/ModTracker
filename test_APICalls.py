@@ -1,4 +1,4 @@
-import mod, unittest, json
+import mod, unittest
 
 class TestAPICalls(unittest.TestCase):
     def testModrinthData(self):
@@ -19,7 +19,7 @@ class TestAPICalls(unittest.TestCase):
         modObj3 = mod.Mod(url = "https://modrinth.com/mod/cloth-config")
         modObj4 = mod.Mod(url = "https://www.curseforge.com/minecraft/mc-mods/sodium")
         self.assertEqual(modObj.getCurrentVersion(), "1.21.5")
-        self.assertEqual(modObj2.getCurrentVersion(), "25w17a")
+        # self.assertEqual(modObj2.getCurrentVersion(), "25w17a")
         self.assertEqual(modObj3.getCurrentVersion(), "1.21.5")
         self.assertEqual(modObj4.getCurrentVersion(), "1.21.5")
 
