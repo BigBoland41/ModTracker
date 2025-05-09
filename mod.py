@@ -51,9 +51,10 @@ class Mod(object):
     _url:str
     _ID:int
     _versions:list[str]
+    _tablePosition:int
 
-    _modrinthData:dict
-    _curseforgeData:dict
+    _modrinthData:dict # False if uninitialized
+    _curseforgeData:dict # False if uninitialized
     
     _curseforgeRegex = r"^https:\/\/(www\.)?curseforge\.com\/minecraft\/mc-mods\/[a-zA-Z0-9-_]+\/?$"
     _modrinthRegex = r"^https:\/\/(www\.)?modrinth\.com\/mod\/[a-zA-Z0-9-_]+\/?$"
@@ -61,20 +62,25 @@ class Mod(object):
     # can pass mod info directly for testing, but can also just call constructor with a url and it will get all 
     # relevant info from the api and store it all
     def __init__(self, modName = "Untitled Mod", modID = -1, modVersions = ["No versions found"],
-                 modPriority = ModPriority(), fromModrinth = False, fromCurseforge = False, url = -1):
+                 modPriority = ModPriority(), url = -1, tablePosition = -1):
         self.priority = modPriority
         self._name = modName
         self._ID = modID
         self._url = url
         self._versions = modVersions
-        self._modrinthData = fromModrinth
-        self._curseforgeData = fromCurseforge
+        self._tablePosition = tablePosition
+
+        self._modrinthData = False
+        self._curseforgeData = False
 
         if(url != -1):
             self.refreshMod()
 
     def __str__(self):
         return f"{self._name} version: {self.getCurrentVersion()}, priority: {self.priority}"
+    
+    def __lt__(self, other):
+        return self._tablePosition < other._tablePosition
 
     # Getters
     def getName(self):
@@ -101,22 +107,32 @@ class Mod(object):
     def getCurseforgeData(self):
         return self._curseforgeData
     
+    def isValid(self):
+        return self._modrinthData != False or self._curseforgeData != False
+    
     # Verify if the URL this mod was initialized with is valid
     def verifyURL(self):
         curseforge = re.compile(self._curseforgeRegex)
         modrinth = re.compile(self._modrinthRegex)
         return modrinth.match(self._url) or curseforge.match(self._url)
 
+    # Runs when the mod's data needs to be reset. Makes an API call and extracts the raw data
+    def refreshMod(self):
+        print(".", end="")
+        self.callAPIs()
+        self.extractModrinth()
+
     # Use the URL this mod was initialized with to get its data from CurseForge and Modrinth
     def callAPIs(self):
         if(not self.verifyURL()):
             return
 
-        # CurseForge API key
-        apiKey = "$2a$10$QIDeQbKDRhOQZgmcVHKxYeTSI/RlHH8oOzRnPhd6Rb4Dcj2l3k27a"
-
-        # modrinth data
         mod_slug = self._url.rstrip("/").split("/")[-1]
+        
+        self.callMondrinthAPI(mod_slug)
+        self.callCurseForgeAPI(mod_slug)
+
+    def callMondrinthAPI(self, mod_slug):
         url = f"https://api.modrinth.com/v2/project/{mod_slug}"
         response = requests.get(url)
         
@@ -125,9 +141,12 @@ class Mod(object):
         else:
             print(f"Error: {response.status_code}, {response.text}")
 
-        # curseforge data
+    def callCurseForgeAPI(self, mod_slug):
+        apiKey = "$2a$10$QIDeQbKDRhOQZgmcVHKxYeTSI/RlHH8oOzRnPhd6Rb4Dcj2l3k27a"
+        gameID = 432 # 432 = Minecraft
+
         headers = {"x-api-key": apiKey}
-        params = {"gameId": 432, "searchFilter": mod_slug}  # 432 = Minecraft
+        params = {"gameId": gameID, "searchFilter": mod_slug}
         response = requests.get(f"https://api.curseforge.com/v1/mods/search", headers=headers, params=params)
 
         if response.status_code == 200:
@@ -138,7 +157,7 @@ class Mod(object):
         else: 
             print(f"Error: {response.status_code}, {response.text}")
 
-    # Extract modrinth data from API call
+    # Extract modrinth json data from API call
     def extractModrinth(self):
         if (self._modrinthData == False):
             return -1
@@ -147,10 +166,8 @@ class Mod(object):
         self._ID = self._modrinthData["id"]
         self._versions = self._modrinthData["game_versions"]
 
-    # Runs when the mod's data needs to be reset. Makes an API call and extracts the raw data
-    def refreshMod(self):
-        self.callAPIs()
-        self.extractModrinth()
+        if "tablePosition" in self._modrinthData:
+            self._tablePosition = self._modrinthData["tablePosition"]
 
     # Returns mod information as a dictionary
     def createDict(self):
@@ -160,6 +177,7 @@ class Mod(object):
             "id" : self._ID,
             "url" : self._url,
             "versions" : self._versions,
+            "tablePosition" : self._tablePosition,
         }
     
 class ModProfile(object):

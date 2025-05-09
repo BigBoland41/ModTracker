@@ -1,12 +1,14 @@
-import mod, widgets, json
+import mod, widgets, load, json, threading
 from PyQt6 import QtCore, QtGui, QtWidgets, QtTest
+
 
 # Manages the two primary displays in the main window, including communication and switching displays.
 class WindowManager(QtWidgets.QStackedWidget):
     _selectView:'ProfileSelectWindow'
     _detailsView:'DetailsWindow'
+    _loadingWindow:'LoadingWindow'
     
-    def __init__(self, window:QtWidgets.QMainWindow):
+    def __init__(self, window:QtWidgets.QMainWindow, loadJson=True, openLoadingWindow=True, printLoadingText=True, processEventsFunc = lambda : 1+1):
         super().__init__(window) # Initialize QStackedWidget
 
         # configure window
@@ -23,8 +25,30 @@ class WindowManager(QtWidgets.QStackedWidget):
         self._selectView.setParent(self)
         self._selectView.setGeometry(QtCore.QRect(0, 0, 1920, 1080))
 
-    def addProfile(self, newProfile:mod.ModProfile):
-        self._selectView.addProfile(newProfile, False)  
+        # load profile data from json file (if enabled). Create and open a LoadingWindow (if enabled)
+        if loadJson:
+            if openLoadingWindow:
+                self._loadingWindow = LoadingWindow()
+                self._loadingWindow.show()
+                processEventsFunc()
+            
+            self._loadProfile(printLoadingText)
+
+            if openLoadingWindow:
+                self._loadingWindow.close()
+
+    def _loadProfile(self, printLoadingText=True):
+        if printLoadingText:
+            print("Loading profiles", end="")
+
+        # call create profile list and add the resulting data to the select view
+        profiles = load.createProfileList()
+        for profile in profiles:
+            self._selectView.addProfile(profile, False)
+        self._selectView.sortModLists()
+
+        if printLoadingText:
+            print("\n", end="")
 
     def _openDetailsView(self, profile:mod.ModProfile):
         self._detailsView = DetailsWindow(self._selectView.saveJson, profile.modList, profile.priorityList, profile.selectedVersion, self._closeDetailsView)
@@ -36,6 +60,37 @@ class WindowManager(QtWidgets.QStackedWidget):
         self.removeWidget(self._detailsView)
         self._detailsView.deleteLater()
         self._selectView.show()
+
+
+# Temporary window to display while the app is starting
+class LoadingWindow(QtWidgets.QWidget):
+    _movie:QtGui.QMovie
+
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Loading")
+        self.setFixedSize(300, 200)
+        layout = QtWidgets.QVBoxLayout()
+
+        # Add a QLabel for the GIF
+        gif_label = QtWidgets.QLabel()
+        gif_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+
+        # Load and set the GIF
+        self._movie = QtGui.QMovie("loading.gif")
+        self._movie.setScaledSize(QtCore.QSize(150, 150))
+        gif_label.setMovie(self._movie)
+        self._movie.start()
+
+        # Add a text label below the GIF
+        text_label = QtWidgets.QLabel("Loading, please wait...")
+        text_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+
+        # Add widgets to the layout
+        layout.addWidget(gif_label)
+        layout.addWidget(text_label)
+        self.setLayout(layout)
+
 
 # The display that shows the user a detailed view of a specific mod profile and allows them to manipulate it
 class DetailsWindow(QtWidgets.QWidget):
@@ -126,11 +181,21 @@ class DetailsWindow(QtWidgets.QWidget):
     # creates the add mod button
     # which the user can click to add the mod they've input into the add mod text field.
     def _createAddModBtn(self):
+        labelFont = QtGui.QFont()
+        buttonFont = QtGui.QFont()
+        labelFont.setPointSize(12)
+        buttonFont.setPointSize(18)
+
+        self._errorLabel = QtWidgets.QLabel(parent=self)
+        self._errorLabel.setGeometry(QtCore.QRect(1020, 910, 300, 70))
+        self._errorLabel.setFont(labelFont)
+        self._errorLabel.setObjectName("errorLabel")
+        self._errorLabel.setText("Could not add mod. Invalid URL?")
+        self._errorLabel.setVisible(False)
+
         self._addModBtn = QtWidgets.QPushButton(parent=self)
         self._addModBtn.setGeometry(QtCore.QRect(800, 910, 200, 70))
-        font = QtGui.QFont()
-        font.setPointSize(18)
-        self._addModBtn.setFont(font)
+        self._addModBtn.setFont(buttonFont)
         self._addModBtn.setObjectName("addModBtn")
         self._addModBtn.clicked.connect(self._addMod)
         self._addModBtn.setText("Add Mod")
@@ -183,24 +248,32 @@ class DetailsWindow(QtWidgets.QWidget):
         # When the button is clicked, this function will run. Add your code here
         inputString = self._addModTextField.text()  # this gets the input from the text field
 
-        newMod = mod.Mod(url = inputString, modPriority=self._priorityList[0])
-        self._modList.append(newMod)
-        self.savefunc()
-        self.reloadWidgets(reloadEverything=True)
+        newMod = mod.Mod(url = inputString, modPriority=self._priorityList[0], tablePosition=len(self._modList))
+        if newMod.isValid():
+            self._modList.append(newMod)
+            self.savefunc()
+            self.reloadWidgets(reloadEverything=True)
+            self._errorLabel.setVisible(False)
+        else:
+            self._errorLabel.setVisible(True)
 
     # Refreshes the data for each mod by making API calls and reloading the widgets
     def _refresh(self):
         self._selectedVersion = self._selectedVersionTextField.text()
-        print(self._selectedVersion)
 
-        # refresh API
+        # refresh API. Use a thread for each refresh
+        threadList = []
         for mod in self._modList:
-            mod.refreshMod()
+            thread = threading.Thread(target=mod.refreshMod)
+            thread.start()
+
+        for thread in threadList:
+            thread.join()
 
         self.reloadWidgets()
         self.savefunc()
 
-        
+
 # The display that allows the user to view all their profiles, and select one to open
 class ProfileSelectWindow(QtWidgets.QWidget):
     _profileList:list[mod.ModProfile]
@@ -247,6 +320,19 @@ class ProfileSelectWindow(QtWidgets.QWidget):
             self._profileList.append(newProfile)
             self._createProfileWidget()
 
+    # Write the details of each profile to a json file
+    def saveJson(self, filename="mods.json"):
+        with open(filename, "w") as file:
+            json.dump([profile.createDict() for profile in self._profileList], file, indent=4)
+        self._profileWidgets = []
+        self._numWidgets = 0
+        self._createWidgetRows()
+
+    def sortModLists(self):
+        for profile in self._profileList:
+            profile.modList.sort()
+
+    # Creates all profile widgets. Creates an add profile widget if there are no profiles
     def _createWidgetRows(self):
         if (len(self._profileList) == 0):
             self._createAddProfileWidget()
@@ -331,14 +417,6 @@ class ProfileSelectWindow(QtWidgets.QWidget):
         row = self._numWidgets // self._widgetsPerRow
         col = self._numWidgets % self._widgetsPerRow
         self._layout.addWidget(self._addProfileWidget, row, col)
-
-    # Write the details of each profile to a json file
-    def saveJson(self, filename="mods.json"):
-        with open(filename, "w") as f:
-            json.dump([profile.createDict() for profile in self._profileList], f, indent=4)
-        self._profileWidgets = []
-        self._numWidgets = 0
-        self._createWidgetRows()
 
     # Open details view for a given profile
     def _openDetailsView(self, profileNum: int):

@@ -129,7 +129,6 @@ class ModTable():
         self._tableWidget.setObjectName("tableWidget")
         self._tableWidget.setColumnCount(self._numColumns)
     
-    
     # adds a row to the table with the proper mod information
     def _setTableRow(self, rowNum:int, mod:mod.Mod):
         for col in range(self._numColumns):
@@ -171,6 +170,7 @@ class ModTable():
                                   rowNum, self._selectedVersion in mod.getVersionList(), self._fontSize)
         self._tableWidget.setCellWidget(rowNum, 2, dropdownBtn.getButtonWidget())
         self._dropdownBtnList.append(dropdownBtn)
+
 
 # This is the dropdown menu that appears in the third column of the table which allows
 # the user to select a priorty level, or create a new priority level
