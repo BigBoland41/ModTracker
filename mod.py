@@ -107,6 +107,7 @@ class Mod(object):
     def getCurseforgeData(self):
         return self._curseforgeData
     
+    # A mod is considered valid if it has valid modrinth data or valid curseforge data
     def isValid(self):
         return self._modrinthData != False or self._curseforgeData != False
     
@@ -115,24 +116,40 @@ class Mod(object):
         curseforge = re.compile(self._curseforgeRegex)
         modrinth = re.compile(self._modrinthRegex)
         return modrinth.match(self._url) or curseforge.match(self._url)
+    
+    # Verify if the URL this mod was initialized with is specifically a Modrinth URL
+    def verifyMondrinthURL(self):
+        modrinth = re.compile(self._modrinthRegex)
+        return modrinth.match(self._url)
+    
+    # Verify if the URL this mod was initialized with is specifically a Curseforge URL
+    def verifyCurseforgeURL(self):
+        curseforge = re.compile(self._curseforgeRegex)
+        return curseforge.match(self._url)
 
     # Runs when the mod's data needs to be reset. Makes an API call and extracts the raw data
     def refreshMod(self):
         print(".", end="")
+
         self.callAPIs()
-        self.extractModrinth()
+
+        # try modrinth first. If the mod isn't listed there, try curseforge
+        if self.verifyMondrinthURL():
+            self._extractModrinth()
+        elif self.verifyCurseforgeURL():
+            self._extractCurseforge()
 
     # Use the URL this mod was initialized with to get its data from CurseForge and Modrinth
     def callAPIs(self):
-        if(not self.verifyURL()):
-            return
-
         mod_slug = self._url.rstrip("/").split("/")[-1]
         
-        self.callMondrinthAPI(mod_slug)
-        self.callCurseForgeAPI(mod_slug)
+        self._callMondrinthAPI(mod_slug)
+        self._callCurseForgeAPI(mod_slug)
 
-    def callMondrinthAPI(self, mod_slug):
+    def _callMondrinthAPI(self, mod_slug):
+        if not self.verifyMondrinthURL():
+            return
+
         url = f"https://api.modrinth.com/v2/project/{mod_slug}"
         response = requests.get(url)
         
@@ -141,24 +158,29 @@ class Mod(object):
         else:
             print(f"Error: {response.status_code}, {response.text}")
 
-    def callCurseForgeAPI(self, mod_slug):
+    def _callCurseForgeAPI(self, mod_slug):
+        if not self.verifyCurseforgeURL():
+            return
+        
         apiKey = "$2a$10$QIDeQbKDRhOQZgmcVHKxYeTSI/RlHH8oOzRnPhd6Rb4Dcj2l3k27a"
         gameID = 432 # 432 = Minecraft
 
-        headers = {"x-api-key": apiKey}
-        params = {"gameId": gameID, "searchFilter": mod_slug}
-        response = requests.get(f"https://api.curseforge.com/v1/mods/search", headers=headers, params=params)
+        headers = {"Accept": "application/json", "x-api-key": apiKey}
+        url = f"https://api.curseforge.com/v1/mods/search?gameId=432&slug={mod_slug}"
+        response = requests.get(url, headers=headers)
 
         if response.status_code == 200:
-            modList = response.json().get("data", [])
-            for mod in modList:
-                if mod["slug"] == mod_slug:
-                   self._curseforgeData = mod
-        else: 
+            try:
+                for entry in response.json()["data"]:
+                    if entry["primaryCategoryId"] != 4475 and entry["primaryCategoryId"] != 4464:
+                        self._curseforgeData = entry
+            except IndexError:
+                self._curseforgeData = False
+        else:
             print(f"Error: {response.status_code}, {response.text}")
 
     # Extract modrinth json data from API call
-    def extractModrinth(self):
+    def _extractModrinth(self):
         if (self._modrinthData == False):
             return -1
         
@@ -168,6 +190,33 @@ class Mod(object):
 
         if "tablePosition" in self._modrinthData:
             self._tablePosition = self._modrinthData["tablePosition"]
+
+    # Extract curseforge json data from API call and sort the version list
+    def _extractCurseforge(self):
+        if (self._curseforgeData == False):
+            return -1
+        
+        self._name = self._curseforgeData["name"]
+        self._ID = self._curseforgeData["id"]
+
+        fileIndexes = self._curseforgeData["latestFilesIndexes"]
+        parsedVersions = []
+
+        for file in fileIndexes:
+            parsedVersions.append(list(map(int, file["gameVersion"].split('.'))))
+
+        sortedVersions = sorted(parsedVersions)
+
+        unparsedVersions = []
+        for versionComponents in sortedVersions:
+            if len(versionComponents) == 3:
+                versionStr = f"{versionComponents[0]}.{versionComponents[1]}.{versionComponents[2]}"
+            else:
+                versionStr = f"{versionComponents[0]}.{versionComponents[1]}"
+            unparsedVersions.append(versionStr)
+        
+        # print(f"{self._curseforgeData["name"]} versions: {unparsedVersions}\n")
+        self._versions = unparsedVersions
 
     # Returns mod information as a dictionary
     def createDict(self):
