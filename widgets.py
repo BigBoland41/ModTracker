@@ -162,7 +162,8 @@ class ModTable():
         self._dropdownBtnList.pop(self._modList.index(mod))
         self._modList.remove(mod)
         self._reloadFunc()
-        self._saveFunc()
+        if callable(self._saveFunc):
+            self._saveFunc()
 
     # creates all the buttons that reveal the priority dropdown menu
     def _createDropdownBtn(self, rowNum:int, mod:mod.Mod):
@@ -249,7 +250,8 @@ class DropdownBtn():
 
     def _changeModPriority(self, index, refreshEverything = False):
         self._mod.priority = self._priorityList[index]
-        self._refreshFunc(self._rowNum, refreshEverything)
+        if callable(self._refreshFunc):
+            self._refreshFunc(self._rowNum, refreshEverything)
 
     def _showColorPicker(self):
         inputStr, okPressed = QtWidgets.QInputDialog.getText(
@@ -319,7 +321,8 @@ class PieChart():
         title_font.setPointSize(self._titleFontSize)
         chart.setTitle('Mod Priority Chart')
         chart.setTitleFont(title_font)
-        chart.setTitleBrush(QtGui.QBrush(QtGui.QColor("white")))
+        if (isDarkTheme()):
+            chart.setTitleBrush(QtGui.QBrush(QtGui.QColor("white")))
 
         # Hide legend and set background color
         chart.legend().hide()
@@ -342,6 +345,7 @@ class PieChart():
     def _createSeries(self):
         label_font = QtGui.QFont()
         label_font.setPointSize(self._labelFontSize)
+        darkTheme = isDarkTheme()
 
         # Create and populate chart series
         self._series.__init__()
@@ -360,5 +364,14 @@ class PieChart():
 
             slice.setLabelVisible()
             slice.setLabelFont(label_font)
-            slice.setLabelColor(QtGui.QColor("white"))
+            if darkTheme:
+                slice.setLabelColor(QtGui.QColor("white"))
             i += 1
+
+def isDarkTheme():
+    # Access Windows registry to check the theme setting
+    settings = QtCore.QSettings("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", QtCore.QSettings.Format.NativeFormat)
+
+    # The registry key "AppsUseLightTheme" determines the theme
+    light_theme = settings.value("AppsUseLightTheme", 1, type=int)
+    return light_theme == 0  # 0 means dark theme, 1 means light theme

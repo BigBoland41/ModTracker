@@ -8,7 +8,7 @@ sys.path.append(parent_dir)
 
 import mod, json
 
-testMod = mod.Mod(url="https://www.curseforge.com/minecraft/worlds/iris")
+testMod = mod.Mod(url="https://www.curseforge.com/minecraft/mc-mods/worldedit")
 mod_slug = testMod._url.rstrip("/").split("/")[-1]
 testMod._callCurseForgeAPI(mod_slug)
 

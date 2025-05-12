@@ -2,7 +2,7 @@ import mod, widgets, load, json, threading
 from PyQt6 import QtCore, QtGui, QtWidgets, QtTest
 
 
-# Manages the two primary displays in the main window, including communication and switching displays.
+# Manages the two primary displays in the main window, including communication and switching displays. Also manages the small loading window.
 class WindowManager(QtWidgets.QStackedWidget):
     _selectView:'ProfileSelectWindow'
     _detailsView:'DetailsWindow'
@@ -51,7 +51,7 @@ class WindowManager(QtWidgets.QStackedWidget):
             print("\n", end="")
 
     def _openDetailsView(self, profile:mod.ModProfile):
-        self._detailsView = DetailsWindow(self._selectView.saveJson, profile.modList, profile.priorityList, profile.selectedVersion, self._closeDetailsView)
+        self._detailsView = DetailsWindow(profile.modList, profile.priorityList, profile.selectedVersion, self._closeDetailsView, self._selectView.saveJson)
         self.addWidget(self._detailsView)
         self.setCurrentWidget(self._detailsView)
         self._selectView.hide()
@@ -97,7 +97,6 @@ class DetailsWindow(QtWidgets.QWidget):
     _modList:list[mod.Mod]
     _priorityList:list[mod.ModPriority]
     _selectedVersion:str
-    _profile:mod.ModPriority
     
     # Widgets
     _modTable:widgets.ModTable
@@ -109,23 +108,25 @@ class DetailsWindow(QtWidgets.QWidget):
     _selectedVersionLabel:QtWidgets.QLabel
     
     # Constructor. Creates window and runs functions to create widgets
-    def __init__(self, savefunc = lambda:0, modList:list[mod.Mod] = [],
+    def __init__(self, modList:list[mod.Mod] = [],
                  priorityList:list[mod.ModPriority] = [
                      mod.ModPriority("High Priority", 255, 85, 0),
                      mod.ModPriority("Low Priority", 255, 255, 0)],
-                 selectedVersion:str = "1.21.5", onBackButtonClick = None):
+                 selectedVersion:str = "1.21.5",
+                 onBackButtonClick = None,
+                 savefunc = None):
         super().__init__()
 
         # assign variables
         self._modList = modList
         self._priorityList = priorityList
         self._selectedVersion = selectedVersion
-        self._onBackButtonClick = onBackButtonClick
-        self.savefunc = savefunc
+        self._onBackBtnClick = onBackButtonClick
+        self._savefunc = savefunc
         
         self._pieChart = widgets.PieChart(self, self._modList, self._selectedVersion)
         self._modTable = widgets.ModTable(self, self._modList, self._priorityList,
-                                              self._selectedVersion, self.reloadWidgets, self.savefunc)
+                                              self._selectedVersion, self.reloadWidgets, self._savefunc)
 
         self._createAddModTextField()
         self._createAddModBtn()
@@ -145,11 +146,15 @@ class DetailsWindow(QtWidgets.QWidget):
     # Refreshes all the widgets on screen
     def reloadWidgets(self, rowNum = 0, reloadEverything = False):
         self._pieChart.loadChart(self._selectedVersion)
+
         if (reloadEverything):
             self._modTable.loadTable(self._selectedVersion)
         else:
             # self._modTable.reloadTableRow(rowNum)
             self._modTable.loadTable(self._selectedVersion) # required for tests to work properly
+        
+        if self._savefunc is not None:
+            self._savefunc(updatedProfile=mod.ModProfile(self._modList, self._priorityList, self._selectedVersion))
 
     # Simulates the user typing a URL and clicking the add mod button. Used for testing.
     def enterAndAddMod(self, modURL:str):
@@ -163,9 +168,10 @@ class DetailsWindow(QtWidgets.QWidget):
     def getPieChart(self): return self._pieChart
 
     def getModList(self): return self._modList
-    
-    def setAddModTextFieldText(self, text:str):
-        self._addModTextField.setText(text)
+
+    def getPriorityList(self): return self._priorityList
+
+    def getSelectedVersion(self): return self._selectedVersion
 
     # creates the add mod text input field,
     # where the user can input the URL of the mod they want to add.
@@ -221,10 +227,11 @@ class DetailsWindow(QtWidgets.QWidget):
     # creates the refresh button
     # which the user can click to call the API again, as well as refresh the table and pie chart.
     def _createRefreshBtn(self):
-        self._refreshBtn = QtWidgets.QPushButton(parent=self)
-        self._refreshBtn.setGeometry(QtCore.QRect(1810, 10, 50, 50))
         font = QtGui.QFont()
         font.setPointSize(18)
+
+        self._refreshBtn = QtWidgets.QPushButton(parent=self)
+        self._refreshBtn.setGeometry(QtCore.QRect(1810, 10, 50, 50))
         self._refreshBtn.setFont(font)
         self._refreshBtn.setObjectName("refreshBtn")
         self._refreshBtn.clicked.connect(self._refresh)
@@ -240,8 +247,8 @@ class DetailsWindow(QtWidgets.QWidget):
         self._refreshBtn.setFont(font)
         self._refreshBtn.setObjectName("backBtn")
         self._refreshBtn.setText("x")
-        if (self._onBackButtonClick is not None):
-            self._refreshBtn.clicked.connect(self._onBackButtonClick)
+        if (self._onBackBtnClick is not None):
+            self._refreshBtn.clicked.connect(self._closeView)
 
     # Adds a mod to the profile. Triggered when the add mod button is clicked.
     def _addMod(self):
@@ -251,7 +258,8 @@ class DetailsWindow(QtWidgets.QWidget):
         newMod = mod.Mod(url = inputString, modPriority=self._priorityList[0], tablePosition=len(self._modList))
         if newMod.isValid():
             self._modList.append(newMod)
-            self.savefunc()
+            if self._savefunc is not None:
+                self._savefunc(updatedProfile=mod.ModProfile(self._modList, self._priorityList, self._selectedVersion))
             self.reloadWidgets(reloadEverything=True)
             self._errorLabel.setVisible(False)
         else:
@@ -263,15 +271,22 @@ class DetailsWindow(QtWidgets.QWidget):
 
         # refresh API. Use a thread for each refresh
         threadList = []
-        for mod in self._modList:
-            thread = threading.Thread(target=mod.refreshMod)
+        for curMod in self._modList:
+            thread = threading.Thread(target=curMod.refreshMod)
             thread.start()
 
         for thread in threadList:
             thread.join()
 
         self.reloadWidgets()
-        self.savefunc()
+        if self._savefunc is not None:
+            self._savefunc(updatedProfile=mod.ModProfile(self._modList, self._priorityList, self._selectedVersion))
+
+    # Closes the details window and returns to the profile select window
+    def _closeView(self):
+        if self._savefunc is not None:
+            self._savefunc(updatedProfile=mod.ModProfile(self._modList, self._priorityList, self._selectedVersion))
+        self._onBackBtnClick()
 
 
 # The display that allows the user to view all their profiles, and select one to open
@@ -281,6 +296,7 @@ class ProfileSelectWindow(QtWidgets.QWidget):
 
     _profileWidgets:list[QtWidgets.QPushButton] = [] # currently unused
     _addProfileWidget:QtWidgets.QPushButton
+    _currentProfileIndex:int # the index of the profile that's currently being displayed in the details view
 
     _widgetSize = 400 # size of the profile widget (width and height)
     _widgetSpacing = 35 # spacing between profile widgets
@@ -298,6 +314,8 @@ class ProfileSelectWindow(QtWidgets.QWidget):
         self._onProfileClick = onProfileClick
         self._profileList = profileList
         self._priorityList = priorityList
+
+        self._updatePriorityLists()
 
         self._addProfileWidget = None
 
@@ -318,12 +336,22 @@ class ProfileSelectWindow(QtWidgets.QWidget):
                 self._createProfileWidget()
         else:
             self._profileList.append(newProfile)
+            self._updatePriorityLists()
             self._createProfileWidget()
 
     # Write the details of each profile to a json file
-    def saveJson(self, filename="mods.json"):
+    def saveJson(self, filename="mods.json", updatedProfile:mod.ModProfile = None):
+        print(f"Saving data to {filename}")
+
+        # Update the profile that was just changed in the details view. Don't change the name
+        currentProfile = self._profileList[self._currentProfileIndex]
+        currentProfile.modList = updatedProfile.modList
+        currentProfile.priorityList = updatedProfile.priorityList
+        currentProfile.selectedVersion = updatedProfile.selectedVersion
+
         with open(filename, "w") as file:
             json.dump([profile.createDict() for profile in self._profileList], file, indent=4)
+
         self._profileWidgets = []
         self._numWidgets = 0
         self._createWidgetRows()
@@ -331,6 +359,15 @@ class ProfileSelectWindow(QtWidgets.QWidget):
     def sortModLists(self):
         for profile in self._profileList:
             profile.modList.sort()
+
+    def _updatePriorityLists(self):
+        for profile in self._profileList:
+            for mod in profile.modList:
+                if mod.priority not in self._priorityList:
+                    self._priorityList.append(mod.priority)
+        
+        for profile in self._profileList:
+            profile.priorityList = self._priorityList
 
     # Creates all profile widgets. Creates an add profile widget if there are no profiles
     def _createWidgetRows(self):
@@ -420,5 +457,6 @@ class ProfileSelectWindow(QtWidgets.QWidget):
 
     # Open details view for a given profile
     def _openDetailsView(self, profileNum: int):
+        self._currentProfileIndex = profileNum
         profile = self._profileList[profileNum]
         self._onProfileClick(profile)

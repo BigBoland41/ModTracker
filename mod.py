@@ -266,7 +266,7 @@ class ModProfile(object):
         for mod in self.modList:
             modlist.append(mod.createDict())
         return {
-            "modlist":modlist,
+            "name":self.name,
             "version":self.selectedVersion,
-            "name":self.name
+            "modlist":modlist
         }
