@@ -14,6 +14,7 @@ You can optionally download the automatic test results in unittest-results.zip. 
 - **Proper Curseforge support!** While it was technically supported it in our MVP, we actually used the Mondrinth data instead, and didn't support mods only found on Curseforge.
 - **Massive improvement in loading times** achieved by putting each mod's API call on a separate thread.
 - **New loading window** that displays when the app is launching. In the future we want it to be animated, but for now it's just a still image.
+- **Added an app icon** created by us - a Minecraft monkey wrench!
 - Error text will now appear when the user attempts to add a mod with an invalid URL.
 - The user can now give a mod a custom priority level, even if it was created in another profile.
 - Data is saved to file more often.
@@ -41,7 +42,7 @@ To run Mod Tracker in your IDE:
 
 To generate your own executable:
 - Install the pyinstaller library (make sure you also have other libraries installed)
-- Run pyinstaller --name ModTracker --onefile --noconsole main.py
+- Run pyinstaller --name "Mod Tracker" --onefile --noconsole --icon=icon.ico main.py
 - The executable can then be found in the newly generated dist directory
 
 To run unit tests, run the tests.py file. You can also test specific modules using a file with the test_ prefix.

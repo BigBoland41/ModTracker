@@ -293,6 +293,7 @@ class DetailsWindow(QtWidgets.QWidget):
 class ProfileSelectWindow(QtWidgets.QWidget):
     _profileList:list[mod.ModProfile]
     _priorityList:list[mod.ModPriority]
+    _allowWriteToFile:bool
 
     _profileWidgets:list[QtWidgets.QPushButton] = [] # currently unused
     _addProfileWidget:QtWidgets.QPushButton
@@ -309,11 +310,12 @@ class ProfileSelectWindow(QtWidgets.QWidget):
     _subtitleFontSize = 20  # size of the rest of the text on a profile widget
     _plusSignFontSize = 32  # size of the plus sign on the add profile widget
 
-    def __init__(self, onProfileClick, profileList:list[mod.ModProfile] = [], priorityList:list[mod.ModPriority] = []):
+    def __init__(self, onProfileClick, profileList:list[mod.ModProfile] = [], priorityList:list[mod.ModPriority] = [], allowWriteToFile = True):
         super().__init__()  # Initialize QWidget
         self._onProfileClick = onProfileClick
         self._profileList = profileList
         self._priorityList = priorityList
+        self._allowWriteToFile = allowWriteToFile
 
         self._updatePriorityLists()
 
@@ -341,16 +343,16 @@ class ProfileSelectWindow(QtWidgets.QWidget):
 
     # Write the details of each profile to a json file
     def saveJson(self, filename="mods.json", updatedProfile:mod.ModProfile = None):
-        print(f"Saving data to {filename}")
-
         # Update the profile that was just changed in the details view. Don't change the name
         currentProfile = self._profileList[self._currentProfileIndex]
         currentProfile.modList = updatedProfile.modList
         currentProfile.priorityList = updatedProfile.priorityList
         currentProfile.selectedVersion = updatedProfile.selectedVersion
 
-        with open(filename, "w") as file:
-            json.dump([profile.createDict() for profile in self._profileList], file, indent=4)
+        if self._allowWriteToFile:
+            print(f"Saving data to {filename}")
+            with open(filename, "w") as file:
+                json.dump([profile.createDict() for profile in self._profileList], file, indent=4)
 
         self._profileWidgets = []
         self._numWidgets = 0
@@ -359,6 +361,11 @@ class ProfileSelectWindow(QtWidgets.QWidget):
     def sortModLists(self):
         for profile in self._profileList:
             profile.modList.sort()
+
+    # Getters
+    def getProfileList(self): return self._profileList
+
+    def getPriorityList(self): return self._priorityList
 
     def _updatePriorityLists(self):
         for profile in self._profileList:
@@ -429,16 +436,17 @@ class ProfileSelectWindow(QtWidgets.QWidget):
 
         # Increment the widget count and create add profile widget
         self._numWidgets += 1
+
         self._createAddProfileWidget()
 
     # Creates an additional widget with a plus sign that when clicked, will create a new profile
     def _createAddProfileWidget(self):
+        # delete previous profile widget
+        if (self._addProfileWidget is not None):
+            self._addProfileWidget.deleteLater()
 
         if (self._numWidgets >= self._maxWidgets or self._numWidgets < len(self._profileList)):
             return
-
-        if (self._addProfileWidget is not None):
-            self._addProfileWidget.deleteLater()
 
         self._addProfileWidget = QtWidgets.QPushButton(text="+")
         self._addProfileWidget.setFixedSize(self._widgetSize, self._widgetSize)
