@@ -37,7 +37,7 @@ ModTracker is a desktop application designed to simplify the task of tracking su
 ### How to Run Our Project
 
 To run Mod Tracker in your IDE:
-- Install Python 3, then install the PyQt6, requests, and PyQt6-Charts libraries using pip install PyQt6 and pip install requests.
+- Install Python 3, then install the PyQt6, requests, and PyQt6-Charts libraries using pip.
 - Run the main.py file.
 
 To generate your own executable:
