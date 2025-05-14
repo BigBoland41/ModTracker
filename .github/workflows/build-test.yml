@@ -45,7 +45,7 @@ jobs:
 
     - name: Build executable with PyInstaller
       run: |
-        pyinstaller --name ModTracker --onefile --noconsole main.py
+        pyinstaller --name "Mod Tracker" --onefile --noconsole --icon=icon.ico main.py
 
     - name: Upload test results
       uses: actions/upload-artifact@v4

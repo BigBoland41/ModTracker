@@ -58,6 +58,9 @@ class TestModTable(unittest.TestCase):
 
     @unittest.skipIf(not _testAPICalls, "API tests are off")
     def testAddMod(self):
+        if _testAPICalls is False:
+            self.skipTest("API tests are off")
+
         self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
 
         modTable = self._detailsView.getModTable()
@@ -78,6 +81,9 @@ class TestModTable(unittest.TestCase):
 
     @unittest.skipIf(not _testAPICalls, "API tests are off")
     def testAddMod_EmptyTable(self):
+        if _testAPICalls is False:
+            self.skipTest("API tests are off")
+
         modTable = self._detailsView.getModTable()
         oldNumRows = modTable.getNumRows()
 

@@ -16,7 +16,7 @@ You can optionally download the automatic test results in unittest-results.zip. 
 - **New loading window** that displays when the app is launching. In the future we want it to be animated, but for now it's just a still image.
 - **Added an app icon** created by us - a Minecraft monkey wrench!
 - Error text will now appear when the user attempts to add a mod with an invalid URL.
-- The user can now give a mod a custom priority level, even if it was created in another profile.
+- The user can now give a mod a custom priority level that was created in another profile.
 - Data is saved to file more often.
 - Bugfixes and refactoring.
 

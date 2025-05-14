@@ -58,6 +58,8 @@ class Mod(object):
     
     _curseforgeRegex = r"^https:\/\/(www\.)?curseforge\.com\/minecraft\/mc-mods\/[a-zA-Z0-9-_]+\/?$"
     _modrinthRegex = r"^https:\/\/(www\.)?modrinth\.com\/mod\/[a-zA-Z0-9-_]+\/?$"
+
+    _requestTimeout = 10.0 # How many seconds to wait for an API call before timeout.
     
     # can pass mod info directly for testing, but can also just call constructor with a url and it will get all 
     # relevant info from the api and store it all
@@ -133,11 +135,17 @@ class Mod(object):
 
         self.callAPIs()
 
-        # try modrinth first. If the mod isn't listed there, try curseforge
+        # Use the service the URL came from first, and if that fails, try the other service
         if self.verifyMondrinthURL():
-            self._extractModrinth()
+            if self.verifyMondrinthURL():
+                self._extractModrinth()
+            else:
+                self._extractCurseforge()
         elif self.verifyCurseforgeURL():
-            self._extractCurseforge()
+            if self.verifyCurseforgeURL():
+                self._extractCurseforge()
+            else:
+                self._extractModrinth()
 
     # Use the URL this mod was initialized with to get its data from CurseForge and Modrinth
     def callAPIs(self):
@@ -151,9 +159,15 @@ class Mod(object):
             return
 
         url = f"https://api.modrinth.com/v2/project/{mod_slug}"
-        response = requests.get(url)
+
+        try:
+            response = requests.get(url, timeout=(self._requestTimeout, self._requestTimeout))
+        except requests.exceptions.Timeout:
+            print(f"Mondrinth API request timed out after {self._requestTimeout} seconds")
+            return
         
         if response.status_code == 200:
+            # print("Mondrinth API call succeeded")
             self._modrinthData = response.json()  
         else:
             print(f"Error: {response.status_code}, {response.text}")
@@ -167,9 +181,14 @@ class Mod(object):
 
         headers = {"Accept": "application/json", "x-api-key": apiKey}
         url = f"https://api.curseforge.com/v1/mods/search?gameId=432&slug={mod_slug}"
-        response = requests.get(url, headers=headers)
+
+        try:
+            response = requests.get(url, headers=headers, timeout=self._requestTimeout)
+        except requests.exceptions.Timeout:
+            print(f"Curseforge API request timed out after {self._requestTimeout} seconds")
 
         if response.status_code == 200:
+            # print("Curseforge API call succeeded")
             try:
                 for entry in response.json()["data"]:
                     if entry["primaryCategoryId"] != 4475 and entry["primaryCategoryId"] != 4464:

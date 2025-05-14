@@ -46,6 +46,9 @@ class TestPieChart(unittest.TestCase):
 
     @unittest.skipIf(not _testAPICalls, "API tests are off")
     def testAddMod_ReadyEmpty(self):
+        if _testAPICalls is False:
+            self.skipTest("API tests are off")
+
         chart = self._detailsView.getPieChart()
         sliceList = list(chart.getSliceSizes().keys())
 
@@ -56,6 +59,9 @@ class TestPieChart(unittest.TestCase):
 
     @unittest.skipIf(not _testAPICalls, "API tests are off")
     def testAddMod_ReadyPrepopulated(self):
+        if _testAPICalls is False:
+            self.skipTest("API tests are off")
+
         self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
         chart = self._detailsView.getPieChart()
         sliceList = list(chart.getSliceSizes().keys())
@@ -69,6 +75,9 @@ class TestPieChart(unittest.TestCase):
 
     @unittest.skipIf(not _testAPICalls, "API tests are off")
     def testAddMod_PreExistingPriority(self):
+        if _testAPICalls is False:
+            self.skipTest("API tests are off")
+
         self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
         chart = self._detailsView.getPieChart()
         sliceList = list(chart.getSliceSizes().keys())
