@@ -2,13 +2,18 @@
 
 Mod tracker is an app that helps you keep track of the mods you've been so patiently waiting on updating to the newest Minecraft version. Say goodbye to that mile long bookmark folder of Mondrinth and CurseForge links - Mod Tracker will do the job for you!
 
-## How to Download
+**[Click here for download instructions](#how-to-download)**
 
-To download and run Mod Tracker:
-- Open your browser and go to our [GitHub Actions page](https://github.com/BigBoland41/ModTracker/actions/workflows/build-test.yml).
-- You can now see a log of all attempted builds, which automatically run after committing to the main branch. Click the most recent one.
-- Download build-executable.zip from the artifacts.
-You can optionally download the automatic test results in unittest-results.zip. Note that there is currently a bug where the unittest results will be blank.
+*Please note that this app is still in beta, so expect some bugs. If you encounter a bug, or have ideas on how to improve Mod Tracker, create an issue on our [issues page](https://github.com/BigBoland41/ModTracker/issues).*
+
+![alt text](screenshot%201.png)
+
+## How to Download
+1. Go to our [releases page](https://github.com/BigBoland41/ModTracker/releases).
+2. Open the assets dropdown on the latest release, and download the installer.
+
+Alternatively, you can install the executable directly from the latest action on our [actions page](https://github.com/BigBoland41/ModTracker/actions/workflows/build-test.yml). Note that there is currently a bug where the unittest results will be blank.
+
 
 ## Changes in Beta 2.0
 - **Proper Curseforge support!** While it was technically supported it in our MVP, we actually used the Mondrinth data instead, and didn't support mods only found on Curseforge.
@@ -20,9 +25,7 @@ You can optionally download the automatic test results in unittest-results.zip. 
 - Data is saved to file more often.
 - Bugfixes and refactoring.
 
-If there are any issues with this version Mod Tracker, or you have ideas on how to improve the user experience, please post an issue on our [issue tracker](https://github.com/BigBoland41/ModTracker/issues).
-
-![Screenshot](https://media.discordapp.net/attachments/1279545631622299680/1371555996832370729/image.png?ex=6823908f&is=68223f0f&hm=1d20fbe2de4e46522b8896018b1172baba9dcd9f734e3e3bdd8b97f16b2f9e9d&=&format=webp&quality=lossless&width=1593&height=856)
+If there are any issues with this version Mod Tracker, report it on our [issues page](https://github.com/BigBoland41/ModTracker/issues).
 
 ## Project Details
 
@@ -41,10 +44,14 @@ To run Mod Tracker in your IDE:
 - Run the main.py file.
 
 To generate your own executable:
-- Install the pyinstaller library (make sure you also have other libraries installed)
-- Run pyinstaller --name "Mod Tracker" --onefile --noconsole --icon=icon.ico main.py
-- The executable can then be found in the newly generated dist directory
+- Install the pyinstaller library (make sure you also have other libraries installed).
+- Run `pyinstaller --name "Mod Tracker" --onefile --noconsole --icon=icon.ico main.py`.
+- The executable can then be found in the newly generated dist directory.
 
-To run unit tests, run the tests.py file. You can also test specific modules using a file with the test_ prefix.
+To generate your own installer:
+- Download [Inno Setup](https://jrsoftware.org/isinfo.php).
+- Run inno setup script.iss with Inno Setup. Make sure you've already built the executable.
 
-<sup> README updated 5/12/2025
+To run unit tests, run the tests.py file. You can also test specific modules using a file with the test_ prefix, found in the tests directory.
+
+<sup> README updated 5/15/2025

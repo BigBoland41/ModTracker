@@ -82,7 +82,10 @@ class Mod(object):
         return f"{self._name} version: {self.getCurrentVersion()}, priority: {self.priority}"
     
     def __lt__(self, other):
-        return self._tablePosition < other._tablePosition
+        if self._tablePosition > 0 or other._tablePosition > 0:
+            return self._tablePosition < other._tablePosition
+        else:
+            return self._name < other._name
 
     # Getters
     def getName(self):
@@ -108,6 +111,9 @@ class Mod(object):
     
     def getCurseforgeData(self):
         return self._curseforgeData
+    
+    def getTablePosition(self):
+        return self._tablePosition
     
     # A mod is considered valid if it has valid modrinth data or valid curseforge data
     def isValid(self):
@@ -206,9 +212,6 @@ class Mod(object):
         self._name = self._modrinthData["title"]
         self._ID = self._modrinthData["id"]
         self._versions = self._modrinthData["game_versions"]
-
-        if "tablePosition" in self._modrinthData:
-            self._tablePosition = self._modrinthData["tablePosition"]
 
     # Extract curseforge json data from API call and sort the version list
     def _extractCurseforge(self):
