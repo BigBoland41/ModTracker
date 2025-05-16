@@ -11,6 +11,7 @@ Mod tracker is an app that helps you keep track of the mods you've been so patie
 ## How to Download
 1. Go to our [releases page](https://github.com/BigBoland41/ModTracker/releases).
 2. Open the assets dropdown on the latest release, and download the installer.
+3. Run the installer, and you should be good!
 
 Alternatively, you can install the executable directly from the latest action on our [actions page](https://github.com/BigBoland41/ModTracker/actions/workflows/build-test.yml). Note that there is currently a bug where the unittest results will be blank.
 
@@ -20,6 +21,7 @@ Alternatively, you can install the executable directly from the latest action on
 - **Massive improvement in loading times** achieved by putting each mod's API call on a separate thread.
 - **New loading window** that displays when the app is launching. In the future we want it to be animated, but for now it's just a still image.
 - **Added an app icon** created by us - a Minecraft monkey wrench!
+- Mod Tracker is now distributed with an installer, not just a plain exe file.
 - Error text will now appear when the user attempts to add a mod with an invalid URL.
 - The user can now give a mod a custom priority level that was created in another profile.
 - Data is saved to file more often.
