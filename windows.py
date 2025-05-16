@@ -1,4 +1,4 @@
-import mod, widgets, load, json, threading
+import mod, widgets, load, json, threading, os
 from PyQt6 import QtCore, QtGui, QtWidgets, QtTest
 
 
@@ -344,16 +344,23 @@ class ProfileSelectWindow(QtWidgets.QWidget):
     # Write the details of each profile to a json file
     def saveJson(self, filename="mods.json", updatedProfile:mod.ModProfile = None):
         # Update the profile that was just changed in the details view. Don't change the name
-        currentProfile = self._profileList[self._currentProfileIndex]
-        currentProfile.modList = updatedProfile.modList
-        currentProfile.priorityList = updatedProfile.priorityList
-        currentProfile.selectedVersion = updatedProfile.selectedVersion
+        if updatedProfile is not None:
+            currentProfile = self._profileList[self._currentProfileIndex]
+            currentProfile.modList = updatedProfile.modList
+            currentProfile.priorityList = updatedProfile.priorityList
+            currentProfile.selectedVersion = updatedProfile.selectedVersion
 
         if self._allowWriteToFile:
-            print(f"Saving data to {filename}")
-            with open(filename, "w") as file:
+            appdata = os.getenv('APPDATA')
+            directory = os.path.join(appdata, 'ModTracker')
+            os.makedirs(directory, exist_ok=True)
+            json_path = os.path.join(directory, filename)
+
+            print(f"Saving data to {json_path}")
+            with open(json_path, "w") as file:
                 json.dump([profile.createDict() for profile in self._profileList], file, indent=4)
 
+        # reload UI
         self._profileWidgets = []
         self._numWidgets = 0
         self._createWidgetRows()

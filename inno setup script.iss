@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Mod Tracker"
-#define MyAppVersion "b2.0"
+#define MyAppVersion "b2.1"
 #define MyAppPublisher "Stephen Nuttall, Andrew Boland, Jon Masucci"
 #define MyAppURL "https://github.com/BigBoland41/ModTracker"
 #define MyAppExeName "Mod Tracker.exe"
@@ -37,7 +37,7 @@ DisableProgramGroupPage=yes
 ;PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
 OutputDir=C:\Users\steph\OneDrive\Desktop\Mod Tracker Installer
-OutputBaseFilename=Mod Tracker b2.0 Setup
+OutputBaseFilename=Mod_Tracker_{#MyAppVersion}_Setup
 SetupIconFile=C:\Users\steph\OneDrive\Documents\GitHub\Mod Tracker\icon.ico
 SolidCompression=yes
 WizardStyle=modern

@@ -1,4 +1,4 @@
-import mod, json, threading
+import mod, json, threading, os
 
 # Convert json data for a mod into a mod object
 def _dictToMod(data):
@@ -35,25 +35,17 @@ def _dictToModProfile(data):
         thread.join()
 
     return mod.ModProfile(modList = newModList, name=data["name"], selectedVersion=data["version"])
-    
-# ----- Deprecated -----
-# Open a json file, read the data, and create a single list of mods (rather than a list of mod profiles)
-def _createModList(filename="mods.json"):
-        newModList = []
-        try:
-            with open(filename, "r") as f:
-                data = json.load(f)
-                for entry in data:
-                    newModList.append(_dictToMod(entry))
-        except FileNotFoundError:
-            return []
-        return newModList
 
 # Open a json file, read the data, and create a list of mod profiles from it
 def createProfileList(filename="mods.json"):
+    appdata = os.getenv('APPDATA')
+    directory = os.path.join(appdata, 'ModTracker')
+    os.makedirs(directory, exist_ok=True)
+    json_path = os.path.join(directory, filename)
+
     newProfileList = []
     try:
-        with open(filename, "r") as f:
+        with open(json_path, "r") as f:
             data = json.load(f)
             for entry in data:
                 newProfileList.append(_dictToModProfile(entry))
