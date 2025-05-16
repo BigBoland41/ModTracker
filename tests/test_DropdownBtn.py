@@ -1,5 +1,11 @@
-import sys, unittest, windows
+import sys, os, unittest
 from PyQt6 import QtWidgets, QtGui
+
+# Add the parent directory to the Python path
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(parent_dir)
+
+import windows
 from testData import TestData
 
 class TestDropdownBtn(unittest.TestCase):

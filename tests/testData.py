@@ -1,9 +1,15 @@
+import sys, os
+
+# Add the parent directory to the Python path
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(parent_dir)
+
 import mod
 
 class TestData(object):
     # applies to any test making an API call, not just the testAPICalls class
-    # it's recommended you turn this off if you plan to run tests multiple
-    # times in a row, in order to not get our API calls denied.
+    # it's recommended you turn this off if you plan to run tests many
+    # times in a row, in order to not get our API calls denied or throttled.
     testAPICalls = True
 
     selectedVersion = "1.21.5"

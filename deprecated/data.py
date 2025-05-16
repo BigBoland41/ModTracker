@@ -1,7 +1,10 @@
+# ---------- DEPRECATED  ----------
+# Was used for testing stuff. NOT part of build
+
 import requests
 import json
 import re
-# was used for testing stuff, not part of build
+
 CFKEY = "$2a$10$QIDeQbKDRhOQZgmcVHKxYeTSI/RlHH8oOzRnPhd6Rb4Dcj2l3k27a"
 
 URL = "https://api.curseforge.com/v1/"
@@ -11,6 +14,7 @@ ID = 432 #game ID for minecraft
 headers = {
     "X-Api-Key": CFKEY
 }
+
 # just here to test the api call
 def test(): 
     response = requests.get(URL + "games", headers=headers)

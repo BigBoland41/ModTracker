@@ -1,5 +1,11 @@
-import sys, unittest, windows
+import sys, os, unittest
 from PyQt6 import QtWidgets, QtTest, QtCore
+
+# Add the parent directory to the Python path
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(parent_dir)
+
+import windows
 from testData import TestData
 
 _testAPICalls = True
@@ -52,6 +58,9 @@ class TestModTable(unittest.TestCase):
 
     @unittest.skipIf(not _testAPICalls, "API tests are off")
     def testAddMod(self):
+        if _testAPICalls is False:
+            self.skipTest("API tests are off")
+
         self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
 
         modTable = self._detailsView.getModTable()
@@ -72,6 +81,9 @@ class TestModTable(unittest.TestCase):
 
     @unittest.skipIf(not _testAPICalls, "API tests are off")
     def testAddMod_EmptyTable(self):
+        if _testAPICalls is False:
+            self.skipTest("API tests are off")
+
         modTable = self._detailsView.getModTable()
         oldNumRows = modTable.getNumRows()
 

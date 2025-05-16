@@ -21,7 +21,7 @@
     },
     "summary": "In-game Minecraft map editor - build bigger things more quickly!",
     "status": 4,
-    "downloadCount": 47317228,
+    "downloadCount": 49018752,
     "isFeatured": false,
     "primaryCategoryId": 423,
     "categories": [
@@ -97,7 +97,7 @@
         "thumbnailUrl": "https://media.forgecdn.net/avatars/thumbnails/308/38/256/256/637390518698344085.png",
         "url": "https://media.forgecdn.net/avatars/308/38/637390518698344085.png"
     },
-    "mainFileId": 6122278,
+    "mainFileId": 6338613,
     "latestFiles": [
         {
             "id": 2655056,
@@ -346,152 +346,29 @@
             ]
         },
         {
-            "id": 6013137,
+            "id": 6338613,
             "gameId": 432,
             "modId": 225608,
             "isAvailable": true,
-            "displayName": "WorldEdit 7.3.10 Beta 1 (NeoForge/Fabric for MC 1.21.4)",
-            "fileName": "worldedit-mod-7.3.10-beta-01.jar",
-            "releaseType": 2,
-            "fileStatus": 4,
-            "hashes": [
-                {
-                    "value": "ed699fb9299124301a0742b02da730c19eb2de67",
-                    "algo": 1
-                },
-                {
-                    "value": "2837b9aae61afcadbe4721ff14b65350",
-                    "algo": 2
-                }
-            ],
-            "fileDate": "2024-12-22T12:43:36.17Z",
-            "fileLength": 6622059,
-            "downloadCount": 0,
-            "fileSizeOnDisk": 19839154,
-            "downloadUrl": "https://edge.forgecdn.net/files/6013/137/worldedit-mod-7.3.10-beta-01.jar",
-            "gameVersions": [
-                "Fabric",
-                "1.21.4",
-                "NeoForge",
-                "Server"
-            ],
-            "sortableGameVersions": [
-                {
-                    "gameVersionName": "Fabric",
-                    "gameVersionPadded": "0",
-                    "gameVersion": "",
-                    "gameVersionReleaseDate": "2022-09-01T00:00:00Z",
-                    "gameVersionTypeId": 68441
-                },
-                {
-                    "gameVersionName": "1.21.4",
-                    "gameVersionPadded": "0000000001.0000000021.0000000004",
-                    "gameVersion": "1.21.4",
-                    "gameVersionReleaseDate": "2024-12-03T16:26:15.35Z",
-                    "gameVersionTypeId": 77784
-                },
-                {
-                    "gameVersionName": "NeoForge",
-                    "gameVersionPadded": "0",
-                    "gameVersion": "",
-                    "gameVersionReleaseDate": "2023-07-25T00:00:00Z",
-                    "gameVersionTypeId": 68441
-                },
-                {
-                    "gameVersionName": "Server",
-                    "gameVersionPadded": "0",
-                    "gameVersion": "",
-                    "gameVersionReleaseDate": "2022-12-08T00:00:00Z",
-                    "gameVersionTypeId": 75208
-                }
-            ],
-            "dependencies": [],
-            "alternateFileId": 0,
-            "isServerPack": false,
-            "fileFingerprint": 3429517376,
-            "modules": [
-                {
-                    "name": "META-INF",
-                    "fingerprint": 3118567928
-                },
-                {
-                    "name": "assets",
-                    "fingerprint": 2897070019
-                },
-                {
-                    "name": "com",
-                    "fingerprint": 3825762460
-                },
-                {
-                    "name": "defaults",
-                    "fingerprint": 585629097
-                },
-                {
-                    "name": "fabric.mod.json",
-                    "fingerprint": 369565087
-                },
-                {
-                    "name": "lang",
-                    "fingerprint": 3240273267
-                },
-                {
-                    "name": "mappings",
-                    "fingerprint": 3489612130
-                },
-                {
-                    "name": "org",
-                    "fingerprint": 3546857130
-                },
-                {
-                    "name": "pack.mcmeta",
-                    "fingerprint": 3106184182
-                },
-                {
-                    "name": "worldedit-fabric-mc1.21.4-refmap.json",
-                    "fingerprint": 1985688833
-                },
-                {
-                    "name": "worldedit-fabric.mixins.json",
-                    "fingerprint": 1275243085
-                },
-                {
-                    "name": "worldedit.accesswidener",
-                    "fingerprint": 1094584180
-                },
-                {
-                    "name": "worldedit-icon.png",
-                    "fingerprint": 2897070019
-                },
-                {
-                    "name": "worldedit-neoforge.mixins.json",
-                    "fingerprint": 1915855671
-                }
-            ]
-        },
-        {
-            "id": 6122278,
-            "gameId": 432,
-            "modId": 225608,
-            "isAvailable": true,
-            "displayName": "WorldEdit 7.3.10 (NeoForge/Fabric for MC 1.21.4)",
-            "fileName": "worldedit-mod-7.3.10.jar",
+            "displayName": "WorldEdit 7.3.11 (NeoForge/Fabric for MC 1.21.4)",
+            "fileName": "worldedit-mod-7.3.11.jar",
             "releaseType": 1,
             "fileStatus": 4,
             "hashes": [
                 {
-                    "value": "d5538fcb1be4b25b1da315576fb95d84965a5242",
+                    "value": "0ed5b3d41e4d768ac84179e0c93c2ee796313e04",
                     "algo": 1
                 },
                 {
-                    "value": "3ed0d95d82109086874b967e84425834",
+                    "value": "da6d37e5497f0927c2757dc0987d8649",
                     "algo": 2
                 }
             ],
-            "fileDate": "2025-01-25T07:08:06.157Z",
-            "fileLength": 6623442,
-            "downloadCount": 4373,
-            "fileSizeOnDisk": 19860222,
-            "downloadUrl": "https://edge.forgecdn.net/files/6122/278/worldedit-mod-7.3.10.jar",
+            "fileDate": "2025-03-24T10:57:53.8Z",
+            "fileLength": 6624852,
+            "downloadCount": 87723,
+            "fileSizeOnDisk": 19863975,
+            "downloadUrl": "https://edge.forgecdn.net/files/6338/613/worldedit-mod-7.3.11.jar",
             "gameVersions": [
                 "Fabric",
                 "1.21.4",
@@ -531,11 +408,11 @@
             "dependencies": [],
             "alternateFileId": 0,
             "isServerPack": false,
-            "fileFingerprint": 2423157425,
+            "fileFingerprint": 75900278,
             "modules": [
                 {
                     "name": "META-INF",
-                    "fingerprint": 1690000385
+                    "fingerprint": 1037655627
                 },
                 {
                     "name": "assets",
@@ -543,7 +420,7 @@
                 },
                 {
                     "name": "com",
-                    "fingerprint": 1230024788
+                    "fingerprint": 3114265384
                 },
                 {
                     "name": "defaults",
@@ -551,7 +428,7 @@
                 },
                 {
                     "name": "fabric.mod.json",
-                    "fingerprint": 1580625203
+                    "fingerprint": 973839248
                 },
                 {
                     "name": "lang",
@@ -590,21 +467,160 @@
                     "fingerprint": 1915855671
                 }
             ]
+        },
+        {
+            "id": 6451011,
+            "gameId": 432,
+            "modId": 225608,
+            "isAvailable": true,
+            "displayName": "WorldEdit 7.3.12 Beta 2 (NeoForge/Fabric for MC 1.21.5)",
+            "fileName": "worldedit-mod-7.3.12-beta-02.jar",
+            "releaseType": 2,
+            "fileStatus": 4,
+            "hashes": [
+                {
+                    "value": "3a65769a77fd0df9d3f85a2166780ee37d5e3e35",
+                    "algo": 1
+                },
+                {
+                    "value": "65e6d5fdb351e74ba2cea05eac433f55",
+                    "algo": 2
+                }
+            ],
+            "fileDate": "2025-04-22T08:02:09.857Z",
+            "fileLength": 6669715,
+            "downloadCount": 0,
+            "fileSizeOnDisk": 20070222,
+            "downloadUrl": "https://edge.forgecdn.net/files/6451/11/worldedit-mod-7.3.12-beta-02.jar",
+            "gameVersions": [
+                "1.21.5",
+                "Fabric",
+                "NeoForge",
+                "Server"
+            ],
+            "sortableGameVersions": [
+                {
+                    "gameVersionName": "1.21.5",
+                    "gameVersionPadded": "0000000001.0000000021.0000000005",
+                    "gameVersion": "1.21.5",
+                    "gameVersionReleaseDate": "2025-03-25T16:46:25.94Z",
+                    "gameVersionTypeId": 77784
+                },
+                {
+                    "gameVersionName": "Fabric",
+                    "gameVersionPadded": "0",
+                    "gameVersion": "",
+                    "gameVersionReleaseDate": "2022-09-01T00:00:00Z",
+                    "gameVersionTypeId": 68441
+                },
+                {
+                    "gameVersionName": "NeoForge",
+                    "gameVersionPadded": "0",
+                    "gameVersion": "",
+                    "gameVersionReleaseDate": "2023-07-25T00:00:00Z",
+                    "gameVersionTypeId": 68441
+                },
+                {
+                    "gameVersionName": "Server",
+                    "gameVersionPadded": "0",
+                    "gameVersion": "",
+                    "gameVersionReleaseDate": "2022-12-08T00:00:00Z",
+                    "gameVersionTypeId": 75208
+                }
+            ],
+            "dependencies": [],
+            "alternateFileId": 0,
+            "isServerPack": false,
+            "fileFingerprint": 1151194249,
+            "modules": [
+                {
+                    "name": "META-INF",
+                    "fingerprint": 180647244
+                },
+                {
+                    "name": "assets",
+                    "fingerprint": 2897070019
+                },
+                {
+                    "name": "com",
+                    "fingerprint": 2405194568
+                },
+                {
+                    "name": "defaults",
+                    "fingerprint": 585629097
+                },
+                {
+                    "name": "fabric.mod.json",
+                    "fingerprint": 3000766847
+                },
+                {
+                    "name": "lang",
+                    "fingerprint": 4268779890
+                },
+                {
+                    "name": "mappings",
+                    "fingerprint": 74489698
+                },
+                {
+                    "name": "org",
+                    "fingerprint": 3546857130
+                },
+                {
+                    "name": "pack.mcmeta",
+                    "fingerprint": 3106184182
+                },
+                {
+                    "name": "worldedit-fabric-mc1.21.5-refmap.json",
+                    "fingerprint": 3837512346
+                },
+                {
+                    "name": "worldedit-fabric.mixins.json",
+                    "fingerprint": 3852539721
+                },
+                {
+                    "name": "worldedit.accesswidener",
+                    "fingerprint": 1094584180
+                },
+                {
+                    "name": "worldedit-icon.png",
+                    "fingerprint": 2897070019
+                },
+                {
+                    "name": "worldedit-neoforge.mixins.json",
+                    "fingerprint": 1915855671
+                }
+            ]
         }
     ],
     "latestFilesIndexes": [
         {
+            "gameVersion": "1.21.5",
+            "fileId": 6451011,
+            "filename": "worldedit-mod-7.3.12-beta-02.jar",
+            "releaseType": 2,
+            "gameVersionTypeId": 77784,
+            "modLoader": 4
+        },
+        {
+            "gameVersion": "1.21.5",
+            "fileId": 6451011,
+            "filename": "worldedit-mod-7.3.12-beta-02.jar",
+            "releaseType": 2,
+            "gameVersionTypeId": 77784,
+            "modLoader": 6
+        },
+        {
             "gameVersion": "1.21.4",
-            "fileId": 6122278,
-            "filename": "worldedit-mod-7.3.10.jar",
+            "fileId": 6338613,
+            "filename": "worldedit-mod-7.3.11.jar",
             "releaseType": 1,
             "gameVersionTypeId": 77784,
             "modLoader": 4
         },
         {
             "gameVersion": "1.21.4",
-            "fileId": 6122278,
-            "filename": "worldedit-mod-7.3.10.jar",
+            "fileId": 6338613,
+            "filename": "worldedit-mod-7.3.11.jar",
             "releaseType": 1,
             "gameVersionTypeId": 77784,
             "modLoader": 6
@@ -1196,12 +1212,11 @@
     ],
     "latestEarlyAccessFilesIndexes": [],
     "dateCreated": "2014-11-15T03:43:50.217Z",
-    "dateModified": "2025-01-25T07:13:03.963Z",
-    "dateReleased": "2025-01-25T07:08:06.157Z",
+    "dateModified": "2025-04-22T08:06:51.237Z",
+    "dateReleased": "2025-04-22T08:02:09.857Z",
     "allowModDistribution": true,
-    "gamePopularityRank": 633,
+    "gamePopularityRank": 652,
     "isAvailable": true,
-    "hasCommentsEnabled": false,
     "thumbsUpCount": 0,
     "featuredProjectTag": 0
 }

@@ -5,3 +5,5 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     testSuite = unittest.TestLoader().discover('tests', pattern='test_*.py')
     unittest.TextTestRunner().run(testSuite)
+
+    # known issue: tests.py crashes after completing testSuite

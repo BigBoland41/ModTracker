@@ -1,6 +1,9 @@
+# ---------- DEPRECATED  ----------
+# Was used for testing stuff. NOT part of build
+
 import requests
 import json
-# was used for testing stuff, not part of build
+
 def get_modrinth_mod_info(mod_slug):
     url = f"https://api.modrinth.com/v2/project/{mod_slug}"
     

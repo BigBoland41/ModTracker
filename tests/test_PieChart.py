@@ -1,5 +1,12 @@
-import sys, unittest, windows
+import sys, os, unittest
 from PyQt6 import QtWidgets, QtGui
+
+# Add the parent directory to the Python path
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(parent_dir)
+
+
+import windows
 from testData import TestData
 
 _testAPICalls = True
@@ -39,6 +46,9 @@ class TestPieChart(unittest.TestCase):
 
     @unittest.skipIf(not _testAPICalls, "API tests are off")
     def testAddMod_ReadyEmpty(self):
+        if _testAPICalls is False:
+            self.skipTest("API tests are off")
+
         chart = self._detailsView.getPieChart()
         sliceList = list(chart.getSliceSizes().keys())
 
@@ -49,6 +59,9 @@ class TestPieChart(unittest.TestCase):
 
     @unittest.skipIf(not _testAPICalls, "API tests are off")
     def testAddMod_ReadyPrepopulated(self):
+        if _testAPICalls is False:
+            self.skipTest("API tests are off")
+
         self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
         chart = self._detailsView.getPieChart()
         sliceList = list(chart.getSliceSizes().keys())
@@ -62,6 +75,9 @@ class TestPieChart(unittest.TestCase):
 
     @unittest.skipIf(not _testAPICalls, "API tests are off")
     def testAddMod_PreExistingPriority(self):
+        if _testAPICalls is False:
+            self.skipTest("API tests are off")
+
         self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
         chart = self._detailsView.getPieChart()
         sliceList = list(chart.getSliceSizes().keys())
