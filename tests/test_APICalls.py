@@ -10,8 +10,6 @@ from testData import TestData
 _testAPICalls = True
 
 class TestAPICalls(unittest.TestCase):
-    latestGameVersion = "1.21.5"
-
     def setUp(self):
         global _testAPICalls
         self._data = TestData()
@@ -54,10 +52,10 @@ class TestAPICalls(unittest.TestCase):
         modObj4 = mod.Mod(url = "https://www.curseforge.com/minecraft/mc-mods/sodium") # on both sites
         modObj5 = mod.Mod(url = "https://www.curseforge.com/minecraft/mc-mods/ice-cream-mini-sword-and-new-trades") # only on curseforge
 
-        self.assertEqual(modObj1.getCurrentVersion(), self.latestGameVersion)
+        self.assertEqual(modObj1.getCurrentVersion(), self._data.latestGameVersion)
         # self.assertEqual(modObj2.getCurrentVersion(), "25w17a") # updates too often
-        self.assertEqual(modObj3.getCurrentVersion(), self.latestGameVersion)
-        self.assertEqual(modObj4.getCurrentVersion(), self.latestGameVersion)
+        self.assertEqual(modObj3.getCurrentVersion(), self._data.latestGameVersion)
+        self.assertEqual(modObj4.getCurrentVersion(), self._data.latestGameVersion)
         self.assertEqual(modObj5.getCurrentVersion(), "1.20.1")
 
     @unittest.skipIf(not _testAPICalls, "API tests are off")
@@ -78,7 +76,7 @@ class TestAPICalls(unittest.TestCase):
         self.assertEqual(modObj3.getName(), "Cloth Config API")
         self.assertEqual(modObj4.getName(), "Sodium")
         self.assertEqual(modObj5.getName(), "Ice Cream, Mini Sword And New Trades!")
-        self.assertEqual(modObj6.getName(), "WorldEdit")
+        self.assertEqual(modObj6.getName(), "WorldEdit for Bukkit")
         self.assertEqual(invalidModObj.getName(), "Untitled Mod")
 
     @unittest.skipIf(not _testAPICalls, "API tests are off")

@@ -70,7 +70,7 @@ class TestModTable(unittest.TestCase):
         self._detailsView.enterAndAddMod("https://modrinth.com/mod/nether-height-expansion-mod")
 
         self.assertEqual(modTable.getRowNameText(modTable.getNumRows() - 2), "Sodium")
-        self.assertEqual(modTable.getRowVersionText(modTable.getNumRows() - 2), "1.21.5")
+        self.assertEqual(modTable.getRowVersionText(modTable.getNumRows() - 2), self._data.latestGameVersion)
         self.assertEqual(modTable.getRowDropdownBtnText(modTable.getNumRows() - 2), "Ready")
 
         self.assertEqual(modTable.getRowNameText(modTable.getNumRows() - 1), "More Nether Mod")
@@ -91,7 +91,7 @@ class TestModTable(unittest.TestCase):
         self._detailsView.enterAndAddMod("https://modrinth.com/mod/nether-height-expansion-mod")
 
         self.assertEqual(modTable.getRowNameText(modTable.getNumRows() - 2), "Sodium")
-        self.assertEqual(modTable.getRowVersionText(modTable.getNumRows() - 2), "1.21.5")
+        self.assertEqual(modTable.getRowVersionText(modTable.getNumRows() - 2), self._data.latestGameVersion)
         self.assertEqual(modTable.getRowDropdownBtnText(modTable.getNumRows() - 2), "Ready")
 
         self.assertEqual(modTable.getRowNameText(modTable.getNumRows() - 1), "More Nether Mod")

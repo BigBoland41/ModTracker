@@ -133,6 +133,7 @@ class DetailsWindow(QtWidgets.QWidget):
         self._createSelectedVersionTextField()
         self._createRefreshBtn()
         self._createBackBtn()
+        self._createDownloadButton()
 
     # Inserts new data to diplay instead. Used for testing.
     def loadNewData(self, modList:list[mod.Mod], priorityList:list[mod.ModPriority], selectedVersion:str):
@@ -250,6 +251,19 @@ class DetailsWindow(QtWidgets.QWidget):
         if (self._onBackBtnClick is not None):
             self._refreshBtn.clicked.connect(self._closeView)
 
+    def _createDownloadButton(self):
+        buttonFont = QtGui.QFont()
+        buttonFont.setPointSize(18)
+
+        self._downloadBtn = QtWidgets.QPushButton(parent=self)
+        self._downloadBtn.setGeometry(QtCore.QRect(1525, 910, 275, 70))
+        self._downloadBtn.setFont(buttonFont)
+        self._downloadBtn.setObjectName("downloadBtn")
+        # self._downloadBtn.clicked.connect(self._addMod)
+        self._downloadBtn.setText("Download Ready Mods")
+
+        self._modLoaderDropdown = widgets.ModLoaderDropdownBtn(self, 0, QtCore.QRect(1800, 910, 110, 70))
+
     # Adds a mod to the profile. Triggered when the add mod button is clicked.
     def _addMod(self):
         # When the button is clicked, this function will run. Add your code here
@@ -287,7 +301,6 @@ class DetailsWindow(QtWidgets.QWidget):
         if self._savefunc is not None:
             self._savefunc(updatedProfile=mod.ModProfile(self._modList, self._priorityList, self._selectedVersion))
         self._onBackBtnClick()
-
 
 # The display that allows the user to view all their profiles, and select one to open
 class ProfileSelectWindow(QtWidgets.QWidget):

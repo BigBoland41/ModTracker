@@ -1,5 +1,5 @@
 from PyQt6 import QtGui
-import requests, re
+import callModrinth, callCurseForge
 
 class ModPriority(object):
     name:str
@@ -121,19 +121,9 @@ class Mod(object):
     
     # Verify if the URL this mod was initialized with is valid
     def verifyURL(self):
-        curseforge = re.compile(self._curseforgeRegex)
-        modrinth = re.compile(self._modrinthRegex)
-        return modrinth.match(self._url) or curseforge.match(self._url)
-    
-    # Verify if the URL this mod was initialized with is specifically a Modrinth URL
-    def verifyMondrinthURL(self):
-        modrinth = re.compile(self._modrinthRegex)
-        return modrinth.match(self._url)
-    
-    # Verify if the URL this mod was initialized with is specifically a Curseforge URL
-    def verifyCurseforgeURL(self):
-        curseforge = re.compile(self._curseforgeRegex)
-        return curseforge.match(self._url)
+        curseforge = callModrinth.verifyURL(self._url)
+        modrinth = callCurseForge.verifyURL(self._url)
+        return modrinth or curseforge
 
     # Runs when the mod's data needs to be reset. Makes an API call and extracts the raw data
     def refreshMod(self):
@@ -142,13 +132,13 @@ class Mod(object):
         self.callAPIs()
 
         # Use the service the URL came from first, and if that fails, try the other service
-        if self.verifyMondrinthURL():
-            if self.verifyMondrinthURL():
+        if callModrinth.verifyURL(self._url):
+            if callModrinth.verifyURL(self._url):
                 self._extractModrinth()
             else:
                 self._extractCurseforge()
-        elif self.verifyCurseforgeURL():
-            if self.verifyCurseforgeURL():
+        elif callCurseForge.verifyURL(self._url):
+            if callCurseForge.verifyURL(self._url):
                 self._extractCurseforge()
             else:
                 self._extractModrinth()
@@ -157,52 +147,11 @@ class Mod(object):
     def callAPIs(self):
         mod_slug = self._url.rstrip("/").split("/")[-1]
         
-        self._callMondrinthAPI(mod_slug)
-        self._callCurseForgeAPI(mod_slug)
-
-    def _callMondrinthAPI(self, mod_slug):
-        if not self.verifyMondrinthURL():
-            return
-
-        url = f"https://api.modrinth.com/v2/project/{mod_slug}"
-
-        try:
-            response = requests.get(url, timeout=(self._requestTimeout, self._requestTimeout))
-        except requests.exceptions.Timeout:
-            print(f"Mondrinth API request timed out after {self._requestTimeout} seconds")
-            return
+        if callModrinth.verifyURL(self._url):
+            self._modrinthData = callModrinth.modData(mod_slug)
         
-        if response.status_code == 200:
-            # print("Mondrinth API call succeeded")
-            self._modrinthData = response.json()  
-        else:
-            print(f"Error: {response.status_code}, {response.text}")
-
-    def _callCurseForgeAPI(self, mod_slug):
-        if not self.verifyCurseforgeURL():
-            return
-        
-        apiKey = "$2a$10$QIDeQbKDRhOQZgmcVHKxYeTSI/RlHH8oOzRnPhd6Rb4Dcj2l3k27a"
-        gameID = 432 # 432 = Minecraft
-
-        headers = {"Accept": "application/json", "x-api-key": apiKey}
-        url = f"https://api.curseforge.com/v1/mods/search?gameId=432&slug={mod_slug}"
-
-        try:
-            response = requests.get(url, headers=headers, timeout=self._requestTimeout)
-        except requests.exceptions.Timeout:
-            print(f"Curseforge API request timed out after {self._requestTimeout} seconds")
-
-        if response.status_code == 200:
-            # print("Curseforge API call succeeded")
-            try:
-                for entry in response.json()["data"]:
-                    if entry["primaryCategoryId"] != 4475 and entry["primaryCategoryId"] != 4464:
-                        self._curseforgeData = entry
-            except IndexError:
-                self._curseforgeData = False
-        else:
-            print(f"Error: {response.status_code}, {response.text}")
+        if callCurseForge.verifyURL(self._url):
+            self._curseforgeData = callCurseForge.modData(mod_slug)
 
     # Extract modrinth json data from API call
     def _extractModrinth(self):
@@ -213,7 +162,8 @@ class Mod(object):
         self._ID = self._modrinthData["id"]
         self._versions = self._modrinthData["game_versions"]
 
-    # Extract curseforge json data from API call and sort the version list
+    # Extract curseforge json data from API call
+    # and sort the version list
     def _extractCurseforge(self):
         if (self._curseforgeData == False):
             return -1

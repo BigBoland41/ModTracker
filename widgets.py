@@ -29,7 +29,7 @@ class ModTable():
     # The parent object this widget is attached to
     _parentWidget:QtWidgets.QWidget
     # List of dropdownBtn objects in the table
-    _dropdownBtnList:list['DropdownBtn'] = []
+    _dropdownBtnList:list['PriorityDropdownBtn'] = []
 
     # The list of mod to display
     _modList:list[mod.Mod]
@@ -167,15 +167,15 @@ class ModTable():
 
     # creates all the buttons that reveal the priority dropdown menu
     def _createDropdownBtn(self, rowNum:int, mod:mod.Mod):
-        dropdownBtn = DropdownBtn(self._parentWidget, mod, self._priorityList, self._reloadFunc,
+        dropdownBtn = PriorityDropdownBtn(self._parentWidget, mod, self._priorityList, self._reloadFunc,
                                   rowNum, self._selectedVersion in mod.getVersionList(), self._fontSize)
         self._tableWidget.setCellWidget(rowNum, 2, dropdownBtn.getButtonWidget())
         self._dropdownBtnList.append(dropdownBtn)
 
 
 # This is the dropdown menu that appears in the third column of the table which allows
-# the user to select a priorty level, or create a new priority level
-class DropdownBtn():
+# the user to select a priorty level, or create a new priority level.
+class PriorityDropdownBtn():
     _parentWidget:QtWidgets.QWidget
     _buttonWidget:QtWidgets.QPushButton
     _menuWidget:QtWidgets.QMenu
@@ -367,6 +367,71 @@ class PieChart():
             if darkTheme:
                 slice.setLabelColor(QtGui.QColor("white"))
             i += 1
+
+
+# This is the dropdown menu that appears next to the download button that allows
+# the user to select which mod loader they prefer.
+class ModLoaderDropdownBtn():
+    selectedModLoader:int
+
+    _parentWidget:QtWidgets.QWidget
+    _buttonRect:QtCore.QRect
+
+    _buttonWidget:QtWidgets.QPushButton
+    _menuWidget:QtWidgets.QMenu
+
+    _modLoaderList = ["Forge", "Fabric", "Neoforge", "Quilt"]
+
+    def __init__(self, parentWidget:QtWidgets.QWidget, selectedModLoader:int, buttonRect:QtCore.QRect):
+        # set attributes
+        self._parentWidget = parentWidget
+        self.selectedModLoader = selectedModLoader
+        self._buttonRect = buttonRect
+
+        # run setup functions
+        self._createButtonWidget()
+        self._createMenuWidget()
+
+    def clickDropdownOption(self, index):
+        if 0 <= index < len(self._menuWidget.actions()):
+            self._changeModLoader(index)
+
+    def getButtonWidget(self):
+        return self._buttonWidget
+    
+    def getMenuWidget(self):
+        return self._menuWidget
+
+    def _createButtonWidget(self):
+        # create font for button
+        buttonFont = QtGui.QFont()
+        buttonFont.setPointSize(14)
+        
+        # create button
+        self._buttonWidget = QtWidgets.QPushButton(parent=self._parentWidget)
+        self._buttonWidget.setGeometry(self._buttonRect)
+        self._buttonWidget.setFont(buttonFont)
+        self._buttonWidget.setText(self._modLoaderList[self.selectedModLoader] + " ▾")
+
+        # making the lambda its own function doesn't work for some reason
+        self._buttonWidget.clicked.connect(
+            lambda : self._menuWidget.exec(
+                self._buttonWidget.mapToGlobal(self._buttonWidget.rect().bottomLeft())))
+        
+    def _createMenuWidget(self):
+        # create dropdown menu
+        self._menuWidget = QtWidgets.QMenu(self._parentWidget)
+
+        # add priority levels to action list
+        i = 0
+        for modLoader in self._modLoaderList:
+            self._menuWidget.addAction(self._modLoaderList[i],
+                                        lambda index=i : self._changeModLoader(index))
+            i += 1
+
+    def _changeModLoader(self, index):
+        self.selectedModLoader = index
+        self._buttonWidget.setText(self._modLoaderList[self.selectedModLoader] + " ▾")
 
 def isDarkTheme():
     # Access Windows registry to check the theme setting

@@ -7,10 +7,15 @@ sys.path.append(parent_dir)
 import mod
 
 class TestData(object):
-    # applies to any test making an API call, not just the testAPICalls class
-    # it's recommended you turn this off if you plan to run tests many
+    # Applies to any test making an API call, not just the testAPICalls class.
+    # It's recommended you turn this off if you plan to run tests many
     # times in a row, in order to not get our API calls denied or throttled.
     testAPICalls = True
+
+    # Some tests check that the latest version is correct, comparing against this.
+    # This variable needs to be periodically updated.
+    # It should probably be replaced with a better system at some point.
+    latestGameVersion = "1.21.7"
 
     selectedVersion = "1.21.5"
     highPriority = mod.ModPriority("High Priority", 255, 85, 0)
