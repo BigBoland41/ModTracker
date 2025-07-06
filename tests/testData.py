@@ -7,6 +7,7 @@ sys.path.append(parent_dir)
 import mod
 
 class TestData(object):
+    # If false, tests that make API calls will be skipped.
     # Applies to any test making an API call, not just the testAPICalls class.
     # It's recommended you turn this off if you plan to run tests many
     # times in a row, in order to not get our API calls denied or throttled.

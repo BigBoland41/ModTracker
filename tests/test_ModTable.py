@@ -66,8 +66,8 @@ class TestModTable(unittest.TestCase):
         modTable = self._detailsView.getModTable()
         oldNumRows = modTable.getNumRows()
 
-        self._detailsView.enterAndAddMod("https://modrinth.com/mod/sodium")
-        self._detailsView.enterAndAddMod("https://modrinth.com/mod/nether-height-expansion-mod")
+        self._detailsView.simulate_enterAndAddMod("https://modrinth.com/mod/sodium")
+        self._detailsView.simulate_enterAndAddMod("https://modrinth.com/mod/nether-height-expansion-mod")
 
         self.assertEqual(modTable.getRowNameText(modTable.getNumRows() - 2), "Sodium")
         self.assertEqual(modTable.getRowVersionText(modTable.getNumRows() - 2), self._data.latestGameVersion)
@@ -87,8 +87,8 @@ class TestModTable(unittest.TestCase):
         modTable = self._detailsView.getModTable()
         oldNumRows = modTable.getNumRows()
 
-        self._detailsView.enterAndAddMod("https://modrinth.com/mod/sodium")
-        self._detailsView.enterAndAddMod("https://modrinth.com/mod/nether-height-expansion-mod")
+        self._detailsView.simulate_enterAndAddMod("https://modrinth.com/mod/sodium")
+        self._detailsView.simulate_enterAndAddMod("https://modrinth.com/mod/nether-height-expansion-mod")
 
         self.assertEqual(modTable.getRowNameText(modTable.getNumRows() - 2), "Sodium")
         self.assertEqual(modTable.getRowVersionText(modTable.getNumRows() - 2), self._data.latestGameVersion)

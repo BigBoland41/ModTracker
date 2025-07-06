@@ -158,11 +158,16 @@ class DetailsWindow(QtWidgets.QWidget):
             self._savefunc(updatedProfile=mod.ModProfile(self._modList, self._priorityList, self._selectedVersion))
 
     # Simulates the user typing a URL and clicking the add mod button. Used for testing.
-    def enterAndAddMod(self, modURL:str):
+    def simulate_enterAndAddMod(self, modURL:str):
         self._addModTextField.setText("")
         QtTest.QTest.keyClicks(self._addModTextField, modURL)
         QtTest.QTest.mouseClick(self._addModBtn, QtCore.Qt.MouseButton.LeftButton)
 
+    # Simulates the user selecting a mod loader and clikced the download ready mods button. Used for testing.
+    def simulate_downloadMod(self, modLoaderOption:int):
+        self._modLoaderDropdown.clickDropdownOption(modLoaderOption)
+        return self._downloadReadyMods(False, True)
+    
     # Getters
     def getModTable(self): return self._modTable
     
@@ -259,7 +264,7 @@ class DetailsWindow(QtWidgets.QWidget):
         self._downloadBtn.setGeometry(QtCore.QRect(1525, 910, 275, 70))
         self._downloadBtn.setFont(buttonFont)
         self._downloadBtn.setObjectName("downloadBtn")
-        # self._downloadBtn.clicked.connect(self._addMod)
+        self._downloadBtn.clicked.connect(self._downloadReadyMods)
         self._downloadBtn.setText("Download Ready Mods")
 
         self._modLoaderDropdown = widgets.ModLoaderDropdownBtn(self, 0, QtCore.QRect(1800, 910, 110, 70))
@@ -295,6 +300,39 @@ class DetailsWindow(QtWidgets.QWidget):
         self.reloadWidgets()
         if self._savefunc is not None:
             self._savefunc(updatedProfile=mod.ModProfile(self._modList, self._priorityList, self._selectedVersion))
+
+    def _downloadReadyMods(self, showPopup = True, preventDownload = False):
+        successful_downloads = []
+        
+        if showPopup:
+            # create a pop up box that asks the user if they want to proceed
+            popup = QtWidgets.QMessageBox(self)
+            popup.setWindowTitle("Download Warning")
+            popup.setText("Mod Tracker is about to open tabs in your web browser to download your mods. Do you want to continue?")
+            popup.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.Cancel)
+            popupAnswer = popup.exec()
+
+            # if the user does want to continue, download each mod that's ready
+            if popupAnswer == QtWidgets.QMessageBox.StandardButton.Yes:
+                for mod in self._modList:
+                    if self._selectedVersion in mod.getVersionList():
+                        # downloadMod returns True if a mod was downloaded, and False if not. Remember these results by adding them to a list
+                        successful_downloads.append(mod.downloadMod(self._modLoaderDropdown.getSelectedModLoader(), self._selectedVersion, preventDownload=preventDownload))
+                    else:
+                        # Remember that this mod was not successfully downloaded
+                        successful_downloads.append(False)
+        else:
+            # download each mod that's ready
+            for mod in self._modList:
+                if self._selectedVersion in mod.getVersionList():
+                    # downloadMod returns True if a mod was downloaded, and False if not. Remember these results by adding them to a list
+                    successful_downloads.append(mod.downloadMod(self._modLoaderDropdown.getSelectedModLoader(), self._selectedVersion, preventDownload=preventDownload))
+                else:
+                    # Remember that this mod was not successfully downloaded
+                    successful_downloads.append(False)
+
+        # return list of results
+        return successful_downloads
 
     # Closes the details window and returns to the profile select window
     def _closeView(self):

@@ -52,7 +52,7 @@ class TestPieChart(unittest.TestCase):
         chart = self._detailsView.getPieChart()
         sliceList = list(chart.getSliceSizes().keys())
 
-        self._detailsView.enterAndAddMod("https://modrinth.com/mod/sodium")
+        self._detailsView.simulate_enterAndAddMod("https://modrinth.com/mod/sodium")
 
         self.assertEqual(len(sliceList), 1)
         self.assertEqual(chart.getSliceSizes().get(sliceList[0]), 1)
@@ -66,7 +66,7 @@ class TestPieChart(unittest.TestCase):
         chart = self._detailsView.getPieChart()
         sliceList = list(chart.getSliceSizes().keys())
 
-        self._detailsView.enterAndAddMod("https://modrinth.com/mod/sodium")
+        self._detailsView.simulate_enterAndAddMod("https://modrinth.com/mod/sodium")
 
         self.assertEqual(len(sliceList), 3)
         self.assertEqual(chart.getSliceSizes().get(sliceList[0]), 8)
@@ -82,7 +82,7 @@ class TestPieChart(unittest.TestCase):
         chart = self._detailsView.getPieChart()
         sliceList = list(chart.getSliceSizes().keys())
 
-        self._detailsView.enterAndAddMod("https://modrinth.com/mod/nether-height-expansion-mod")
+        self._detailsView.simulate_enterAndAddMod("https://modrinth.com/mod/nether-height-expansion-mod")
 
         self.assertEqual(self._detailsView.getModTable().getNumRows(), 24)
 

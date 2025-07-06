@@ -1,5 +1,5 @@
 from PyQt6 import QtGui
-import callModrinth, callCurseForge
+import callModrinth, callCurseForge, webbrowser
 
 class ModPriority(object):
     name:str
@@ -153,42 +153,22 @@ class Mod(object):
         if callCurseForge.verifyURL(self._url):
             self._curseforgeData = callCurseForge.modData(mod_slug)
 
-    # Extract modrinth json data from API call
-    def _extractModrinth(self):
-        if (self._modrinthData == False):
-            return -1
-        
-        self._name = self._modrinthData["title"]
-        self._ID = self._modrinthData["id"]
-        self._versions = self._modrinthData["game_versions"]
+    # Downloads the latest version of the mod. Returns True if a mod was downloaded and False if not.
+    def downloadMod(self, loader:str, version:str, preventDownload=False):
+        mod_slug = self._url.rstrip("/").split("/")[-1]
+        downloadLink = False
 
-    # Extract curseforge json data from API call
-    # and sort the version list
-    def _extractCurseforge(self):
-        if (self._curseforgeData == False):
-            return -1
-        
-        self._name = self._curseforgeData["name"]
-        self._ID = self._curseforgeData["id"]
+        if self._modrinthData != False:
+            downloadLink = callModrinth.downloadMod(mod_slug, loader, version)
+        elif self._curseforgeData != False:
+            downloadLink = callCurseForge.downloadMod(self._curseforgeData, self._ID, loader, version)
 
-        fileIndexes = self._curseforgeData["latestFilesIndexes"]
-        parsedVersions = []
-
-        for file in fileIndexes:
-            parsedVersions.append(list(map(int, file["gameVersion"].split('.'))))
-
-        sortedVersions = sorted(parsedVersions)
-
-        unparsedVersions = []
-        for versionComponents in sortedVersions:
-            if len(versionComponents) == 3:
-                versionStr = f"{versionComponents[0]}.{versionComponents[1]}.{versionComponents[2]}"
-            else:
-                versionStr = f"{versionComponents[0]}.{versionComponents[1]}"
-            unparsedVersions.append(versionStr)
-        
-        # print(f"{self._curseforgeData["name"]} versions: {unparsedVersions}\n")
-        self._versions = unparsedVersions
+        if downloadLink != False:
+            if preventDownload == False:
+                webbrowser.open(downloadLink)
+            return True
+        else:
+            return False
 
     # Returns mod information as a dictionary
     def createDict(self):
@@ -200,6 +180,24 @@ class Mod(object):
             "versions" : self._versions,
             "tablePosition" : self._tablePosition,
         }
+
+    # Extract modrinth json data from API call
+    def _extractModrinth(self):
+        if (self._modrinthData == False):
+            return -1
+        
+        self._name = self._modrinthData["title"]
+        self._ID = self._modrinthData["id"]
+        self._versions = self._modrinthData["game_versions"]
+
+    # Extract curseforge json data from API call and sort the version list
+    def _extractCurseforge(self):
+        if (self._curseforgeData == False):
+            return -1
+        
+        self._name = self._curseforgeData["name"]
+        self._ID = self._curseforgeData["id"]
+        self._versions = callCurseForge.sortVersionList(self._curseforgeData)
     
 class ModProfile(object):
     modList:list[Mod]

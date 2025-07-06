@@ -76,7 +76,7 @@ class TestAPICalls(unittest.TestCase):
         self.assertEqual(modObj3.getName(), "Cloth Config API")
         self.assertEqual(modObj4.getName(), "Sodium")
         self.assertEqual(modObj5.getName(), "Ice Cream, Mini Sword And New Trades!")
-        self.assertEqual(modObj6.getName(), "WorldEdit for Bukkit")
+        self.assertEqual(modObj6.getName(), "WorldEdit")
         self.assertEqual(invalidModObj.getName(), "Untitled Mod")
 
     @unittest.skipIf(not _testAPICalls, "API tests are off")

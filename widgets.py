@@ -372,7 +372,7 @@ class PieChart():
 # This is the dropdown menu that appears next to the download button that allows
 # the user to select which mod loader they prefer.
 class ModLoaderDropdownBtn():
-    selectedModLoader:int
+    _selectedModLoader:int
 
     _parentWidget:QtWidgets.QWidget
     _buttonRect:QtCore.QRect
@@ -380,12 +380,12 @@ class ModLoaderDropdownBtn():
     _buttonWidget:QtWidgets.QPushButton
     _menuWidget:QtWidgets.QMenu
 
-    _modLoaderList = ["Forge", "Fabric", "Neoforge", "Quilt"]
+    _modLoaderList = ["Forge", "Fabric", "NeoForge", "Quilt"]
 
     def __init__(self, parentWidget:QtWidgets.QWidget, selectedModLoader:int, buttonRect:QtCore.QRect):
         # set attributes
         self._parentWidget = parentWidget
-        self.selectedModLoader = selectedModLoader
+        self._selectedModLoader = selectedModLoader
         self._buttonRect = buttonRect
 
         # run setup functions
@@ -395,6 +395,9 @@ class ModLoaderDropdownBtn():
     def clickDropdownOption(self, index):
         if 0 <= index < len(self._menuWidget.actions()):
             self._changeModLoader(index)
+
+    def getSelectedModLoader(self):
+        return self._modLoaderList[self._selectedModLoader]
 
     def getButtonWidget(self):
         return self._buttonWidget
@@ -411,7 +414,7 @@ class ModLoaderDropdownBtn():
         self._buttonWidget = QtWidgets.QPushButton(parent=self._parentWidget)
         self._buttonWidget.setGeometry(self._buttonRect)
         self._buttonWidget.setFont(buttonFont)
-        self._buttonWidget.setText(self._modLoaderList[self.selectedModLoader] + " ▾")
+        self._buttonWidget.setText(self._modLoaderList[self._selectedModLoader] + " ▾")
 
         # making the lambda its own function doesn't work for some reason
         self._buttonWidget.clicked.connect(
@@ -430,8 +433,8 @@ class ModLoaderDropdownBtn():
             i += 1
 
     def _changeModLoader(self, index):
-        self.selectedModLoader = index
-        self._buttonWidget.setText(self._modLoaderList[self.selectedModLoader] + " ▾")
+        self._selectedModLoader = index
+        self._buttonWidget.setText(self._modLoaderList[self._selectedModLoader] + " ▾")
 
 def isDarkTheme():
     # Access Windows registry to check the theme setting

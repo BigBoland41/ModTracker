@@ -21,14 +21,21 @@ def _genericModrinthCall(url:str):
         print(f"Error: {response.status_code}, {response.text}")
         return False
 
-def modData(mod_slug):
+def modData(mod_slug:str):
     url = f"https://api.modrinth.com/v2/project/{mod_slug}"
     return _genericModrinthCall(url)
 
-def modVersionList(mod_slug):
+def modVersionList(mod_slug:str):
     url = f"https://api.modrinth.com/v2/project/{mod_slug}/version"
     return _genericModrinthCall(url)
 
-def modVersion(versionID):
-    url = f"https://api.modrinth.com/v2/version/{versionID}"
-    return _genericModrinthCall(url)
+def downloadMod(mod_slug:str, loader:str, version:str):
+    loader = loader.lower()
+    versionList = modVersionList(mod_slug)
+
+    for ver in versionList:
+        if loader in ver["loaders"] and version in ver["game_versions"]:
+            for file in ver["files"]:
+                return file["url"]
+            
+    return False
