@@ -166,7 +166,7 @@ class DetailsWindow(QtWidgets.QWidget):
     # Simulates the user selecting a mod loader and clikced the download ready mods button. Used for testing.
     def simulate_downloadMod(self, modLoaderOption:int):
         self._modLoaderDropdown.clickDropdownOption(modLoaderOption)
-        return self._downloadReadyMods(False, True)
+        return self._downloadReadyMods(True)
     
     # Getters
     def getModTable(self): return self._modTable
@@ -301,10 +301,10 @@ class DetailsWindow(QtWidgets.QWidget):
         if self._savefunc is not None:
             self._savefunc(updatedProfile=mod.ModProfile(self._modList, self._priorityList, self._selectedVersion))
 
-    def _downloadReadyMods(self, showPopup = True, preventDownload = False):
+    def _downloadReadyMods(self, preventDownload = False):
         successful_downloads = []
         
-        if showPopup:
+        if preventDownload == False:
             # create a pop up box that asks the user if they want to proceed
             popup = QtWidgets.QMessageBox(self)
             popup.setWindowTitle("Download Warning")
