@@ -132,16 +132,27 @@ class ModTable():
     # adds a row to the table with the proper mod information
     def _setTableRow(self, rowNum:int, mod:mod.Mod):
         for col in range(self._numColumns):
-            # set the font size
+            # create table item
             item = QtWidgets.QTableWidgetItem()
+
+            # create font object and set its font size
             font = QtGui.QFont()
             font.setPointSize(self._fontSize)
             item.setFont(font)
 
-            # Set the correct text for each item in the row
+            # set the correct text/widget for each item in the row
             match col:
                 case 0:
                     item.setText(mod.getName())
+
+                    # create an invisible hyperlink over the mod name
+                    labelHTML = f'<a href={mod.getURL()} style="text-decoration:none;">🔗</a> {mod.getName()}'
+                    label = QtWidgets.QLabel(labelHTML)
+                    label.setOpenExternalLinks(True)
+                    label.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.TextBrowserInteraction)
+                    label.setFont(font)
+
+                    self._tableWidget.setCellWidget(rowNum, 0, label)
                 case 1:
                     item.setText(mod.getCurrentVersion())
                 case 2:
@@ -152,7 +163,7 @@ class ModTable():
                     deleteBtn.clicked.connect(lambda : self._removeTableRow(mod))
                     self._tableWidget.setCellWidget(rowNum, 3, deleteBtn)
 
-            #apply changes
+            # apply changes
             item.setFlags(item.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
             self._tableWidget.setItem(rowNum, col, item)
 

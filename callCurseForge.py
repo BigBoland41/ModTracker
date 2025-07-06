@@ -1,4 +1,4 @@
-import requests, re, json
+import requests, re
 
 _curseforgeRegex = r"^https:\/\/(www\.)?curseforge\.com\/minecraft\/mc-mods\/[a-zA-Z0-9-_]+\/?$"
 _requestTimeout = 10.0 # How many seconds to wait for an API call before timeout.
