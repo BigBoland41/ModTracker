@@ -94,6 +94,7 @@ class LoadingWindow(QtWidgets.QWidget):
 
 # The display that shows the user a detailed view of a specific mod profile and allows them to manipulate it
 class DetailsWindow(QtWidgets.QWidget):
+    # Parameters
     _modList:list[mod.Mod]
     _priorityList:list[mod.ModPriority]
     _selectedVersion:str
@@ -103,9 +104,18 @@ class DetailsWindow(QtWidgets.QWidget):
     _pieChart:widgets.PieChart
     _addModTextField:QtWidgets.QLineEdit
     _selectedVersionTextField:QtWidgets.QLineEdit
+    _selectedVersionLabel:QtWidgets.QLabel
+    _modLoaderDropdown:widgets.ModLoaderDropdownBtn
+
+    # Buttons
     _addModBtn:QtWidgets.QPushButton
     _refreshBtn:QtWidgets.QPushButton
-    _selectedVersionLabel:QtWidgets.QLabel
+    _exportBtn:QtWidgets.QPushButton
+    _backBtn:QtWidgets.QPushButton
+    _downloadBtn:QtWidgets.QPushButton
+
+    _btnFontSize = 18
+    _specialSymbolFontSize = 16
     
     # Constructor. Creates window and runs functions to create widgets
     def __init__(self, modList:list[mod.Mod] = [],
@@ -124,6 +134,7 @@ class DetailsWindow(QtWidgets.QWidget):
         self._onBackBtnClick = onBackButtonClick
         self._savefunc = savefunc
         
+        # create widgets
         self._pieChart = widgets.PieChart(self, self._modList, self._selectedVersion)
         self._modTable = widgets.ModTable(self, self._modList, self._priorityList,
                                               self._selectedVersion, self.reloadWidgets, self._savefunc)
@@ -131,9 +142,13 @@ class DetailsWindow(QtWidgets.QWidget):
         self._createAddModTextField()
         self._createAddModBtn()
         self._createSelectedVersionTextField()
-        self._createRefreshBtn()
-        self._createBackBtn()
-        self._createDownloadButton()
+
+        self._downloadBtn = self._createButton("Download Ready Mods", QtCore.QRect(1525, 910, 275, 70), "downloadBtn", self._downloadReadyMods)
+        self._modLoaderDropdown = widgets.ModLoaderDropdownBtn(self, 0, QtCore.QRect(1800, 910, 110, 70))
+
+        self._refreshBtn = self._createButton("", QtCore.QRect(1755, 10, 50, 50), "refreshBtn", self._refresh, True)
+        self._exportBtn = self._createButton("", QtCore.QRect(1810, 10, 50, 50), "exportBtn", self._exportProfile, True)
+        self._backBtn = self._createButton("X", QtCore.QRect(1865, 10, 50, 50), "backBtn", self._closeView)
 
     # Inserts new data to diplay instead. Used for testing.
     def loadNewData(self, modList:list[mod.Mod], priorityList:list[mod.ModPriority], selectedVersion:str):
@@ -179,6 +194,30 @@ class DetailsWindow(QtWidgets.QWidget):
 
     def getSelectedVersion(self): return self._selectedVersion
 
+    def _createButton(self, btnText:str, geometry:QtCore.QRect, objectName:str, onClickFunc, useSpecialSymbolFont = False):
+        buttonFont = QtGui.QFont()
+
+        if useSpecialSymbolFont:
+            # Load custom font for special symbol
+            buttonFont.setPointSize(self._specialSymbolFontSize)
+            font_path = os.path.join(os.path.dirname(__file__), "font", "fontello.ttf")
+            font_id = QtGui.QFontDatabase.addApplicationFont(font_path)
+            if font_id != -1:
+                font_families = QtGui.QFontDatabase.applicationFontFamilies(font_id)
+                if font_families:
+                    buttonFont.setFamily(font_families[0])
+        else:
+            buttonFont.setPointSize(self._btnFontSize)
+
+        button = QtWidgets.QPushButton(parent=self)
+        button.setGeometry(geometry)
+        button.setFont(buttonFont)
+        button.setObjectName(objectName)
+        button.clicked.connect(onClickFunc)
+        button.setText(btnText)
+
+        return button
+    
     # creates the add mod text input field,
     # where the user can input the URL of the mod they want to add.
     def _createAddModTextField(self):
@@ -194,9 +233,9 @@ class DetailsWindow(QtWidgets.QWidget):
     # which the user can click to add the mod they've input into the add mod text field.
     def _createAddModBtn(self):
         labelFont = QtGui.QFont()
-        buttonFont = QtGui.QFont()
         labelFont.setPointSize(12)
-        buttonFont.setPointSize(18)
+
+        self._addModBtn = self._createButton("Add Mod", QtCore.QRect(800, 910, 200, 70), "addModBtn", self._addMod)
 
         self._errorLabel = QtWidgets.QLabel(parent=self)
         self._errorLabel.setGeometry(QtCore.QRect(1020, 910, 300, 70))
@@ -205,69 +244,23 @@ class DetailsWindow(QtWidgets.QWidget):
         self._errorLabel.setText("Could not add mod. Invalid URL?")
         self._errorLabel.setVisible(False)
 
-        self._addModBtn = QtWidgets.QPushButton(parent=self)
-        self._addModBtn.setGeometry(QtCore.QRect(800, 910, 200, 70))
-        self._addModBtn.setFont(buttonFont)
-        self._addModBtn.setObjectName("addModBtn")
-        self._addModBtn.clicked.connect(self._addMod)
-        self._addModBtn.setText("Add Mod")
-
     # creates the selected version text input field,
     # where the user can input the version of the game they want to check for.
     def _createSelectedVersionTextField(self):
-        font = QtGui.QFont()
-        font.setPointSize(12)
+        labelFont = QtGui.QFont()
+        labelFont.setPointSize(12)
 
         self._selectedVersionLabel = QtWidgets.QLabel(parent=self)
-        self._selectedVersionLabel.setGeometry(QtCore.QRect(1560, 10, 120, 50))
-        self._selectedVersionLabel.setFont(font)
+        self._selectedVersionLabel.setGeometry(QtCore.QRect(1505, 10, 120, 50))
+        self._selectedVersionLabel.setFont(labelFont)
         self._selectedVersionLabel.setObjectName("selectedVersionLabel")
         self._selectedVersionLabel.setText("Selected Version:")
 
         self._selectedVersionTextField = QtWidgets.QLineEdit(parent=self)
-        self._selectedVersionTextField.setGeometry(QtCore.QRect(1685, 10, 120, 50))
-        self._selectedVersionTextField.setFont(font)
+        self._selectedVersionTextField.setGeometry(QtCore.QRect(1630, 10, 120, 50))
+        self._selectedVersionTextField.setFont(labelFont)
         self._selectedVersionTextField.setObjectName("selectedVersionTextField")
         self._selectedVersionTextField.setText(self._selectedVersion)
-
-    # creates the refresh button
-    # which the user can click to call the API again, as well as refresh the table and pie chart.
-    def _createRefreshBtn(self):
-        font = QtGui.QFont()
-        font.setPointSize(18)
-
-        self._refreshBtn = QtWidgets.QPushButton(parent=self)
-        self._refreshBtn.setGeometry(QtCore.QRect(1810, 10, 50, 50))
-        self._refreshBtn.setFont(font)
-        self._refreshBtn.setObjectName("refreshBtn")
-        self._refreshBtn.clicked.connect(self._refresh)
-        self._refreshBtn.setText("⟳")
-
-    # creates the back button
-    # which the user can click to return the profile select view.
-    def _createBackBtn(self):
-        self._refreshBtn = QtWidgets.QPushButton(parent=self)
-        self._refreshBtn.setGeometry(QtCore.QRect(1865, 10, 50, 50))
-        font = QtGui.QFont()
-        font.setPointSize(18)
-        self._refreshBtn.setFont(font)
-        self._refreshBtn.setObjectName("backBtn")
-        self._refreshBtn.setText("x")
-        if (self._onBackBtnClick is not None):
-            self._refreshBtn.clicked.connect(self._closeView)
-
-    def _createDownloadButton(self):
-        buttonFont = QtGui.QFont()
-        buttonFont.setPointSize(18)
-
-        self._downloadBtn = QtWidgets.QPushButton(parent=self)
-        self._downloadBtn.setGeometry(QtCore.QRect(1525, 910, 275, 70))
-        self._downloadBtn.setFont(buttonFont)
-        self._downloadBtn.setObjectName("downloadBtn")
-        self._downloadBtn.clicked.connect(self._downloadReadyMods)
-        self._downloadBtn.setText("Download Ready Mods")
-
-        self._modLoaderDropdown = widgets.ModLoaderDropdownBtn(self, 0, QtCore.QRect(1800, 910, 110, 70))
 
     # Adds a mod to the profile. Triggered when the add mod button is clicked.
     def _addMod(self):
@@ -333,6 +326,9 @@ class DetailsWindow(QtWidgets.QWidget):
 
         # return list of results
         return successful_downloads
+    
+    def _exportProfile(self):
+        pass
 
     # Closes the details window and returns to the profile select window
     def _closeView(self):

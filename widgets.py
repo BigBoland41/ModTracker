@@ -1,5 +1,5 @@
 from PyQt6 import QtCore, QtGui, QtWidgets, QtCharts
-import mod
+import mod, os
 
 # This is the table that displays information about all the mods in a profile, including the
 # mod name, it's latest version, "ready" or it's priority level, and a button to remove the
@@ -143,16 +143,53 @@ class ModTable():
             # set the correct text/widget for each item in the row
             match col:
                 case 0:
+                    # this text won't appear but is useful for testing
                     item.setText(mod.getName())
 
-                    # create an invisible hyperlink over the mod name
-                    labelHTML = f'<a href={mod.getURL()} style="text-decoration:none;">🔗</a> {mod.getName()}'
-                    label = QtWidgets.QLabel(labelHTML)
-                    label.setOpenExternalLinks(True)
-                    label.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.TextBrowserInteraction)
-                    label.setFont(font)
+                    # Load custom font for special symbol
+                    font_path = os.path.join(os.path.dirname(__file__), "font", "fontello.ttf")
+                    font_id = QtGui.QFontDatabase.addApplicationFont(font_path)
+                    if font_id != -1:
+                        font_families = QtGui.QFontDatabase.applicationFontFamilies(font_id)
+                        fontello_family = font_families[0] if font_families else "Arial"
+                    else:
+                        fontello_family = "Arial"
 
-                    self._tableWidget.setCellWidget(rowNum, 0, label)
+                    # Icon label with custom font
+                    icon_label = QtWidgets.QLabel("  ")
+                    icon_font = QtGui.QFont(fontello_family)
+                    icon_font.setPointSize(self._fontSize - 2)
+                    icon_label.setFont(icon_font)
+                    icon_label.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.TextBrowserInteraction)
+                    icon_label.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
+
+                    # Make icon clickable (open URL)
+                    def open_url():
+                        QtGui.QDesktopServices.openUrl(QtCore.QUrl(mod.getURL()))
+                    icon_label.mousePressEvent = lambda event: open_url()
+
+                    # Name label with Arial
+                    name_label = QtWidgets.QLabel(mod.getName())
+                    name_font = QtGui.QFont()
+                    name_font.setPointSize(self._fontSize)
+                    name_label.setFont(name_font)
+
+                    # Layout for both labels
+                    hbox = QtWidgets.QHBoxLayout()
+                    hbox.setContentsMargins(0, 0, 0, 0)
+                    hbox.setSpacing(2)  # Reduce spacing
+
+                    icon_label.setSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
+                    name_label.setSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
+
+                    hbox.addWidget(icon_label)
+                    hbox.addWidget(name_label)
+                    hbox.addStretch(1)  # Optional: push content to the left
+
+                    container = QtWidgets.QWidget()
+                    container.setLayout(hbox)
+
+                    self._tableWidget.setCellWidget(rowNum, 0, container)
                 case 1:
                     item.setText(mod.getCurrentVersion())
                 case 2:
