@@ -52,3 +52,18 @@ def createProfileList(filename="mods.json"):
     except FileNotFoundError:
         return []
     return newProfileList
+
+# Open a json file, read the data, and create a single mod profile from it
+def createProfile(filename="mods.json"):
+    appdata = os.getenv('APPDATA')
+    directory = os.path.join(appdata, 'ModTracker')
+    os.makedirs(directory, exist_ok=True)
+    json_path = os.path.join(directory, filename)
+
+    try:
+        with open(json_path, "r") as f:
+            data = json.load(f)
+            profile = _dictToModProfile(data)
+    except FileNotFoundError:
+        return None
+    return profile

@@ -39,16 +39,13 @@ class WindowManager(QtWidgets.QStackedWidget):
 
     def _loadProfile(self, printLoadingText=True):
         if printLoadingText:
-            print("Loading profiles", end="")
+            print("Loading profiles...")
 
         # call create profile list and add the resulting data to the select view
         profiles = load.createProfileList()
         for profile in profiles:
             self._selectView.addProfile(profile, False)
         self._selectView.sortModLists()
-
-        if printLoadingText:
-            print("\n", end="")
 
     def _openDetailsView(self, profile:mod.ModProfile):
         self._detailsView = DetailsWindow(profile.modList, profile.priorityList, profile.selectedVersion, self._closeDetailsView, self._selectView.saveJson)
@@ -187,26 +184,26 @@ class DetailsWindow(QtWidgets.QWidget):
                                               self._selectedVersion, self.reloadWidgets, self._savefunc)
 
         # create add mod widget
-        self._addModBtn = widgets.createButton(self, "Add Mod", QtCore.QRect(800, 910, 200, 70), "addModBtn", self._addMod)
-        self._addModTextField = widgets.createTextField(self, "Enter mod URL here", QtCore.QRect(0, 910, 800, 70), "addModTextField")
-        self._errorLabel = widgets.createLabel(self, "Could not add mod. Invalid URL?", QtCore.QRect(1020, 910, 300, 70), "errorLabel")
+        self._addModBtn = widgets.createButton(self, "Add Mod", QtCore.QRect(800, 910, 200, 70), self._addMod, objectName="addModBtn")
+        self._addModTextField = widgets.createTextField(self, "Enter mod URL here", QtCore.QRect(0, 910, 800, 70), objectName="addModTextField")
+        self._errorLabel = widgets.createLabel(self, "Could not add mod. Invalid URL?", QtCore.QRect(1020, 910, 300, 70), objectName="errorLabel")
         self._errorLabel.setVisible(False)
 
         # create selected version widget
-        self._selectedVersionLabel = widgets.createLabel(self, "Selected Version:", QtCore.QRect(1505, 10, 120, 50), "selectedVersionLabel")
-        self._selectedVersionTextField = widgets.createTextField(self, "", QtCore.QRect(1630, 10, 120, 50), "selectedVersionTextField")
+        self._selectedVersionLabel = widgets.createLabel(self, "Selected Version:", QtCore.QRect(1505, 10, 120, 50), objectName="selectedVersionLabel")
+        self._selectedVersionTextField = widgets.createTextField(self, "", QtCore.QRect(1630, 10, 120, 50), objectName="selectedVersionTextField")
         self._selectedVersionTextField.setText(self._selectedVersion)
 
         # create download widget
-        self._downloadBtn = widgets.createButton(self, "Download Ready Mods", QtCore.QRect(1525, 910, 275, 70), "downloadBtn", self._downloadReadyMods)
+        self._downloadBtn = widgets.createButton(self, "Download Ready Mods", QtCore.QRect(1525, 910, 275, 70), self._downloadReadyMods, objectName="downloadBtn")
         self._modLoaderDropdown = widgets.ModLoaderDropdownBtn(self, 0, QtCore.QRect(1800, 910, 110, 70))
 
         # create utility buttons
-        self._refreshBtn = widgets.createButton(self, "", QtCore.QRect(1755, 10, 50, 50), "refreshBtn", self._refresh, True)
-        self._exportBtn = widgets.createButton(self, "", QtCore.QRect(1810, 10, 50, 50), "exportBtn", self._exportProfile, True)
-        self._exportLabel = widgets.createLabel(self, "Exported Successfully!", QtCore.QRect(1758, 50, 200, 70), "exportLabel")
+        self._refreshBtn = widgets.createButton(self, "", QtCore.QRect(1755, 10, 50, 50), self._refresh, objectName="refreshBtn", useSpecialSymbolFont=True)
+        self._exportBtn = widgets.createButton(self, "", QtCore.QRect(1810, 10, 50, 50), self._exportProfile, objectName="exportBtn", useSpecialSymbolFont=True)
+        self._exportLabel = widgets.createLabel(self, "Exported Successfully!", QtCore.QRect(1758, 50, 200, 70), objectName="exportLabel")
         self._exportLabel.setVisible(False)
-        self._backBtn = widgets.createButton(self, "X", QtCore.QRect(1865, 10, 50, 50), "backBtn", self._closeView)
+        self._backBtn = widgets.createButton(self, "", QtCore.QRect(1865, 10, 50, 50), self._closeView, objectName="backBtn", useSpecialSymbolFont=True)
 
     # Adds a mod to the profile. Triggered when the add mod button is clicked
     def _addMod(self):
@@ -297,6 +294,7 @@ class DetailsWindow(QtWidgets.QWidget):
             self._savefunc(updatedProfile=mod.ModProfile(self._modList, self._priorityList, self._selectedVersion))
         self._onBackBtnClick()
 
+
 # The display that allows the user to view all their profiles, and select one to open
 class ProfileSelectWindow(QtWidgets.QWidget):
     _profileList:list[mod.ModProfile]
@@ -336,18 +334,23 @@ class ProfileSelectWindow(QtWidgets.QWidget):
 
         self._createWidgetRows()
 
+        self._importBtn = widgets.createButton(self, "", QtCore.QRect(1840, 10, 75, 75), self._importProfile, objectName="importBtn", fontSize=24, useSpecialSymbolFont=True)
+
     def addProfile(self, newProfile:mod.ModProfile, promptModName = True):
         if promptModName:
             dialog = QtWidgets.QInputDialog(self)
-            inputStr, okPressed = dialog.getText(self, "Create new mdd profile", "New mod profile name:")
+            inputStr, okPressed = dialog.getText(self, "Create new mod profile", "New mod profile name:")
             if okPressed and len(inputStr) > 0:
                 newProfile.name = inputStr
                 self._profileList.append(newProfile)
                 self._createProfileWidget()
+                self.sortModLists()
+                self.saveJson()
         else:
             self._profileList.append(newProfile)
             self._updatePriorityLists()
             self._createProfileWidget()
+            self.sortModLists()
 
     # Write the details of each profile to a json file
     def saveJson(self, filename="mods.json", updatedProfile:mod.ModProfile = None):
@@ -369,8 +372,6 @@ class ProfileSelectWindow(QtWidgets.QWidget):
                 json.dump([profile.createDict() for profile in self._profileList], file, indent=4)
 
         # reload UI
-        self._profileWidgets = []
-        self._numWidgets = 0
         self._createWidgetRows()
 
     def sortModLists(self):
@@ -393,11 +394,24 @@ class ProfileSelectWindow(QtWidgets.QWidget):
 
     # Creates all profile widgets. Creates an add profile widget if there are no profiles
     def _createWidgetRows(self):
+        self._profileWidgets = []
+        self._numWidgets = 0
+
         if (len(self._profileList) == 0):
             self._createAddProfileWidget()
         else:
             for profile in self._profileList:
                 self._createProfileWidget()
+
+    def _deleteWidgetRows(self):
+        while self._layout.count():
+            item = self._layout.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.setParent(None)
+                widget.deleteLater()
+
+        self._numWidgets = 0
 
     # Create a new widget that will display basic information about a profile and when clicked, will open the details view for that profile
     def _createProfileWidget(self):
@@ -411,35 +425,20 @@ class ProfileSelectWindow(QtWidgets.QWidget):
         # Connect _openDetailsView() to the underlying button
         profileWidget.clicked.connect(lambda checked, id = self._numWidgets: self._openDetailsView(id))
 
-        # Prepare fonts
-        titleFont = QtGui.QFont()
-        titleFont.setPointSize(self._titleFontSize)
-        titleFont.setBold(True)
-
-        subtitleFont = QtGui.QFont()
-        subtitleFont.setPointSize(self._subtitleFontSize)
-
         # Profile name label
-        profileNameLabel = QtWidgets.QLabel(parent=profileWidget)
-        profileNameLabel.setText(self._profileList[self._numWidgets].name)
-        profileNameLabel.setFont(titleFont)
-        profileNameLabel.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        profileNameLabel.setGeometry(QtCore.QRect(10, 25, self._widgetSize - 20, 150))
-        profileNameLabel.setWordWrap(True)
+        widgets.createLabel(profileWidget, self._profileList[self._numWidgets].name, QtCore.QRect(10, 25, self._widgetSize - 20, 150),
+                            fontSize=self._titleFontSize, bold=True, alignment=QtCore.Qt.AlignmentFlag.AlignCenter, wordWrap=True)
 
         # Mod count label
-        numModsLabel = QtWidgets.QLabel(parent=profileWidget)
-        numModsLabel.setText(f"{len(self._profileList[self._numWidgets].modList)} mods")
-        numModsLabel.setFont(subtitleFont)
-        numModsLabel.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        numModsLabel.setGeometry(QtCore.QRect(10, 215, self._widgetSize - 20, 30))
+        widgets.createLabel(profileWidget, f"{len(self._profileList[self._numWidgets].modList)} mods", QtCore.QRect(10, 215, self._widgetSize - 20, 30),
+                            fontSize=self._subtitleFontSize, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
 
         # Readiness label
-        readinessLabel = QtWidgets.QLabel(parent=profileWidget)
-        readinessLabel.setText(f"{self._profileList[self._numWidgets].getPercentReady():.2f}% ready\nfor {self._profileList[self._numWidgets].selectedVersion}")
-        readinessLabel.setFont(subtitleFont)
-        readinessLabel.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        readinessLabel.setGeometry(QtCore.QRect(10, 280, self._widgetSize - 20, 60))
+        widgets.createLabel(profileWidget, f"{self._profileList[self._numWidgets].getPercentReady():.2f}% ready\nfor {self._profileList[self._numWidgets].selectedVersion}",
+                            QtCore.QRect(10, 280, self._widgetSize - 20, 60), fontSize=self._subtitleFontSize, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
+        
+        # Delete button
+        widgets.createButton(profileWidget, "X", QtCore.QRect(self._widgetSize - 55, 5, 50, 50), lambda checked, id = self._numWidgets: self._deleteProfile(id))
 
         # Add to list of profile widgets
         self._profileWidgets.append(profileWidget)
@@ -465,7 +464,7 @@ class ProfileSelectWindow(QtWidgets.QWidget):
 
         self._addProfileWidget = QtWidgets.QPushButton(text="+")
         self._addProfileWidget.setFixedSize(self._widgetSize, self._widgetSize)
-        self._addProfileWidget.clicked.connect(lambda: self.addProfile(mod.ModProfile()))
+        self._addProfileWidget.clicked.connect(lambda: self.addProfile(mod.ModProfile([])))
 
         # Set font
         font = QtGui.QFont()
@@ -483,3 +482,24 @@ class ProfileSelectWindow(QtWidgets.QWidget):
         self._currentProfileIndex = profileNum
         profile = self._profileList[profileNum]
         self._onProfileClick(profile)
+
+    # Import a profile from a json file
+    def _importProfile(self):
+        path, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Select a json file", filter="JSON Files (*.json)")
+        if path:
+            profile = load.createProfile(path)
+            if profile != None:
+                self.addProfile(profile)
+
+    def _deleteProfile(self, numProfile):
+        profileWidget = self._profileWidgets[numProfile]
+        self._profileWidgets.remove(profileWidget)
+        self._layout.removeWidget(profileWidget)
+        profileWidget.deleteLater()
+
+        self._profileList.remove(self._profileList[numProfile])
+
+        self._deleteWidgetRows()
+        self._updatePriorityLists()
+        self.sortModLists()
+        self.saveJson()

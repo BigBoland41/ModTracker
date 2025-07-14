@@ -489,57 +489,107 @@ class ModLoaderDropdownBtn():
         self._buttonWidget.setText(self._modLoaderList[self._selectedModLoader] + " ▾")
 
 
-# Helper function for quickly making and customizing a QButton
-def createButton(parent, btnText:str, geometry:QtCore.QRect, objectName:str, onClickFunc, useSpecialSymbolFont = False):
-    buttonFont = QtGui.QFont()
-
+def _createLabelFont(fontSize:int = 0, bold = False, useSpecialSymbolFont = False):
+    font = QtGui.QFont()
+    
     if useSpecialSymbolFont:
         # Load custom font for special symbol
-        buttonFont.setPointSize(_specialSymbolFontSize)
+        font.setPointSize(_specialSymbolFontSize)
         font_path = os.path.join(os.path.dirname(__file__), "font", "fontello.ttf")
         font_id = QtGui.QFontDatabase.addApplicationFont(font_path)
         if font_id != -1:
             font_families = QtGui.QFontDatabase.applicationFontFamilies(font_id)
             if font_families:
-                buttonFont.setFamily(font_families[0])
+                font.setFamily(font_families[0])
     else:
-        buttonFont.setPointSize(_btnFontSize)
+        font.setPointSize(_labelFontSize)
+
+    if fontSize > 0:
+        font.setPointSize(fontSize)
+
+    font.setBold(bold)
+
+    return font
+
+# Helper function for quickly making and customizing a QButton
+def createButton(
+        parent,
+        btnText:str,
+        geometry:QtCore.QRect,
+        onClickFunc,
+        objectName:str = None,
+        fontSize:int = 0,
+        bold = False,
+        useSpecialSymbolFont = False
+    ):
+    if fontSize <= 0:
+        fontSize = _btnFontSize
+    
+    font = _createLabelFont(fontSize, bold, useSpecialSymbolFont)
 
     button = QtWidgets.QPushButton(parent=parent)
-    button.setGeometry(geometry)
-    button.setFont(buttonFont)
-    button.setObjectName(objectName)
-    button.clicked.connect(onClickFunc)
+    button.setFont(font)
     button.setText(btnText)
+    button.setGeometry(geometry)
+    button.clicked.connect(onClickFunc)
+
+    if objectName != None:
+        button.setObjectName(objectName)
 
     return button
 
 # Helper function for quickly making and customizing a QLabel
-def createLabel(parent, labelText:str, geometry:QtCore.QRect, objectName:str):
-    labelFont = QtGui.QFont()
-    labelFont.setPointSize(_labelFontSize)
+def createLabel(
+        parent,
+        labelText:str,
+        geometry:QtCore.QRect,
+        objectName:str = None,
+        fontSize:int = 0,
+        bold = False,
+        useSpecialSymbolFont = False,
+        alignment:QtCore.Qt.AlignmentFlag = None, wordWrap = False
+    ):
+    font = _createLabelFont(fontSize, bold, useSpecialSymbolFont)
 
     label = QtWidgets.QLabel(parent=parent)
-    label.setGeometry(geometry)
-    label.setFont(labelFont)
-    label.setObjectName(objectName)
+    label.setFont(font)
     label.setText(labelText)
+    label.setGeometry(geometry)
+    label.setWordWrap(wordWrap)
+
+    if objectName != None:
+        label.setObjectName(objectName)
+
+    if alignment != None:
+        label.setAlignment(alignment)
 
     return label
 
 # Helper function for quickly making and customizing a QLineEdit
-def createTextField(parent, labelText:str, geometry:QtCore.QRect, objectName:str):
-    font = QtGui.QFont()
-    font.setPointSize(_labelFontSize)
+def createTextField(
+        parent,
+        placeholderText:str,
+        geometry:QtCore.QRect,
+        objectName:str = None,
+        fontSize:int = 0,
+        bold = False,
+        useSpecialSymbolFont = False,
+        alignment:QtCore.Qt.AlignmentFlag = None
+    ):
+    font = _createLabelFont(fontSize, bold, useSpecialSymbolFont)
     
     textField = QtWidgets.QLineEdit(parent=parent)
-    textField.setGeometry(geometry)
     textField.setFont(font)
-    textField.setObjectName(objectName)
-    textField.setPlaceholderText(labelText)
+    textField.setPlaceholderText(placeholderText)
+    textField.setGeometry(geometry)
+
+    if objectName != None:
+        textField.setObjectName(objectName)
+
+    if alignment != None:
+        textField.setAlignment(alignment)
 
     return textField
-
 
 def isDarkTheme():
     # Access Windows registry to check the theme setting

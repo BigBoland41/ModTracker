@@ -67,8 +67,11 @@ class TestDetailsView(unittest.TestCase):
         self.assertIsNotNone(self._detailsView)
 
         modTable = self._detailsView.getModTable()
+        modList = self._data.modNames
+        modList.sort()
+
         for i in range(len(self._data.modNames)):
-            self.assertEqual(modTable.getRowNameText(i), self._data.modNames[i])
+            self.assertEqual(modTable.getRowNameText(i), modList[i], f"Element #{i} of {len(modList)} (0 indexed)")
 
     def testAddPriorityLevel(self):
         newPriorityName = "New Priority"

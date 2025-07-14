@@ -127,8 +127,6 @@ class Mod(object):
 
     # Runs when the mod's data needs to be reset. Makes an API call and extracts the raw data
     def refreshMod(self):
-        print(".", end="")
-
         self.callAPIs()
 
         # Use the service the URL came from first, and if that fails, try the other service
@@ -216,6 +214,17 @@ class ModProfile(object):
         self.priorityList = priorityList
         self.selectedVersion = selectedVersion
         self.name = name
+
+    def __str__(self):
+        output = f"{self.name}:\n"
+
+        if self.modList:
+            for mod in self.modList:
+                output += mod.__str__() + "\n"
+        else:
+            output += "No mods in profile"
+
+        return output[:-1]
 
     # Returns a float that represents how many of the mods in this profile are ready for the selected version, in percentage terms.
     def getPercentReady(self):
