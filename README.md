@@ -1,12 +1,22 @@
 # Mod Tracker
 
-Mod tracker is an app that helps you keep track of the mods you've been so patiently waiting on updating to the newest Minecraft version. Say goodbye to that mile long bookmark folder of Mondrinth and CurseForge links - Mod Tracker will do the job for you!
+Make downloading and keeping track of all your mods easy and seemless!
 
-**[Click here for download instructions](#how-to-download)**
+Mod tracker is a windows app that keeps track of the mods you're waiting on to update to the latest Minecraft version. It also lets you download all them with a single click, easily share them with your friends, and more! Say goodbye to that mile long bookmark folder of Mondrinth and CurseForge links - Mod Tracker will do the job for you!
 
-*Please note that this app is still in beta, so expect some bugs. If you encounter a bug, or have ideas on how to improve Mod Tracker, create an issue on our [issues page](https://github.com/BigBoland41/ModTracker/issues).*
+- Create profile(s) - a list of Minecraft mods you want track. Either Modrinth or CurseForge will work!
+- Easily see what mods are updated by looking at the color-coded list or detailed pie chart.
+- **New!** Download all your mods with a single click!
+- **New!** Share your mods easily by exporting your profile.
+- Assign priority levels to categorize your must-have mods your nice-to-have mods. (This is reflected in the pie chart!)
+
+**[Download here!](https://github.com/BigBoland41/ModTracker/releases)**
+[Click here for instructions](#how-to-download)
 
 ![alt text](screenshot%201.png)
+
+*Please note that this app is still in beta, so expect some bugs. If you encounter a bug or have ideas to improve Mod Tracker, create an issue on our [issues page](https://github.com/BigBoland41/ModTracker/issues).*
+
 
 ## How to Download
 1. Go to our [releases page](https://github.com/BigBoland41/ModTracker/releases).
@@ -16,30 +26,18 @@ Mod tracker is an app that helps you keep track of the mods you've been so patie
 Alternatively, you can install the executable directly from the latest action on our [actions page](https://github.com/BigBoland41/ModTracker/actions/workflows/build-test.yml). Note that there is currently a bug where the unittest results will be blank.
 
 
-## Changes in Beta 2.0
-- **Proper Curseforge support!** While it was technically supported it in our MVP, we actually used the Mondrinth data instead, and didn't support mods only found on Curseforge.
-- **Massive improvement in loading times** achieved by putting each mod's API call on a separate thread.
-- **New loading window** that displays when the app is launching. In the future we want it to be animated, but for now it's just a still image.
-- **Added an app icon** created by us - a Minecraft monkey wrench!
-- Mod Tracker is now distributed with an installer, not just a plain exe file.
-- Error text will now appear when the user attempts to add a mod with an invalid URL.
-- The user can now give a mod a custom priority level that was created in another profile.
-- Data is saved to file more often.
+## Changes in Beta 3.0 - Downloading and Exporting!
+- **Download all your mods with one click!** A new "download all ready mods" button has been added to the profile details screen, along with a dropdown that lets you select the mod loader to use. Currently, the options are Forge, Fabric, Neoforge, and Quilt, but if there's demand for more, it shouldn't be too difficult to add!
+- **Importing and exporting profiles!** Share your mod profile with a friend by clicking the new export button in the profile details screen. They can import it using the new import button in the profile select screen.
+- Profiles can now be deleted from the profile select screen.
+- Clicking on a mod's name from the mod list will open that mod's Modrinth or Curseforge page in your web browser.
+- New pretty button icons have been added by importing Fontello - a font containing lots of commonly used icons. The license is included in the font folder.
 - Bugfixes and refactoring.
 
 If there are any issues with this version Mod Tracker, report it on our [issues page](https://github.com/BigBoland41/ModTracker/issues).
 
-## Project Details
-
-### Motivation and Objective
-
-A large portion of the Minecraft player base installs mods for their game. However, mods only support specific versions of Minecraft, so when a update is released, mods become outdated and need to be updated manually by their developer. When using lots mods, it can be difficult to keep track of which mods support which versions, and which are ready for the next update. People often did this by just going down a list of links from Modrinth and Curseforge, manually checking each mod's version.
-
-Our goal is to make the experience of keeping track of all your mods easy and seemless.
-
-ModTracker is a desktop application designed to simplify the task of tracking supported game versions for Minecraft mods. Users can create profiles containing a list of selected Minecraft mods to track. The profile will display information based on the Minecraft version the user wishes to target. Each mod in a profile will have a priority level indicating the importance of that mod to be supported by the selected Minecraft version. Using the assigned priority levels and the supported versions of each mod, ModTracker will graph the proportion of supported and unsupported mods for the selected game version.
-
-### How to Run Our Project
+## Technical Details
+For those who want to download this repository on your own computer, here's some helpful information.
 
 To run Mod Tracker in your IDE:
 - Install Python 3, then install the PyQt6, requests, and PyQt6-Charts libraries using pip.
@@ -56,4 +54,4 @@ To generate your own installer:
 
 To run unit tests, run the tests.py file. You can also test specific modules using a file with the test_ prefix, found in the tests directory.
 
-<sup> README updated 5/15/2025
+<sup> README updated 8/30/2025 (unless I forgot to update this)
