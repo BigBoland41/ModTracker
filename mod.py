@@ -79,13 +79,19 @@ class Mod(object):
             self.refreshMod()
 
     def __str__(self):
-        return f"{self._name} version: {self.getCurrentVersion()}, priority: {self.priority}"
+        return f"{self._name}, version: {self.getCurrentVersion()}, priority: {self.priority}"
     
     def __lt__(self, other):
         if self._tablePosition > 0 or other._tablePosition > 0:
             return self._tablePosition < other._tablePosition
         else:
             return self._name < other._name
+        
+    def __eq__(self, other):
+        if not isinstance(other, Mod):
+            return False
+        else:
+            return self._name == other._name and self._ID == other._ID and self._url == other._url and self._versions == other._versions
 
     # Getters
     def getName(self):

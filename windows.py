@@ -166,6 +166,14 @@ class DetailsWindow(QtWidgets.QWidget):
         self._modLoaderDropdown.clickDropdownOption(modLoaderOption)
         return self._downloadReadyMods(True)
     
+    def simulate_export(self, customFileName:str=False):
+        if customFileName:
+            fileName = customFileName
+        else:
+            fileName = "tests/testProfile.json"
+
+        self._exportProfile(fileName, printDebugMessage=False)
+    
     # Getters
     def getModTable(self): return self._modTable
     
@@ -272,21 +280,31 @@ class DetailsWindow(QtWidgets.QWidget):
         return successful_downloads
     
     # Has the user select a directory and enter a file name, and then exports the profile as a json file
-    def _exportProfile(self):
-        directory = QtWidgets.QFileDialog.getExistingDirectory(None, "Select a directory")
+    def _exportProfile(self, directPath:str=False, printDebugMessage=True):
+        if directPath == False:
+            directory = QtWidgets.QFileDialog.getExistingDirectory(None, "Select a directory")
 
-        if directory:
-            file_name, ok = QtWidgets.QInputDialog.getText(None, "Enter file name", "File name:")
-            if ok and file_name:
-                path = f"{directory}/{file_name}.json"
+            if directory:
+                fileName, dialogSubmitted = QtWidgets.QInputDialog.getText(None, "Enter file name", "File name:")
+                if dialogSubmitted and fileName:
+                    path = f"{directory}/{fileName}.json"
+                else:
+                    path = False
+            else:
+                path = False
+        else:
+            path = directPath
+            fileName = "Test Profile"
 
-                profile = mod.ModProfile(self._modList, self._priorityList, self._selectedVersion, file_name)
+        if path != False:
+            profile = mod.ModProfile(self._modList, self._priorityList, self._selectedVersion, fileName)
 
+            if printDebugMessage:
                 print(f"Exporting profile data to {path}")
-                with open(path, "w") as file:
-                    json.dump(profile.createDict(), file, indent=4)
-                
-                self._exportLabel.setVisible(True)
+            with open(path, "w") as file:
+                json.dump(profile.createDict(), file, indent=4)
+            
+            self._exportLabel.setVisible(True)
 
     # Closes the details window and returns to the profile select window
     def _closeView(self):
@@ -336,8 +354,8 @@ class ProfileSelectWindow(QtWidgets.QWidget):
 
         self._importBtn = widgets.createButton(self, "", QtCore.QRect(1840, 10, 75, 75), self._importProfile, objectName="importBtn", fontSize=24, useSpecialSymbolFont=True)
 
-    def addProfile(self, newProfile:mod.ModProfile, promptModName = True):
-        if promptModName:
+    def addProfile(self, newProfile:mod.ModProfile, promptProfileName = True):
+        if promptProfileName:
             dialog = QtWidgets.QInputDialog(self)
             inputStr, okPressed = dialog.getText(self, "Create new mod profile", "New mod profile name:")
             if okPressed and len(inputStr) > 0:
@@ -374,9 +392,31 @@ class ProfileSelectWindow(QtWidgets.QWidget):
         # reload UI
         self._createWidgetRows()
 
+    def deleteProfile(self, numProfile):
+        profileWidget = self._profileWidgets[numProfile]
+        self._profileWidgets.remove(profileWidget)
+        self._layout.removeWidget(profileWidget)
+        profileWidget.deleteLater()
+
+        self._profileList.remove(self._profileList[numProfile])
+
+        self._deleteWidgetRows()
+        self._updatePriorityLists()
+        self.sortModLists()
+        self.saveJson()
+
     def sortModLists(self):
         for profile in self._profileList:
             profile.modList.sort()
+
+    # Simulates importing a mod. Used for testing. RequireValidMod will allow mods without a valid URL to be tested.
+    def simulate_import(self, directPath:str=False, requireValidModURL=True):
+        if directPath:
+            fileName = directPath
+        else:
+            fileName = "tests/testProfile"
+
+        self._importProfile(directPath=fileName, promptProfileName=False, requireValidModURL=requireValidModURL)
 
     # Getters
     def getProfileList(self): return self._profileList
@@ -438,7 +478,7 @@ class ProfileSelectWindow(QtWidgets.QWidget):
                             QtCore.QRect(10, 280, self._widgetSize - 20, 60), fontSize=self._subtitleFontSize, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
         
         # Delete button
-        widgets.createButton(profileWidget, "X", QtCore.QRect(self._widgetSize - 55, 5, 50, 50), lambda checked, id = self._numWidgets: self._deleteProfile(id))
+        widgets.createButton(profileWidget, "X", QtCore.QRect(self._widgetSize - 55, 5, 50, 50), lambda checked, id = self._numWidgets: self.deleteProfile(id))
 
         # Add to list of profile widgets
         self._profileWidgets.append(profileWidget)
@@ -484,22 +524,13 @@ class ProfileSelectWindow(QtWidgets.QWidget):
         self._onProfileClick(profile)
 
     # Import a profile from a json file
-    def _importProfile(self):
-        path, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Select a json file", filter="JSON Files (*.json)")
+    def _importProfile(self, directPath:str=False, promptProfileName = True, requireValidModURL = True):
+        if directPath:
+            path = directPath
+        else:
+            path, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Select a json file", filter="JSON Files (*.json)")
+
         if path:
-            profile = load.createProfile(path)
+            profile = load.createProfile(path, requireValidModURL=requireValidModURL)
             if profile != None:
-                self.addProfile(profile)
-
-    def _deleteProfile(self, numProfile):
-        profileWidget = self._profileWidgets[numProfile]
-        self._profileWidgets.remove(profileWidget)
-        self._layout.removeWidget(profileWidget)
-        profileWidget.deleteLater()
-
-        self._profileList.remove(self._profileList[numProfile])
-
-        self._deleteWidgetRows()
-        self._updatePriorityLists()
-        self.sortModLists()
-        self.saveJson()
+                self.addProfile(profile, promptProfileName=promptProfileName)

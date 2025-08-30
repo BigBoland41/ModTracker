@@ -16,7 +16,7 @@ class TestData(object):
     # Some tests check that the latest version is correct, comparing against this.
     # This variable needs to be periodically updated.
     # It should probably be replaced with a better system at some point.
-    latestGameVersion = "1.21.7"
+    latestGameVersion = "1.21.8"
 
     selectedVersion = "1.21.5"
     highPriority = mod.ModPriority("High Priority", 255, 85, 0)
@@ -50,9 +50,9 @@ class TestData(object):
         for i in range(len(self.modNames)):
             match self._modPriorities[i]:
                 case 0:
-                    modList.append(mod.Mod(self.modNames[i], i, self._modVersions[i], self.highPriority))
+                    modList.append(mod.Mod(self.modNames[i], i, self._modVersions[i], self.highPriority, tablePosition=i))
                 case 1:
-                    modList.append(mod.Mod(self.modNames[i], i, self._modVersions[i], self.lowPriority))
+                    modList.append(mod.Mod(self.modNames[i], i, self._modVersions[i], self.lowPriority, tablePosition=i))
         
         return modList
     

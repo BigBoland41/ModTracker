@@ -44,9 +44,9 @@ class TestDetailsView(unittest.TestCase):
         )
         emptyProfile = mod.ModProfile()
 
-        self._selectView.addProfile(testDataProfile, promptModName=False)
-        self._selectView.addProfile(manualProfile, promptModName=False)
-        self._selectView.addProfile(emptyProfile, promptModName=False)
+        self._selectView.addProfile(testDataProfile, promptProfileName=False)
+        self._selectView.addProfile(manualProfile, promptProfileName=False)
+        self._selectView.addProfile(emptyProfile, promptProfileName=False)
         
         profileList = self._selectView.getProfileList()
         priorityList = self._selectView.getPriorityList()
@@ -60,7 +60,7 @@ class TestDetailsView(unittest.TestCase):
 
     def testOpenDetailsView(self):
         testDataProfile = mod.ModProfile(self._data.constructModList())
-        self._selectView.addProfile(testDataProfile, promptModName=False)
+        self._selectView.addProfile(testDataProfile, promptProfileName=False)
 
         QtTest.QTest.mouseClick(self._selectView._profileWidgets[0], QtCore.Qt.MouseButton.LeftButton)
 
@@ -68,7 +68,6 @@ class TestDetailsView(unittest.TestCase):
 
         modTable = self._detailsView.getModTable()
         modList = self._data.modNames
-        modList.sort()
 
         for i in range(len(self._data.modNames)):
             self.assertEqual(modTable.getRowNameText(i), modList[i], f"Element #{i} of {len(modList)} (0 indexed)")
@@ -78,7 +77,7 @@ class TestDetailsView(unittest.TestCase):
         newPriorityColor = QtGui.QColor(255, 255, 255)
         
         testDataProfile = mod.ModProfile(self._data.constructModList())
-        self._selectView.addProfile(testDataProfile, promptModName=False)
+        self._selectView.addProfile(testDataProfile, promptProfileName=False)
         QtTest.QTest.mouseClick(self._selectView._profileWidgets[0], QtCore.Qt.MouseButton.LeftButton)
 
         priorityList = self._selectView.getPriorityList()
@@ -98,10 +97,26 @@ class TestDetailsView(unittest.TestCase):
                        mod.ModProfile(), mod.ModProfile(), mod.ModProfile(), mod.ModProfile(), mod.ModProfile()]
 
         for profile in profileList:
-            self._selectView.addProfile(profile, promptModName=False)
+            self._selectView.addProfile(profile, promptProfileName=False)
 
         self.assertEqual(len(self._selectView._profileWidgets), 8)
         self.assertFalse(self._selectView._addProfileWidget.isHidden())
+
+    def testDeleteProfile(self):
+        profile1 = mod.ModProfile()
+        profile2 = mod.ModProfile()
+
+        self._selectView.addProfile(profile1, promptProfileName=False)
+        self._selectView.addProfile(profile2, promptProfileName=False)
+
+        self._selectView.deleteProfile(0)
+
+        profileList = self._selectView.getProfileList()
+        widgetList = self._selectView._profileWidgets
+
+        self.assertEqual(profileList[0], profile2)
+        self.assertNotIn(profile1, profileList)
+        self.assertEqual(len(widgetList), 1)
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

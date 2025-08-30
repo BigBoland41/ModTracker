@@ -14,20 +14,20 @@ def _dictToMod(data):
     return modObj
 
 # Convert json data for a mod profile into a mod profile object. Create each mod object on its own thread, as each will make an API call.
-def _dictToModProfile(data):
+def _dictToModProfile(data, requireValidModURL=True):
     threadList = []
     
     newModList = []
     modListData = data["modlist"]
 
-    def threadHelper(newMod, list):
+    def threadHelper(newMod, list, requireValidURL=True):
         modObj = _dictToMod(newMod)
 
-        if modObj.isValid():
+        if not requireValidURL or modObj.isValid():
             list.append(modObj)
 
     for newMod in modListData:
-        thread = threading.Thread(target=threadHelper, args=(newMod, newModList))
+        thread = threading.Thread(target=threadHelper, args=(newMod, newModList, requireValidModURL))
         threadList.append(thread)
         thread.start()
 
@@ -54,7 +54,7 @@ def createProfileList(filename="mods.json"):
     return newProfileList
 
 # Open a json file, read the data, and create a single mod profile from it
-def createProfile(filename="mods.json"):
+def createProfile(filename="mods.json", requireValidModURL=True):
     appdata = os.getenv('APPDATA')
     directory = os.path.join(appdata, 'ModTracker')
     os.makedirs(directory, exist_ok=True)
@@ -63,7 +63,7 @@ def createProfile(filename="mods.json"):
     try:
         with open(json_path, "r") as f:
             data = json.load(f)
-            profile = _dictToModProfile(data)
+            profile = _dictToModProfile(data, requireValidModURL=requireValidModURL)
     except FileNotFoundError:
         return None
     return profile
