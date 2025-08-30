@@ -5,6 +5,8 @@ _btnFontSize = 18
 _specialSymbolFontSize = 16
 _labelFontSize = 12
 
+_fontelloPath:str
+
 # This is the table that displays information about all the mods in a profile, including the
 # mod name, it's latest version, "ready" or it's priority level, and a button to remove the
 # mod from the table. 
@@ -151,7 +153,8 @@ class ModTable():
                     item.setText(mod.getName())
 
                     # Load custom font for special symbol
-                    font_path = os.path.join(os.path.dirname(__file__), "font", "fontello.ttf")
+                    global _fontelloPath
+                    font_path = _fontelloPath
                     font_id = QtGui.QFontDatabase.addApplicationFont(font_path)
                     if font_id != -1:
                         font_families = QtGui.QFontDatabase.applicationFontFamilies(font_id)
@@ -489,13 +492,19 @@ class ModLoaderDropdownBtn():
         self._buttonWidget.setText(self._modLoaderList[self._selectedModLoader] + " ▾")
 
 
+def setFontelloPath():
+    global _fontelloPath
+    _fontelloPath = os.path.join(os.path.dirname(__file__), "fonts", "fontello.ttf")
+    print("Fontello path: " + _fontelloPath)
+
 def _createLabelFont(fontSize:int = 0, bold = False, useSpecialSymbolFont = False):
     font = QtGui.QFont()
     
     if useSpecialSymbolFont:
         # Load custom font for special symbol
         font.setPointSize(_specialSymbolFontSize)
-        font_path = os.path.join(os.path.dirname(__file__), "font", "fontello.ttf")
+        global _fontelloPath
+        font_path = _fontelloPath
         font_id = QtGui.QFontDatabase.addApplicationFont(font_path)
         if font_id != -1:
             font_families = QtGui.QFontDatabase.applicationFontFamilies(font_id)

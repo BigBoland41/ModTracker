@@ -45,7 +45,7 @@ To run Mod Tracker in your IDE:
 
 To generate your own executable:
 - Install the pyinstaller library (make sure you also have other libraries installed).
-- Run `pyinstaller --name "Mod Tracker" --onefile --noconsole --icon=icon.ico main.py`.
+- Run `pyinstaller --name "Mod Tracker" --onefile --noconsole --icon=icon.ico main.py --add-data "fonts/fontello.ttf;fonts"`.
 - The executable can then be found in the newly generated dist directory.
 
 To generate your own installer:

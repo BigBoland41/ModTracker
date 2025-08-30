@@ -1,4 +1,4 @@
-import sys, os, windows, ctypes
+import sys, os, windows, ctypes, widgets
 from PyQt6 import QtWidgets, QtGui
 
 if __name__ == "__main__":
@@ -10,14 +10,18 @@ if __name__ == "__main__":
     print("Starting app")
     app = QtWidgets.QApplication(sys.argv)
 
-    # set app icon
-    if getattr(sys, 'frozen', False):  # Check if running as a PyInstaller bundle
+    # Check if running as a PyInstaller bundle
+    if getattr(sys, 'frozen', False):
         base_path = sys._MEIPASS
     else:
         base_path = os.path.abspath(".")
 
+    # set app icon
     icon_path = os.path.join(base_path, "icon.ico")
     icon = QtGui.QIcon(icon_path)
+    
+    # set reference to Fontello
+    widgets.setFontelloPath()
 
     mainWindow = QtWidgets.QMainWindow()
 
