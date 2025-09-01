@@ -40,7 +40,7 @@ If there are any issues with this version Mod Tracker, report it on our [issues 
 For those who want to download this repository on your own computer, here's some helpful information.
 
 To run Mod Tracker in your IDE:
-- Install Python 3, then install the PyQt6, requests, and PyQt6-Charts libraries using pip.
+- Install Python 3, then install the PyQt6, PyQt6-Charts, requests, and python-Levenshtein libraries using pip.
 - Run the main.py file.
 
 To generate your own executable:

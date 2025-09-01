@@ -9,9 +9,12 @@ def verifyURL(url:str):
     modrinth = re.compile(_modrinthRegex)
     return modrinth.match(url)
 
-def _genericModrinthCall(url:str):
+def _genericModrinthCall(url:str, requestParameters:dict = None):
     try:
-        response = requests.get(url, timeout=(_requestTimeout, _requestTimeout))
+        if requestParameters == None:
+            response = requests.get(url, timeout=(_requestTimeout, _requestTimeout))
+        else:
+            response = requests.get(url, params=requestParameters, timeout=(_requestTimeout, _requestTimeout))
     except requests.exceptions.Timeout:
         print(f"Mondrinth API request timed out after {_requestTimeout} seconds")
     
@@ -39,3 +42,23 @@ def downloadMod(mod_slug:str, loader:str, version:str):
                 return file["url"]
             
     return False
+
+# Searches modrinth API for mods with a similar name to query.
+# Returns a list of json data for each result, or False if no results were found. numResults must be > 0.
+# If numResults is 1, only a single json dictionary will be returned, instead of a list of json dictionaries. 
+def searchModrinth(modName:str, numResults:int):
+    if numResults <= 0:
+        return False
+
+    search_url = "https://api.modrinth.com/v2/search"
+    params = {"query": modName, "limit": numResults}
+    response = _genericModrinthCall(search_url, params)
+
+    if response == False:
+        return False
+    else:
+        results = response["hits"]
+        if numResults == 1:
+            return results[0]
+        else:
+            return results

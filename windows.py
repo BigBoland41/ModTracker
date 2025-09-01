@@ -1,4 +1,4 @@
-import mod, widgets, load, json, threading, os
+import mod, widgets, load, json, threading, os, readJarFile
 from PyQt6 import QtCore, QtGui, QtWidgets, QtTest
 
 
@@ -353,6 +353,8 @@ class ProfileSelectWindow(QtWidgets.QWidget):
         self._createWidgetRows()
 
         self._importBtn = widgets.createButton(self, "", QtCore.QRect(1840, 10, 75, 75), self._importProfile, objectName="importBtn", fontSize=24, useSpecialSymbolFont=True)
+        self._createFromModsFolderBtn = widgets.createButton(self, "Create profile from .minecraft/mods", QtCore.QRect(1505, 10, 325, 50),
+                                                             self._createProfileFromModsFolder, objectName="createFromModsFolderBtn", fontSize=14)
 
     def addProfile(self, newProfile:mod.ModProfile, promptProfileName = True):
         if promptProfileName:
@@ -534,3 +536,12 @@ class ProfileSelectWindow(QtWidgets.QWidget):
             profile = load.createProfile(path, requireValidModURL=requireValidModURL)
             if profile != None:
                 self.addProfile(profile, promptProfileName=promptProfileName)
+
+    def _createProfileFromModsFolder(self):
+        self._loadingWindow = LoadingWindow()
+        self._loadingWindow.show()
+        
+        newProfile = readJarFile.createProfileFromModsFolder()
+        self.addProfile(newProfile)
+
+        self._loadingWindow.close()

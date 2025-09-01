@@ -64,19 +64,24 @@ class Mod(object):
     # can pass mod info directly for testing, but can also just call constructor with a url and it will get all 
     # relevant info from the api and store it all
     def __init__(self, modName = "Untitled Mod", modID = -1, modVersions = ["No versions found"],
-                 modPriority = ModPriority(), url = -1, tablePosition = -1):
+                 modPriority = ModPriority(), url = -1, tablePosition = -1, modrinthData = False, curseforgeData = False):
         self.priority = modPriority
         self._name = modName
         self._ID = modID
         self._url = url
         self._versions = modVersions
         self._tablePosition = tablePosition
-
-        self._modrinthData = False
-        self._curseforgeData = False
-
+        self._modrinthData = modrinthData
+        self._curseforgeData = curseforgeData
+        
         if(url != -1):
             self.refreshMod()
+
+        if modrinthData:
+            self._extractModrinth()
+        elif curseforgeData:
+            self._extractCurseforge()
+
 
     def __str__(self):
         return f"{self._name}, version: {self.getCurrentVersion()}, priority: {self.priority}"

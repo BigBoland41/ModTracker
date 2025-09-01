@@ -9,14 +9,17 @@ def verifyURL(url:str):
     curseforge = re.compile(_curseforgeRegex)
     return curseforge.match(url)
 
-def _genericCurseforgeCall(url:str):
+def _genericCurseforgeCall(url:str, requestParameters:dict = None):
     apiKey = "$2a$10$QIDeQbKDRhOQZgmcVHKxYeTSI/RlHH8oOzRnPhd6Rb4Dcj2l3k27a"
     # gameID = 432 # 432 = Minecraft
 
     headers = {"Accept": "application/json", "x-api-key": apiKey}
 
     try:
-        response = requests.get(url, headers=headers, timeout=_requestTimeout)
+        if requestParameters == None:
+            response = requests.get(url, headers=headers, timeout=_requestTimeout)
+        else:
+            response = requests.get(url, headers=headers, params=requestParameters, timeout=_requestTimeout)
     except requests.exceptions.Timeout:
         print(f"Curseforge API request timed out after {_requestTimeout} seconds")
 
@@ -89,3 +92,16 @@ def downloadMod(curseforgeJson, mod_id:int, loader:str, version:str):
             return downloadLink
 
     return False
+
+def searchCurseforge(modName:str):
+    validResults = []
+    result = _genericCurseforgeCall("https://api.curseforge.com/v1/mods/search", {"gameId": 432, "searchFilter": modName, "pageSize": 1})
+
+    for entry in result["data"]:
+        if entry["primaryCategoryId"] in _allowedCategoryIDs:
+            validResults.append(entry)
+        
+    if validResults:
+        return validResults
+    else:
+        return False

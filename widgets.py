@@ -495,7 +495,7 @@ class ModLoaderDropdownBtn():
 def setFontelloPath():
     global _fontelloPath
     _fontelloPath = os.path.join(os.path.dirname(__file__), "fonts", "fontello.ttf")
-    print("Fontello path: " + _fontelloPath)
+    # print("Fontello path: " + _fontelloPath)
 
 def _createLabelFont(fontSize:int = 0, bold = False, useSpecialSymbolFont = False):
     font = QtGui.QFont()
