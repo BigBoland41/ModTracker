@@ -41,6 +41,7 @@ For those who want to download this repository on your own computer, here's some
 
 To run Mod Tracker in your IDE:
 - Install Python 3, then install the PyQt6, requests, and PyQt6-Charts libraries using pip.
+- Create a file called API_Keys.py and create a variable inside it called CurseForge. Set it to your API key for CurseForge. Do not use our API key for your project.
 - Run the main.py file.
 
 To generate your own executable:

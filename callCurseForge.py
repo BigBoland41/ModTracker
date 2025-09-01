@@ -1,4 +1,4 @@
-import requests, re
+import requests, re, API_Keys
 
 _curseforgeRegex = r"^https:\/\/(www\.)?curseforge\.com\/minecraft\/mc-mods\/[a-zA-Z0-9-_]+\/?$"
 _requestTimeout = 10.0 # How many seconds to wait for an API call before timeout.
@@ -10,7 +10,7 @@ def verifyURL(url:str):
     return curseforge.match(url)
 
 def _genericCurseforgeCall(url:str):
-    apiKey = "$2a$10$QIDeQbKDRhOQZgmcVHKxYeTSI/RlHH8oOzRnPhd6Rb4Dcj2l3k27a"
+    apiKey = API_Keys.CurseForge
     # gameID = 432 # 432 = Minecraft
 
     headers = {"Accept": "application/json", "x-api-key": apiKey}

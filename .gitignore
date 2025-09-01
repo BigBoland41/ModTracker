@@ -1,1 +1,3 @@
-mods.json
+__pycache__
+tests/__pycache__
+API_Keys.py
