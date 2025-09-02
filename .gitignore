@@ -1,1 +1,7 @@
-mods.json
+__pycache__
+tests/__pycache__
+API_Keys.py
+.vscode
+.venv
+fonts/demo.html
+deprecated
