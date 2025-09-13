@@ -112,7 +112,10 @@ class Mod(object):
         return self._versions
     
     def getURL(self):
-        return self._url
+        if self._url == -1:
+            return None
+        else:
+            return self._url
 
     def getVersions(self):
         return self._versions

@@ -51,7 +51,7 @@ def searchModrinth(modName:str, numResults:int):
         return False
 
     search_url = "https://api.modrinth.com/v2/search"
-    params = {"query": modName, "limit": numResults}
+    params = {"query": modName, "limit": numResults, "facets": '[["project_type:mod"]]'}
     response = _genericModrinthCall(search_url, params)
 
     if response == False:

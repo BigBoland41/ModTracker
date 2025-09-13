@@ -172,7 +172,9 @@ class ModTable():
 
                     # Make icon clickable (open URL)
                     def open_url():
-                        QtGui.QDesktopServices.openUrl(QtCore.QUrl(mod.getURL()))
+                        url = mod.getURL()
+                        if url:
+                            QtGui.QDesktopServices.openUrl(QtCore.QUrl(url))
                     icon_label.mousePressEvent = lambda event: open_url()
 
                     # Name label with Arial

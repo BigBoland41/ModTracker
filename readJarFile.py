@@ -79,7 +79,7 @@ def createModFromJarData(jarData, loader):
     if best_result == siteData[1]:
         modObj = mod.Mod(curseforgeData=best_result, modPriority=mod.ModPriority("High Priority", 255, 85, 0))
     else:
-        modObj = mod.Mod(url=f"https://modrinth.com/mod/{best_result["slug"]}")
+        modObj = mod.Mod(url=f"https://modrinth.com/mod/{best_result["slug"]}", modPriority=mod.ModPriority("High Priority", 255, 85, 0))
 
     return modObj
 
@@ -134,3 +134,7 @@ def _closestMatch(mod_name, siteData):
         return siteData[1]
     else:
         return None
+    
+
+if __name__ == "__main__":
+    print(createProfileFromModsFolder())
