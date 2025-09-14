@@ -1,12 +1,14 @@
 import zipfile, json, os, tomllib, Levenshtein, callModrinth, callCurseForge, mod
 
 # Creates a mod profile by matching the jar files the user's .minecraft/mods folder with mods on modrinth and curseforge.
-def createProfileFromModsFolder():
-    modsDirectory = os.path.join(os.environ["APPDATA"], ".minecraft", "mods")
-    print(f"Creating a mod object for each jar file found in {modsDirectory}...")
+def createProfileFromFolder(directory:str = None):
+    if directory == None:
+        directory = os.path.join(os.environ["APPDATA"], ".minecraft", "mods")
+        
+    print(f"Creating a mod object for each jar file found in {directory}...")
     profile = mod.ModProfile(name="Mods Folder")
     
-    for filename in os.listdir(modsDirectory):
+    for filename in os.listdir(directory):
         jarData = getDataFromJar(filename)
 
         if jarData:
@@ -137,4 +139,4 @@ def _closestMatch(mod_name, siteData):
     
 
 if __name__ == "__main__":
-    print(createProfileFromModsFolder())
+    print(createProfileFromFolder())

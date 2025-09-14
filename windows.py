@@ -89,6 +89,62 @@ class LoadingWindow(QtWidgets.QWidget):
         self.setLayout(layout)
 
 
+# Small, customizable window that gives the user several options to choose from.
+# Adds a button for each button label provided. Will only show a 
+# MultipleChoiceWindow.exec() will return the number option chosen (1 indexed). If no option is chosen, it will return 0.
+class MultipleChoiceWindow(QtWidgets.QDialog):
+    buttonList = []
+    inputField = None
+
+    def __init__(
+            self,
+            button_labels = ["Option 1", "Option 2", "Option 3"],
+
+            parent=None,
+            windowTitle="Select an option",
+
+            button_width=250,
+            button_height=40,
+            button_fontSize=12,
+
+            showLabel=False,
+            label_text="Select an option",
+            label_fontSize = 14,
+            
+            showTextInput = False,
+            textInput_labelText = "Enter Text:",
+            textInput_placeholderText = "Enter Text Here"
+    ):
+        super().__init__(parent)
+        self.setWindowTitle(windowTitle)
+        self.setModal(True)
+
+        self.layout = QtWidgets.QVBoxLayout(self)
+
+        if showLabel:
+            label = widgets.createLabel(labelText=label_text, fontSize=label_fontSize, bold=True, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
+            self.layout.addWidget(label)
+
+        if showTextInput:
+            inputField_label = widgets.createLabel(labelText=textInput_labelText)
+            self.inputField = widgets.createTextField(placeholderText=textInput_placeholderText)
+
+            self.layout.addWidget(inputField_label)
+            self.layout.addWidget(self.inputField)
+
+        for i, inputField_label in enumerate(button_labels):
+            button = widgets.createButton(btnText=inputField_label, fontSize=button_fontSize, minimumWidth=button_width, minimumHeight=button_height)
+            self.buttonList.append(button)
+            self.layout.addWidget(button)
+            button.clicked.connect(lambda checked=False, idx=i + 1: self.done(idx))
+    
+    def getInputFieldText(self):
+        if self.inputField:
+            return self.inputField.text()
+        else:
+            return None
+
+
 # The display that shows the user a detailed view of a specific mod profile and allows them to manipulate it
 class DetailsWindow(QtWidgets.QWidget):
     # Parameters
@@ -352,9 +408,7 @@ class ProfileSelectWindow(QtWidgets.QWidget):
 
         self._createWidgetRows()
 
-        self._importBtn = widgets.createButton(self, "", QtCore.QRect(1840, 10, 75, 75), self._importProfile, objectName="importBtn", fontSize=24, useSpecialSymbolFont=True)
-        self._createFromModsFolderBtn = widgets.createButton(self, "Create profile from .minecraft/mods", QtCore.QRect(1505, 10, 325, 50),
-                                                             self._createProfileFromModsFolder, objectName="createFromModsFolderBtn", fontSize=14)
+        self._importBtn = widgets.createButton(self, "", QtCore.QRect(1840, 10, 75, 75), self._chooseImportOption, objectName="importBtn", fontSize=24, useSpecialSymbolFont=True)
 
     def addProfile(self, newProfile:mod.ModProfile, promptProfileName = True):
         if promptProfileName:
@@ -418,7 +472,7 @@ class ProfileSelectWindow(QtWidgets.QWidget):
         else:
             fileName = "tests/testProfile"
 
-        self._importProfile(directPath=fileName, promptProfileName=False, requireValidModURL=requireValidModURL)
+        self._importFromJSON(directPath=fileName, profileName="Test Profile", requireValidModURL=requireValidModURL)
 
     # Getters
     def getProfileList(self): return self._profileList
@@ -525,8 +579,26 @@ class ProfileSelectWindow(QtWidgets.QWidget):
         profile = self._profileList[profileNum]
         self._onProfileClick(profile)
 
-    # Import a profile from a json file
-    def _importProfile(self, directPath:str=False, promptProfileName = True, requireValidModURL = True):
+    # Opens dialog to enter a profile name and choose an import option. Runs when the import button is pressed.
+    def _chooseImportOption(self):
+        dialog = MultipleChoiceWindow(
+            ["Import from JSON file", "Import from mods folder", "Cancel"],
+            windowTitle="Import a profile",
+            showTextInput=True,
+            textInput_labelText="Profile Name:",
+            textInput_placeholderText="Enter profile name here"
+        )
+
+        choice = dialog.exec()
+        profileName = dialog.getInputFieldText()
+
+        match choice:
+            case 1:
+                self._importFromJSON(profileName=profileName)
+            case 2:
+                self._importFromFolder(profileName=profileName)
+
+    def _importFromJSON(self, directPath:str=False, profileName = None, requireValidModURL = True):
         if directPath:
             path = directPath
         else:
@@ -534,14 +606,35 @@ class ProfileSelectWindow(QtWidgets.QWidget):
 
         if path:
             profile = load.createProfile(path, requireValidModURL=requireValidModURL)
-            if profile != None:
+
+            if profileName and profileName != "":
+                profile.name = profileName
+                promptProfileName = False
+            else:
+                promptProfileName = True
+
+            if profile:
                 self.addProfile(profile, promptProfileName=promptProfileName)
 
-    def _createProfileFromModsFolder(self):
+    def _importFromFolder(self, profileName = None, directory:str = None):
+        if not directory:
+            modsFolder = os.path.join(os.environ["APPDATA"], ".minecraft", "mods")
+            directory = QtWidgets.QFileDialog.getExistingDirectory(None, "Select a directory", modsFolder)
+
+            if not directory:
+                return
+
         self._loadingWindow = LoadingWindow()
         self._loadingWindow.show()
         
-        newProfile = readJarFile.createProfileFromModsFolder()
-        self.addProfile(newProfile)
+        newProfile = readJarFile.createProfileFromFolder(directory)
+
+        if profileName and profileName != "":
+            newProfile.name = profileName
+            promptProfileName = False
+        else:
+            promptProfileName = True
+
+        self.addProfile(newProfile, promptProfileName=promptProfileName)
 
         self._loadingWindow.close()

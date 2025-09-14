@@ -524,14 +524,16 @@ def _createLabelFont(fontSize:int = 0, bold = False, useSpecialSymbolFont = Fals
 
 # Helper function for quickly making and customizing a QButton
 def createButton(
-        parent,
-        btnText:str,
-        geometry:QtCore.QRect,
-        onClickFunc,
+        parent = None,
+        btnText:str = "Button",
+        geometry:QtCore.QRect = QtCore.QRect(),
+        onClickFunc = None,
         objectName:str = None,
         fontSize:int = 0,
         bold = False,
-        useSpecialSymbolFont = False
+        useSpecialSymbolFont = False,
+        minimumWidth = 0,
+        minimumHeight = 0
     ):
     if fontSize <= 0:
         fontSize = _btnFontSize
@@ -542,18 +544,26 @@ def createButton(
     button.setFont(font)
     button.setText(btnText)
     button.setGeometry(geometry)
-    button.clicked.connect(onClickFunc)
 
-    if objectName != None:
+    if onClickFunc:
+        button.clicked.connect(onClickFunc)
+
+    if objectName:
         button.setObjectName(objectName)
+
+    if minimumWidth > 0:
+        button.setMinimumWidth(minimumWidth)
+
+    if minimumHeight > 0:
+        button.setMinimumHeight(minimumHeight)
 
     return button
 
 # Helper function for quickly making and customizing a QLabel
 def createLabel(
-        parent,
-        labelText:str,
-        geometry:QtCore.QRect,
+        parent = None,
+        labelText:str = "Label",
+        geometry:QtCore.QRect = QtCore.QRect(),
         objectName:str = None,
         fontSize:int = 0,
         bold = False,
@@ -578,9 +588,9 @@ def createLabel(
 
 # Helper function for quickly making and customizing a QLineEdit
 def createTextField(
-        parent,
-        placeholderText:str,
-        geometry:QtCore.QRect,
+        parent = None,
+        placeholderText:str = "",
+        geometry:QtCore.QRect = QtCore.QRect(),
         objectName:str = None,
         fontSize:int = 0,
         bold = False,
