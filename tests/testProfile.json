@@ -11,7 +11,7 @@
             },
             "name": "Sodium",
             "id": 0,
-            "url": -1,
+            "url": null,
             "versions": [
                 "1.21",
                 "1.21.1",
@@ -31,7 +31,7 @@
             },
             "name": "Lithium",
             "id": 1,
-            "url": -1,
+            "url": null,
             "versions": [
                 "1.21",
                 "1.21.1",
@@ -50,7 +50,7 @@
             },
             "name": "Entity Culling",
             "id": 2,
-            "url": -1,
+            "url": null,
             "versions": [
                 "1.21",
                 "1.21.1",
@@ -69,7 +69,7 @@
             },
             "name": "Dynamic FPS",
             "id": 3,
-            "url": -1,
+            "url": null,
             "versions": [
                 "1.21",
                 "1.21.1",
@@ -89,7 +89,7 @@
             },
             "name": "Enhanced Block Entities",
             "id": 4,
-            "url": -1,
+            "url": null,
             "versions": [
                 "1.21",
                 "1.21.1",
@@ -108,7 +108,7 @@
             },
             "name": "Entity Model Features",
             "id": 5,
-            "url": -1,
+            "url": null,
             "versions": [
                 "1.21",
                 "1.21.1",
@@ -127,7 +127,7 @@
             },
             "name": "Entity Texture Features",
             "id": 6,
-            "url": -1,
+            "url": null,
             "versions": [
                 "1.21",
                 "1.21.1",
@@ -146,7 +146,7 @@
             },
             "name": "CIT Resewn",
             "id": 7,
-            "url": -1,
+            "url": null,
             "versions": [
                 "1.21",
                 "1.21.1"
@@ -162,7 +162,7 @@
             },
             "name": "Animatica",
             "id": 8,
-            "url": -1,
+            "url": null,
             "versions": [
                 "1.21"
             ],
@@ -177,7 +177,7 @@
             },
             "name": "Continuity",
             "id": 9,
-            "url": -1,
+            "url": null,
             "versions": [
                 "1.21",
                 "1.21.1",
@@ -196,7 +196,7 @@
             },
             "name": "Iris Shaders",
             "id": 10,
-            "url": -1,
+            "url": null,
             "versions": [
                 "1.21",
                 "1.21.1",
@@ -216,7 +216,7 @@
             },
             "name": "WI Zoom",
             "id": 11,
-            "url": -1,
+            "url": null,
             "versions": [
                 "1.21",
                 "1.21.1",
@@ -236,7 +236,7 @@
             },
             "name": "LambDynamicLights",
             "id": 12,
-            "url": -1,
+            "url": null,
             "versions": [
                 "1.21",
                 "1.21.1",
@@ -256,7 +256,7 @@
             },
             "name": "MaLiLib",
             "id": 13,
-            "url": -1,
+            "url": null,
             "versions": [
                 "1.21",
                 "1.21.1",
@@ -275,7 +275,7 @@
             },
             "name": "Litematica",
             "id": 14,
-            "url": -1,
+            "url": null,
             "versions": [
                 "1.21",
                 "1.21.1",
@@ -294,7 +294,7 @@
             },
             "name": "MiniHUD",
             "id": 15,
-            "url": -1,
+            "url": null,
             "versions": [
                 "1.21",
                 "1.21.1",
@@ -313,7 +313,7 @@
             },
             "name": "WorldEdit",
             "id": 16,
-            "url": -1,
+            "url": null,
             "versions": [
                 "1.21",
                 "1.21.1",
@@ -332,7 +332,7 @@
             },
             "name": "Flashback",
             "id": 17,
-            "url": -1,
+            "url": null,
             "versions": [
                 "1.21",
                 "1.21.1",
@@ -351,7 +351,7 @@
             },
             "name": "Shulker Box Tooltip",
             "id": 18,
-            "url": -1,
+            "url": null,
             "versions": [
                 "1.21",
                 "1.21.1",
@@ -370,7 +370,7 @@
             },
             "name": "CraftPresence",
             "id": 19,
-            "url": -1,
+            "url": null,
             "versions": [
                 "1.21",
                 "1.21.1",
@@ -389,7 +389,7 @@
             },
             "name": "Command Keys",
             "id": 20,
-            "url": -1,
+            "url": null,
             "versions": [
                 "1.21",
                 "1.21.1",
@@ -409,7 +409,7 @@
             },
             "name": "Advancements Reloaded",
             "id": 21,
-            "url": -1,
+            "url": null,
             "versions": [
                 "1.21",
                 "1.21.1",
@@ -428,7 +428,7 @@
             },
             "name": "Mod Menu",
             "id": 22,
-            "url": -1,
+            "url": null,
             "versions": [
                 "1.21",
                 "1.21.1",

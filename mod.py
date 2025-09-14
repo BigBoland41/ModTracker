@@ -61,10 +61,10 @@ class Mod(object):
 
     _requestTimeout = 10.0 # How many seconds to wait for an API call before timeout.
     
-    # can pass mod info directly for testing, but can also just call constructor with a url and it will get all 
-    # relevant info from the api and store it all
+    # can pass mod info directly for testing, but can also just call with a url and it will get relevant info from the api,
+    # or directlty insert raw modrinth or curseforge json data.
     def __init__(self, modName = "Untitled Mod", modID = -1, modVersions = ["No versions found"],
-                 modPriority = ModPriority(), url = -1, tablePosition = -1, modrinthData = False, curseforgeData = False):
+                 modPriority = ModPriority(), url:str = None, tablePosition = -1, modrinthData = None, curseforgeData = None):
         self.priority = modPriority
         self._name = modName
         self._ID = modID
@@ -74,7 +74,7 @@ class Mod(object):
         self._modrinthData = modrinthData
         self._curseforgeData = curseforgeData
         
-        if(url != -1):
+        if(url != None):
             self.refreshMod()
 
         if modrinthData:
@@ -112,10 +112,7 @@ class Mod(object):
         return self._versions
     
     def getURL(self):
-        if self._url == -1:
-            return None
-        else:
-            return self._url
+        return self._url
 
     def getVersions(self):
         return self._versions
@@ -143,16 +140,17 @@ class Mod(object):
     def refreshMod(self):
         self.callAPIs()
 
-        # Use the service the URL came from first, and if that fails, try the other service
+        # If the URL is a modrinth URL, try Modrinth, then CurseForge
+        # If the URL is a curseforge URL, try CurseForge, then Modrinth
         if callModrinth.verifyURL(self._url):
-            if callModrinth.verifyURL(self._url):
+            if self._modrinthData:
                 self._extractModrinth()
-            else:
+            elif self._curseforgeData:
                 self._extractCurseforge()
         elif callCurseForge.verifyURL(self._url):
-            if callCurseForge.verifyURL(self._url):
+            if self._curseforgeData:
                 self._extractCurseforge()
-            else:
+            elif self._modrinthData:
                 self._extractModrinth()
 
     # Use the URL this mod was initialized with to get its data from CurseForge and Modrinth
@@ -170,9 +168,9 @@ class Mod(object):
         mod_slug = self._url.rstrip("/").split("/")[-1]
         downloadLink = False
 
-        if self._modrinthData != False:
+        if self._modrinthData:
             downloadLink = callModrinth.downloadMod(mod_slug, loader, version)
-        elif self._curseforgeData != False:
+        elif self._curseforgeData:
             downloadLink = callCurseForge.downloadMod(self._curseforgeData, self._ID, loader, version)
 
         if downloadLink != False:
@@ -195,8 +193,8 @@ class Mod(object):
 
     # Extract modrinth json data from API call
     def _extractModrinth(self):
-        if (self._modrinthData == False):
-            return -1
+        if not self._modrinthData:
+            return None
         
         self._name = self._modrinthData["title"]
         self._ID = self._modrinthData["id"]
@@ -204,12 +202,15 @@ class Mod(object):
 
     # Extract curseforge json data from API call and sort the version list
     def _extractCurseforge(self):
-        if (self._curseforgeData == False):
-            return -1
+        if not self._curseforgeData:
+            return None
         
         self._name = self._curseforgeData["name"]
         self._ID = self._curseforgeData["id"]
         self._versions = callCurseForge.sortVersionList(self._curseforgeData)
+
+        if not self._url:
+            self._url = self._curseforgeData["links"]["websiteUrl"]
     
 class ModProfile(object):
     modList:list[Mod]

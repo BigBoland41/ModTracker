@@ -1,4 +1,4 @@
-import sys, os, windows, ctypes, widgets
+import sys, os, windows, ctypes
 from PyQt6 import QtWidgets, QtGui
 
 if __name__ == "__main__":
@@ -19,9 +19,6 @@ if __name__ == "__main__":
     # set app icon
     icon_path = os.path.join(base_path, "icon.ico")
     icon = QtGui.QIcon(icon_path)
-    
-    # set reference to Fontello
-    widgets.setFontelloPath()
 
     mainWindow = QtWidgets.QMainWindow()
 

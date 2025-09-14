@@ -494,6 +494,7 @@ class ModLoaderDropdownBtn():
         self._buttonWidget.setText(self._modLoaderList[self._selectedModLoader] + " ▾")
 
 
+# Automatically runs when widgets is imported in another file.
 def setFontelloPath():
     global _fontelloPath
     _fontelloPath = os.path.join(os.path.dirname(__file__), "fonts", "fontello.ttf")
@@ -619,3 +620,7 @@ def isDarkTheme():
     # The registry key "AppsUseLightTheme" determines the theme
     light_theme = settings.value("AppsUseLightTheme", 1, type=int)
     return light_theme == 0  # 0 means dark theme, 1 means light theme
+
+
+# Automatically set fontello path when widgets is imported.
+setFontelloPath()

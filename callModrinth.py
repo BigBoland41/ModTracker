@@ -15,14 +15,14 @@ def _genericModrinthCall(url:str, requestParameters:dict = None):
             response = requests.get(url, timeout=(_requestTimeout, _requestTimeout))
         else:
             response = requests.get(url, params=requestParameters, timeout=(_requestTimeout, _requestTimeout))
+    
+        if response.status_code == 200:
+            return response.json()  
+        else:
+            print(f"Error: {response.status_code}, {response.text}")
+            return False
     except requests.exceptions.Timeout:
         print(f"Mondrinth API request timed out after {_requestTimeout} seconds")
-    
-    if response.status_code == 200:
-        return response.json()  
-    else:
-        print(f"Error: {response.status_code}, {response.text}")
-        return False
 
 def modData(mod_slug:str):
     url = f"https://api.modrinth.com/v2/project/{mod_slug}"

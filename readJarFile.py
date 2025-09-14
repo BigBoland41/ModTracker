@@ -1,15 +1,17 @@
 import zipfile, json, os, tomllib, Levenshtein, callModrinth, callCurseForge, mod
 
 # Creates a mod profile by matching the jar files the user's .minecraft/mods folder with mods on modrinth and curseforge.
-def createProfileFromFolder(directory:str = None):
+def createProfileFromFolder(directory:str = None, printDebug = True):
     if directory == None:
         directory = os.path.join(os.environ["APPDATA"], ".minecraft", "mods")
         
-    print(f"Creating a mod object for each jar file found in {directory}...")
+    if printDebug:
+        print(f"Creating a mod object for each jar file found in {directory}...")
+        
     profile = mod.ModProfile(name="Mods Folder")
     
     for filename in os.listdir(directory):
-        jarData = getDataFromJar(filename)
+        jarData = getDataFromJar(filename, directory)
 
         if jarData:
             data = jarData[0]
@@ -26,7 +28,7 @@ def createProfileFromFolder(directory:str = None):
 
 # Gets data and mod loader from a jar file.
 # Returns a list formatted [data, mod loader]
-def getDataFromJar(filename):
+def getDataFromJar(filename, directory):
     forge_filename = "META-INF/mods.toml"
     neoforge_filename = "META-INF/neoforge.mods.toml"
     fabric_filename = "fabric.mod.json"
@@ -36,7 +38,7 @@ def getDataFromJar(filename):
     loader = None
 
     if filename.endswith(".jar"):
-        jar_path = os.path.join(os.environ["APPDATA"], ".minecraft", "mods", filename)
+        jar_path = os.path.join(directory, filename)
     else:
         return [data, loader]
 
@@ -61,11 +63,11 @@ def getDataFromJar(filename):
                     data = tomllib.load(f)
                     loader = "forge"
             else:
-                print(f"{jar_path}: None of the supported information files were found in this jar.")
+                print(f"ERROR IMPORTING {jar_path}: None of the supported information files were found in this jar.")
 
             return [data, loader]
     except Exception as e:
-        print(f"{jar_path}: Error reading jar - {e}")
+        print(f"ERROR IMPORTING {jar_path}: {e}")
 
 # Creates a mod object by matching a jar file's data with a mod on modrinth or curseforge.
 def createModFromJarData(jarData, loader):

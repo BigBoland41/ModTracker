@@ -1,5 +1,5 @@
 import sys, os, unittest
-from PyQt6 import QtWidgets, QtTest, QtCore
+from PyQt6 import QtWidgets
 
 # Add the parent directory to the Python path
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -10,7 +10,7 @@ from testData import TestData
 
 _testAPICalls = True
 
-class TestFileDownloads(unittest.TestCase):
+class TestImportExport(unittest.TestCase):
     def setUp(self):
         self._window = QtWidgets.QMainWindow()
         self._detailsView = windows.DetailsWindow()

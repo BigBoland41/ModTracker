@@ -1,0 +1,13 @@
+These jar files have been stripped off all their data except for one file Mod Tracker needs for these tests. The rest of the files inside these jars have been removed. Nothing beyond the toml and json files listed below are used or distributed on our GitHub, our executable, or anywhere else.
+
+For jars using Forge, the file is:
+META-INF/mods.toml
+
+For jars using NeoForge, the file is:
+META-INF/neoforge.mods.toml
+
+For jars using Fabric, the file is:
+fabric.mod.json
+
+For jars using Quilt, the file is:
+quilt.mod.json
