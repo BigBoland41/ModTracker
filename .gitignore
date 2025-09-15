@@ -5,3 +5,4 @@ API_Keys.py
 .venv
 fonts/demo.html
 deprecated
+/__pycache__

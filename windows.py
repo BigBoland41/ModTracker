@@ -616,16 +616,31 @@ class ProfileSelectWindow(QtWidgets.QWidget):
             if profile:
                 self.addProfile(profile, promptProfileName=promptProfileName)
 
-    def _importFromFolder(self, profileName = None, directory:str = None):
+    def _importFromFolder(self, profileName = None, directory:str = None, showPopups = True):
         if not directory:
             modsFolder = os.path.join(os.environ["APPDATA"], ".minecraft", "mods")
             directory = QtWidgets.QFileDialog.getExistingDirectory(None, "Select a directory", modsFolder)
 
             if not directory:
                 return
+            
+        if showPopups:
+            disclaimerDialog = QtWidgets.QMessageBox(None)
+            disclaimerDialog.setWindowTitle("Import Information")
+            disclaimerDialog.setText(
+                "Mod Tracker will search Modrinth and CurseForge for mods matching the ones in the folder you have selected. "
+                "However, the correct mod cannot always be found.\n\n"
+                "Please check that Mod Tracker added the correct mods when the import is complete."
+            )
+            disclaimerDialog.setIcon(QtWidgets.QMessageBox.Icon.Information)
+            disclaimerDialog.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok | QtWidgets.QMessageBox.StandardButton.Cancel)
 
-        self._loadingWindow = LoadingWindow()
-        self._loadingWindow.show()
+            disclaimerAcknowledged = disclaimerDialog.exec()
+            if disclaimerAcknowledged != QtWidgets.QMessageBox.StandardButton.Ok:
+                return
+
+            self._loadingWindow = LoadingWindow()
+            self._loadingWindow.show()
         
         newProfile = readJarFile.createProfileFromFolder(directory)
 
@@ -635,6 +650,7 @@ class ProfileSelectWindow(QtWidgets.QWidget):
         else:
             promptProfileName = True
 
-        self.addProfile(newProfile, promptProfileName=promptProfileName)
+        if showPopups:
+            self._loadingWindow.close()
 
-        self._loadingWindow.close()
+        self.addProfile(newProfile, promptProfileName=promptProfileName)

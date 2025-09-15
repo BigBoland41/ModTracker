@@ -43,6 +43,8 @@ class ModTable():
     _priorityList:list[mod.ModPriority]
     # The selected version for this profile
     _selectedVersion:str
+    # Dictionary of mod names to mod objects
+    _modNames = {}
     
     def __init__(self, parent:QtWidgets.QWidget, modList:list[mod.Mod], priorityList:list[mod.ModPriority],
                  selectedVersion:str, reloadFunc, saveFunc):
@@ -66,7 +68,6 @@ class ModTable():
         for mod in self._modList:
             dict.append(mod.createDict())
         return dict
-
 
     def loadTable(self, selectedVersion:str = ""):
         if selectedVersion != "":
@@ -134,6 +135,15 @@ class ModTable():
         self._tableWidget.setGeometry(QtCore.QRect(0, 0, self._tableLength, self._tableHeight))
         self._tableWidget.setObjectName("tableWidget")
         self._tableWidget.setColumnCount(self._numColumns)
+
+        self._tableWidget.setDragDropOverwriteMode(False)
+        self._tableWidget.setDragDropMode(QtWidgets.QAbstractItemView.DragDropMode.InternalMove)
+        self._tableWidget.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectionBehavior.SelectRows)
+        self._tableWidget.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.SingleSelection)
+
+        # Add event filter to detect row reordering
+        filter = DropEventFilter(self._tableWidget, self._reorderRows)
+        self._tableWidget.installEventFilter(filter)
     
     # adds a row to the table with the proper mod information
     def _setTableRow(self, rowNum:int, mod:mod.Mod):
@@ -149,8 +159,11 @@ class ModTable():
             # set the correct text/widget for each item in the row
             match col:
                 case 0:
-                    # this text won't appear but is useful for testing
+                    # This text won't appear, but is useful for testing
                     item.setText(mod.getName())
+
+                    # Add mod name to dictionary. Useful for reordering the list.
+                    self._modNames[mod.getName()] = mod
 
                     # Load custom font for special symbol
                     global _fontelloPath
@@ -229,6 +242,29 @@ class ModTable():
         self._tableWidget.setCellWidget(rowNum, 2, dropdownBtn.getButtonWidget())
         self._dropdownBtnList.append(dropdownBtn)
 
+    def _reorderRows(self):
+        for rowNum in range(self._tableWidget.rowCount()):
+            rowNameItem = self._tableWidget.item(rowNum, 0)
+            if rowNameItem:
+                rowName = rowNameItem.text()
+                modObj:mod.Mod = self._modNames[rowName]
+                modObj.tablePosition = rowNum
+
+        self._modList.sort()
+        self.loadTable()
+
+
+# Runs onTrigger() when a row in a table is drag and dropped to a new position
+class DropEventFilter(QtCore.QObject):
+    def __init__(self, parent, onTrigger):
+        super().__init__(parent)
+        self._dropFunc = onTrigger
+
+    def eventFilter(self, obj, event):
+        if event.type() == QtCore.QEvent.Type.ChildRemoved:
+            self._dropFunc()
+
+        return False
 
 # This is the dropdown menu that appears in the third column of the table which allows
 # the user to select a priorty level, or create a new priority level.

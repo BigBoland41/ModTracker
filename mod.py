@@ -51,7 +51,7 @@ class Mod(object):
     _url:str
     _ID:int
     _versions:list[str]
-    _tablePosition:int
+    tablePosition:int
 
     _modrinthData:dict # False if uninitialized
     _curseforgeData:dict # False if uninitialized
@@ -70,7 +70,7 @@ class Mod(object):
         self._ID = modID
         self._url = url
         self._versions = modVersions
-        self._tablePosition = tablePosition
+        self.tablePosition = tablePosition
         self._modrinthData = modrinthData
         self._curseforgeData = curseforgeData
         
@@ -87,8 +87,8 @@ class Mod(object):
         return f"{self._name}, version: {self.getCurrentVersion()}, priority: {self.priority}"
     
     def __lt__(self, other):
-        if self._tablePosition > 0 or other._tablePosition > 0:
-            return self._tablePosition < other._tablePosition
+        if self.tablePosition > 0 or other.tablePosition > 0:
+            return self.tablePosition < other.tablePosition
         else:
             return self._name < other._name
         
@@ -124,7 +124,7 @@ class Mod(object):
         return self._curseforgeData
     
     def getTablePosition(self):
-        return self._tablePosition
+        return self.tablePosition
     
     # A mod is considered valid if it has valid modrinth data or valid curseforge data
     def isValid(self):
@@ -188,7 +188,7 @@ class Mod(object):
             "id" : self._ID,
             "url" : self._url,
             "versions" : self._versions,
-            "tablePosition" : self._tablePosition,
+            "tablePosition" : self.tablePosition,
         }
 
     # Extract modrinth json data from API call
