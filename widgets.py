@@ -242,16 +242,22 @@ class ModTable():
         self._tableWidget.setCellWidget(rowNum, 2, dropdownBtn.getButtonWidget())
         self._dropdownBtnList.append(dropdownBtn)
 
+    # Updates the tablePosition of each mod to match their row's position in _tableWidget.
     def _reorderRows(self):
+        # for each row (if row is valid), make the corresponding mod's tablePosition match the row's position
         for rowNum in range(self._tableWidget.rowCount()):
             rowNameItem = self._tableWidget.item(rowNum, 0)
             if rowNameItem:
                 rowName = rowNameItem.text()
                 modObj:mod.Mod = self._modNames[rowName]
                 modObj.tablePosition = rowNum
+            else:  # user dragged item onto itself. Not allowed.
+                break
 
+        # sort, reload, and save
         self._modList.sort()
         self.loadTable()
+        self._reloadFunc()
 
 
 # Runs onTrigger() when a row in a table is drag and dropped to a new position
