@@ -1,4 +1,4 @@
-import zipfile, json, os, tomllib, Levenshtein, callModrinth, callCurseForge, mod
+import zipfile, json, os, tomllib, Levenshtein, callModrinth, callCurseForge, mod, threading
 
 # Creates a mod profile by matching the jar files the user's .minecraft/mods folder with mods on modrinth and curseforge.
 def createProfileFromFolder(directory:str = None, printDebug = True):
@@ -10,7 +10,9 @@ def createProfileFromFolder(directory:str = None, printDebug = True):
         
     profile = mod.ModProfile(name="Mods Folder")
     
-    for filename in os.listdir(directory):
+    threadList = []
+
+    def threadHelper(filename, directory, profile:mod.ModProfile):
         jarData = getDataFromJar(filename, directory)
 
         if jarData:
@@ -23,6 +25,14 @@ def createProfileFromFolder(directory:str = None, printDebug = True):
         if data and loader:
             modObj = createModFromJarData(data, loader)
             profile.modList.append(modObj)
+
+    for filename in os.listdir(directory):
+        thread = threading.Thread(target=threadHelper, args=(filename, directory, profile))
+        threadList.append(thread)
+        thread.start()
+
+    for thread in threadList:
+        thread.join()
 
     return profile
 

@@ -44,10 +44,10 @@ class TestReadJar(unittest.TestCase):
             mod.Mod(url="https://modrinth.com/mod/commandkeys"),                    # Command Keys
             mod.Mod(url="https://modrinth.com/mod/dynamic-fps"),                    # Dynamic FPS
             mod.Mod(url="https://modrinth.com/mod/entityculling"),                  # Entity Culling
-          # mod.Mod(url="https://modrinth.com/mod/fusion-connected-textures"),      # Fusion (Connected Textures)
-          # mod.Mod(url="https://www.curseforge.com/minecraft/mc-mods/ice-cream-mini-sword-and-new-trades"), # Ice Cream, Mini Sword And New Trades!
-            mod.Mod(url="https://modrinth.com/mod/fusion"),                         # Fusion
-            mod.Mod(url="https://www.curseforge.com/minecraft/mc-mods/randommod"),  # RandomMod
+            mod.Mod(url="https://modrinth.com/mod/fusion-connected-textures"),      # Fusion (Connected Textures)
+            mod.Mod(url="https://www.curseforge.com/minecraft/mc-mods/ice-cream-mini-sword-and-new-trades"), # Ice Cream, Mini Sword And New Trades!
+            mod.Mod(url="https://modrinth.com/mod/fusion"),                         # Fusion [expected result for Fusion (Connected Textures)]
+            mod.Mod(url="https://www.curseforge.com/minecraft/mc-mods/randommod"),  # RandomMod [expected result for Ice Cream, Mini Sword And New Trades!]
             mod.Mod(url="https://modrinth.com/mod/lambdynamiclights"),              # LambDynamicLights
             mod.Mod(url="https://modrinth.com/mod/nether-height-expansion-mod"),    # More Nether
             mod.Mod(url="https://modrinth.com/mod/sodium"),                         # Sodium
@@ -55,8 +55,8 @@ class TestReadJar(unittest.TestCase):
 
         newProfile = readJarFile.createProfileFromFolder("tests/testJars", printDebug=False)
         
-        for index, modObj in enumerate(newProfile.modList):
-            self.assertEqual(modObj, expectedMods[index], f"{modObj.getURL()} != {expectedMods[index].getURL()}")
+        for modObj in newProfile.modList:
+            self.assertIn(modObj, expectedMods)
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

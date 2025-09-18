@@ -44,7 +44,7 @@ class WindowManager(QtWidgets.QStackedWidget):
         # call create profile list and add the resulting data to the select view
         profiles = load.createProfileList()
         for profile in profiles:
-            self._selectView.addProfile(profile, False)
+            self._selectView.addProfile(profile, "New Profile", saveToFile=False)
         self._selectView.sortModLists()
 
     def _openDetailsView(self, profile:mod.ModProfile):
@@ -309,7 +309,8 @@ class DetailsWindow(QtWidgets.QWidget):
             # create a pop up box that asks the user if they want to proceed
             popup = QtWidgets.QMessageBox(self)
             popup.setWindowTitle("Download Warning")
-            popup.setText("Mod Tracker is about to open tabs in your web browser to download your mods. Do you want to continue?")
+            popup.setText(f"Mod Tracker is about to open up to {len(self._modList)} tabs in your web browser to download your mods. Do you want to continue?")
+            popup.setIcon(QtWidgets.QMessageBox.Icon.Information)
             popup.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.Cancel)
             popupAnswer = popup.exec()
 
@@ -408,10 +409,8 @@ class ProfileSelectWindow(QtWidgets.QWidget):
 
         self._createWidgetRows()
 
-        self._importBtn = widgets.createButton(self, "", QtCore.QRect(1840, 10, 75, 75), self._chooseImportOption, objectName="importBtn", fontSize=24, useSpecialSymbolFont=True)
-
-    def addProfile(self, newProfile:mod.ModProfile, promptProfileName = True):
-        if promptProfileName:
+    def addProfile(self, newProfile:mod.ModProfile, profileName:str = None, saveToFile = True):
+        if not profileName or profileName == "":
             dialog = QtWidgets.QInputDialog(self)
             inputStr, okPressed = dialog.getText(self, "Create new mod profile", "New mod profile name:")
             if okPressed and len(inputStr) > 0:
@@ -421,10 +420,14 @@ class ProfileSelectWindow(QtWidgets.QWidget):
                 self.sortModLists()
                 self.saveJson()
         else:
+            newProfile.name = profileName
             self._profileList.append(newProfile)
             self._updatePriorityLists()
             self._createProfileWidget()
             self.sortModLists()
+
+        if saveToFile:
+            self.saveJson()
 
     # Write the details of each profile to a json file
     def saveJson(self, filename="mods.json", updatedProfile:mod.ModProfile = None):
@@ -560,7 +563,7 @@ class ProfileSelectWindow(QtWidgets.QWidget):
 
         self._addProfileWidget = QtWidgets.QPushButton(text="+")
         self._addProfileWidget.setFixedSize(self._widgetSize, self._widgetSize)
-        self._addProfileWidget.clicked.connect(lambda: self.addProfile(mod.ModProfile([])))
+        self._addProfileWidget.clicked.connect(self._chooseCreateProfileOption)
 
         # Set font
         font = QtGui.QFont()
@@ -580,10 +583,10 @@ class ProfileSelectWindow(QtWidgets.QWidget):
         self._onProfileClick(profile)
 
     # Opens dialog to enter a profile name and choose an import option. Runs when the import button is pressed.
-    def _chooseImportOption(self):
+    def _chooseCreateProfileOption(self):
         dialog = MultipleChoiceWindow(
-            ["Import from JSON file", "Import from mods folder", "Cancel"],
-            windowTitle="Import a profile",
+            ["Create new profile", "Import from JSON file", "Import from mods folder", "Cancel"],
+            windowTitle="Create a profile",
             showTextInput=True,
             textInput_labelText="Profile Name:",
             textInput_placeholderText="Enter profile name here"
@@ -594,8 +597,10 @@ class ProfileSelectWindow(QtWidgets.QWidget):
 
         match choice:
             case 1:
-                self._importFromJSON(profileName=profileName)
+                self.addProfile(mod.ModProfile(), profileName=profileName)
             case 2:
+                self._importFromJSON(profileName=profileName)
+            case 3:
                 self._importFromFolder(profileName=profileName)
 
     def _importFromJSON(self, directPath:str=False, profileName = None, requireValidModURL = True):
@@ -607,14 +612,8 @@ class ProfileSelectWindow(QtWidgets.QWidget):
         if path:
             profile = load.createProfile(path, requireValidModURL=requireValidModURL)
 
-            if profileName and profileName != "":
-                profile.name = profileName
-                promptProfileName = False
-            else:
-                promptProfileName = True
-
             if profile:
-                self.addProfile(profile, promptProfileName=promptProfileName)
+                self.addProfile(profile, profileName)
 
     def _importFromFolder(self, profileName = None, directory:str = None, showPopups = True):
         if not directory:
@@ -632,7 +631,6 @@ class ProfileSelectWindow(QtWidgets.QWidget):
                 "However, the correct mod cannot always be found.\n\n"
                 "Please check that Mod Tracker added the correct mods when the import is complete."
             )
-            disclaimerDialog.setIcon(QtWidgets.QMessageBox.Icon.Information)
             disclaimerDialog.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok | QtWidgets.QMessageBox.StandardButton.Cancel)
 
             disclaimerAcknowledged = disclaimerDialog.exec()
@@ -644,13 +642,7 @@ class ProfileSelectWindow(QtWidgets.QWidget):
         
         newProfile = readJarFile.createProfileFromFolder(directory)
 
-        if profileName and profileName != "":
-            newProfile.name = profileName
-            promptProfileName = False
-        else:
-            promptProfileName = True
-
         if showPopups:
             self._loadingWindow.close()
 
-        self.addProfile(newProfile, promptProfileName=promptProfileName)
+        self.addProfile(newProfile, profileName)

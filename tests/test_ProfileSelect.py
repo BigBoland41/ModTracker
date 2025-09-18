@@ -44,9 +44,9 @@ class TestDetailsView(unittest.TestCase):
         )
         emptyProfile = mod.ModProfile()
 
-        self._selectView.addProfile(testDataProfile, promptProfileName=False)
-        self._selectView.addProfile(manualProfile, promptProfileName=False)
-        self._selectView.addProfile(emptyProfile, promptProfileName=False)
+        self._selectView.addProfile(testDataProfile, profileName="New Profile", saveToFile=False)
+        self._selectView.addProfile(manualProfile, profileName="New Profile", saveToFile=False)
+        self._selectView.addProfile(emptyProfile, profileName="New Profile", saveToFile=False)
         
         profileList = self._selectView.getProfileList()
         priorityList = self._selectView.getPriorityList()
@@ -60,7 +60,7 @@ class TestDetailsView(unittest.TestCase):
 
     def testOpenDetailsView(self):
         testDataProfile = mod.ModProfile(self._data.constructModList())
-        self._selectView.addProfile(testDataProfile, promptProfileName=False)
+        self._selectView.addProfile(testDataProfile, profileName="New Profile", saveToFile=False)
 
         QtTest.QTest.mouseClick(self._selectView._profileWidgets[0], QtCore.Qt.MouseButton.LeftButton)
 
@@ -77,7 +77,7 @@ class TestDetailsView(unittest.TestCase):
         newPriorityColor = QtGui.QColor(255, 255, 255)
         
         testDataProfile = mod.ModProfile(self._data.constructModList())
-        self._selectView.addProfile(testDataProfile, promptProfileName=False)
+        self._selectView.addProfile(testDataProfile, profileName="New Profile")
         QtTest.QTest.mouseClick(self._selectView._profileWidgets[0], QtCore.Qt.MouseButton.LeftButton)
 
         priorityList = self._selectView.getPriorityList()
@@ -97,7 +97,7 @@ class TestDetailsView(unittest.TestCase):
                        mod.ModProfile(), mod.ModProfile(), mod.ModProfile(), mod.ModProfile(), mod.ModProfile()]
 
         for profile in profileList:
-            self._selectView.addProfile(profile, promptProfileName=False)
+            self._selectView.addProfile(profile, profileName="New Profile", saveToFile=False)
 
         self.assertEqual(len(self._selectView._profileWidgets), 8)
         self.assertFalse(self._selectView._addProfileWidget.isHidden())
@@ -106,8 +106,8 @@ class TestDetailsView(unittest.TestCase):
         profile1 = mod.ModProfile()
         profile2 = mod.ModProfile()
 
-        self._selectView.addProfile(profile1, promptProfileName=False)
-        self._selectView.addProfile(profile2, promptProfileName=False)
+        self._selectView.addProfile(profile1, profileName="New Profile", saveToFile=False)
+        self._selectView.addProfile(profile2, profileName="New Profile", saveToFile=False)
 
         self._selectView.deleteProfile(0)
 
