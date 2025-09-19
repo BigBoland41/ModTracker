@@ -7,6 +7,61 @@ _labelFontSize = 12
 
 _fontelloPath:str
 
+
+# A QTableWidget subclass that reports which row is being hovered during a drag
+# and calls an optional callback after a drop so callers can update state.
+class RowAwareTable(QtWidgets.QTableWidget):
+    def __init__(self, parent=None, on_drop_callback=None):
+        super().__init__(parent)
+        self._on_drop_callback = on_drop_callback
+        self._last_hovered = -1
+
+        # ensure drag/drop behavior matches previous usage
+        self.setDragDropOverwriteMode(False)
+        self.setDragDropMode(QtWidgets.QAbstractItemView.DragDropMode.InternalMove)
+        self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectionBehavior.SelectRows)
+        self.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.SingleSelection)
+
+    def dragMoveEvent(self, event: QtGui.QDragMoveEvent) -> None:
+        # Determine which row the cursor is currently over while dragging
+        # indexAt will return an invalid index if the cursor is outside rows
+        # PyQt6 QDragMoveEvent exposes position() returning a QPointF; convert to QPoint
+        try:
+            pos = event.position().toPoint()
+        except Exception:
+            # fallback for bindings that provide pos()
+            pos = event.pos()
+        idx = self.indexAt(pos)
+        self._hovered_row = idx.row() if idx.isValid() else -1
+        if self._hovered_row != self._last_hovered:
+            self._last_hovered = self._hovered_row
+            # lightweight hook: callers can inspect hovered row if needed
+            # (printing kept minimal; remove or replace with signal if desired)
+            # print(f"Dragging over row: {hovered_row}")
+
+        event.accept()
+        super().dragMoveEvent(event)
+
+    def dropEvent(self, event: QtGui.QDropEvent) -> None:
+        # Compute target row before letting the base class handle the move
+        try:
+            pos = event.position().toPoint()
+        except Exception:
+            pos = event.pos()
+        idx = self.indexAt(pos)
+        self._target_row = idx.row() if idx.isValid() else self.rowCount()
+        # Let QTableWidget perform the internal move
+        super().dropEvent(event)
+
+        # Notify caller that a drop (and therefore a reorder) occurred.
+        if callable(self._on_drop_callback):
+            try:
+                self._on_drop_callback()
+            except Exception:
+                # Avoid bubbling errors from UI callback
+                pass
+
+
 # This is the table that displays information about all the mods in a profile, including the
 # mod name, it's latest version, "ready" or it's priority level, and a button to remove the
 # mod from the table. 
@@ -131,19 +186,10 @@ class ModTable():
 
     # create and configure table
     def _createTable(self):
-        self._tableWidget = QtWidgets.QTableWidget(self._parentWidget)
+        self._tableWidget = RowAwareTable(self._parentWidget, on_drop_callback=self._reorderRows)
         self._tableWidget.setGeometry(QtCore.QRect(0, 0, self._tableLength, self._tableHeight))
         self._tableWidget.setObjectName("tableWidget")
         self._tableWidget.setColumnCount(self._numColumns)
-
-        self._tableWidget.setDragDropOverwriteMode(False)
-        self._tableWidget.setDragDropMode(QtWidgets.QAbstractItemView.DragDropMode.InternalMove)
-        self._tableWidget.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectionBehavior.SelectRows)
-        self._tableWidget.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.SingleSelection)
-
-        # Add event filter to detect row reordering
-        filter = DropEventFilter(self._tableWidget, self._reorderRows)
-        self._tableWidget.installEventFilter(filter)
     
     # adds a row to the table with the proper mod information
     def _setTableRow(self, rowNum:int, mod:mod.Mod):
@@ -244,17 +290,21 @@ class ModTable():
 
     # Updates the tablePosition of each mod to match their row's position in _tableWidget.
     def _reorderRows(self):
-        # for each row (if row is valid), make the corresponding mod's tablePosition match the row's position
-        for rowNum in range(self._tableWidget.rowCount()):
-            rowNameItem = self._tableWidget.item(rowNum, 0)
-            if rowNameItem:
-                rowName = rowNameItem.text()
-                modObj:mod.Mod = self._modNames[rowName]
-                modObj.tablePosition = rowNum
-            else:  # user dragged item onto itself. Not allowed.
-                break
+        print("Reordering rows")
+        # # for each row (if row is valid), make the corresponding mod's tablePosition match the row's position
+        # rowNum = 0
+        # for i in range(self._tableWidget.rowCount()):
+        #     rowItem = self._tableWidget.item(i, 0)
+        #     rowNum += 1
+        #     if rowItem:
+        #         rowName = rowItem.text()
+        #         modObj:mod.Mod = self._modNames[rowName]
+        #         modObj.tablePosition = i
+        #     else:  # user dragged item onto itself. This is the rowNum of the row being dragged.
+        #         rowNum += 0
+        #         break
 
-        # sort, reload, and save
+        # # sort, reload, and save
         self._modList.sort()
         self.loadTable()
         self._reloadFunc()
