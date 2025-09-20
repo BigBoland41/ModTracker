@@ -1,4 +1,4 @@
-import sys, os, unittest
+import sys, os, unittest, random
 from PyQt6 import QtWidgets, QtTest, QtCore
 
 # Add the parent directory to the Python path
@@ -125,6 +125,74 @@ class TestModTable(unittest.TestCase):
             self.assertEqual(modTable.getNumRows(), oldNumRows - i - 1)
         
         self.assertEqual(modTable.getNumRows(), 0)
+
+    def testMoveMod(self):
+        self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
+        tableLength = len(self._detailsView.getModList())
+        self._testRowLocations(0, tableLength, self._moveMod)
+
+    def testSwapMod(self):
+        self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
+        tableLength = len(self._detailsView.getModList())
+        self._testRowLocations(0, tableLength, self._swapMod)
+
+    def _testRowLocations(self, min, max, testFunction):
+        # Move/swap Up
+        row1 = random.randint(min + 1, max - 1)
+        row2 = random.randint(min, row1 - 1)
+        testFunction(row1, row2)
+        
+        # Move/swap Down
+        row2 = random.randint(min + 1, max - 1)
+        row1 = random.randint(min, row2 - 1)
+        testFunction(row1, row2)
+
+        # Move/swap with itself
+        row = random.randint(min, max - 1)
+        testFunction(row, row)
+
+    def _moveMod(self, moveFrom, moveTo):
+        modTable = self._detailsView.getModTable()
+        tableWidget = modTable._tableWidget
+
+        movingRow = tableWidget.item(moveFrom, 0).text()
+
+        i = moveFrom
+        while i < moveTo:
+            tableWidget.item(i, 0).setText(tableWidget.item(i+1, 0).text())
+            if moveFrom < moveTo:
+                i += 1
+            elif moveFrom > moveTo:
+                i -= 1
+        tableWidget.item(moveTo, 0).setText(movingRow)
+
+        modTable._reorderRows()
+        modList = modTable.getModList()
+        modList.sort()
+        modTable.loadTable()
+
+        i = moveFrom
+        while i < moveTo:
+            self.assertEqual(modList[i].getName(), tableWidget.item(i, 0).text(), f"Row {i} was not moved correctly. Range: {moveFrom} -> {moveTo}")
+            if moveFrom < moveTo:
+                i += 1
+            elif moveFrom > moveTo:
+                i -= 1
+        self.assertEqual(modList[moveTo].getName(), tableWidget.item(moveTo, 0).text(), f"Row {moveTo} was not moved to the end of the range correctly. Range: {moveFrom} -> {moveTo}")
+
+    def _swapMod(self, row1, row2):
+        modTable = self._detailsView.getModTable()
+        modList = modTable.getModList()
+
+        mod1 = modList[row1]
+        mod2 = modList[row2]
+
+        modTable._swapRows(row1, row2)
+        modList.sort()
+
+        self.assertEqual(mod1, modList[row2])
+        self.assertEqual(mod2, modList[row1])
+
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
