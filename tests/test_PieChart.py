@@ -1,32 +1,7 @@
-import sys, os, unittest
+import sys, os, unittest, testData
 from PyQt6 import QtWidgets, QtGui
 
-# Add the parent directory to the Python path
-parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.append(parent_dir)
-
-
-import windows
-from testData import TestData
-
-_testAPICalls = True
-
-class TestPieChart(unittest.TestCase):
-    def setUp(self):
-        # self._app = QtWidgets.QApplication(sys.argv)
-        self._window = QtWidgets.QMainWindow()
-        self._detailsView = windows.DetailsWindow()
-        self._data = TestData()
-
-        global _testAPICalls
-        _testAPICalls = self._data.testAPICalls
-
-    def tearDown(self):
-        self._window.deleteLater()
-        self._detailsView.getModList().clear()
-        self._detailsView.getModTable()._dropdownBtnList.clear()
-        # self._app.quit()
-    
+class TestPieChart(testData.TestCase):
     def testEmptyWindow(self):
         chart = self._detailsView.getPieChart()
         sliceList = list(chart.getSliceSizes().keys())
@@ -44,9 +19,8 @@ class TestPieChart(unittest.TestCase):
         self.assertEqual(chart.getSliceSizes().get(sliceList[1]), 9)
         self.assertEqual(chart.getSliceSizes().get(sliceList[2]), 7)
 
-    @unittest.skipIf(not _testAPICalls, "API tests are off")
     def testAddMod_ReadyEmpty(self):
-        if _testAPICalls is False:
+        if self._testAPICalls is False:
             self.skipTest("API tests are off")
 
         chart = self._detailsView.getPieChart()
@@ -57,9 +31,8 @@ class TestPieChart(unittest.TestCase):
         self.assertEqual(len(sliceList), 1)
         self.assertEqual(chart.getSliceSizes().get(sliceList[0]), 1)
 
-    @unittest.skipIf(not _testAPICalls, "API tests are off")
     def testAddMod_ReadyPrepopulated(self):
-        if _testAPICalls is False:
+        if self._testAPICalls is False:
             self.skipTest("API tests are off")
 
         self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
@@ -73,9 +46,8 @@ class TestPieChart(unittest.TestCase):
         self.assertEqual(chart.getSliceSizes().get(sliceList[1]), 9)
         self.assertEqual(chart.getSliceSizes().get(sliceList[2]), 7)
 
-    @unittest.skipIf(not _testAPICalls, "API tests are off")
     def testAddMod_PreExistingPriority(self):
-        if _testAPICalls is False:
+        if self._testAPICalls is False:
             self.skipTest("API tests are off")
 
         self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)

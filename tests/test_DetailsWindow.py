@@ -6,20 +6,11 @@ parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
 
 import windows
-from testData import TestData
+import testData
 
-class TestDetailsView(unittest.TestCase):
-    def setUp(self):
-        # self._app = QtWidgets.QApplication(sys.argv)
-        self._window = QtWidgets.QMainWindow()
-        self._data = TestData()
+class TestDetailsView(testData.TestCase):
+    createDetailsView = False
 
-    def tearDown(self):
-        self._window.deleteLater()
-        self._detailsView.getModList().clear()
-        self._detailsView.getModTable()._dropdownBtnList.clear()
-        # self._app.quit()
-    
     def testCreateWindow_Prepopulated(self):
         self._detailsView =  windows.DetailsWindow(
             modList=self._data.constructModList(),

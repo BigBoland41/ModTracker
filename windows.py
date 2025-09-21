@@ -153,7 +153,7 @@ class DetailsWindow(QtWidgets.QWidget):
     _selectedVersion:str
     
     # Complex Widgets
-    _modTable:widgets.ModTable
+    _modTable:widgets.ModTable_Manager
     _pieChart:widgets.PieChart
     _modLoaderDropdown:widgets.ModLoaderDropdownBtn
 
@@ -244,7 +244,7 @@ class DetailsWindow(QtWidgets.QWidget):
     def _createWidgets(self):
         # create complex widgets
         self._pieChart = widgets.PieChart(self, self._modList, self._selectedVersion)
-        self._modTable = widgets.ModTable(self, self._modList, self._priorityList,
+        self._modTable = widgets.ModTable_Manager(self, self._modList, self._priorityList,
                                               self._selectedVersion, self.reloadWidgets, self._savefunc)
 
         # create add mod widget

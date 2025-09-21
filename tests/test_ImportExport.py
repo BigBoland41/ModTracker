@@ -1,32 +1,14 @@
-import sys, os, unittest
+import sys, os, unittest, testData
 from PyQt6 import QtWidgets
 
 # Add the parent directory to the Python path
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
 
-import windows, mod, json
-from testData import TestData
+import mod, json
 
-_testAPICalls = True
-
-class TestImportExport(unittest.TestCase):
-    def setUp(self):
-        self._window = QtWidgets.QMainWindow()
-        self._detailsView = windows.DetailsWindow()
-        self._selectView = windows.ProfileSelectWindow(self._openDetailsView, allowWriteToFile=False)
-        self._data = TestData()
-
-        self._fileName = "tests\\testProfile.json" 
-
-        global _testAPICalls
-        _testAPICalls = self._data.testAPICalls
-
-    def _openDetailsView(self, profile:mod.ModProfile):
-        self._detailsView = windows.DetailsWindow(profile.modList, profile.priorityList, profile.selectedVersion, self._closeDetailsView, self._selectView.saveJson)
-
-    def _closeDetailsView(self):
-        self._detailsView.deleteLater()
+class TestImportExport(testData.TestCase):
+    createSelectView = True
 
     def testExport(self):
         profile = mod.ModProfile(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion, "Test Profile")
@@ -49,11 +31,6 @@ class TestImportExport(unittest.TestCase):
         importedProfile = self._selectView.getProfileList()[0]
 
         self.assertEqual(profile.modList[0], importedProfile.modList[0])
-        
-    def tearDown(self):
-        self._window.deleteLater()
-        self._detailsView.getModList().clear()
-        self._detailsView.getModTable()._dropdownBtnList.clear()
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

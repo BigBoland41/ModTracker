@@ -1,26 +1,7 @@
-import sys, os, unittest
+import sys, os, unittest, testData
 from PyQt6 import QtWidgets, QtGui
 
-# Add the parent directory to the Python path
-parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.append(parent_dir)
-
-import windows
-from testData import TestData
-
-class TestDropdownBtn(unittest.TestCase):
-    def setUp(self):
-        # self._app = QtWidgets.QApplication(sys.argv)
-        self._window = QtWidgets.QMainWindow()
-        self._detailsView = windows.DetailsWindow()
-        self._data = TestData()
-
-    def tearDown(self):
-        self._window.deleteLater()
-        self._detailsView.getModList().clear()
-        self._detailsView.getModTable()._dropdownBtnList.clear()
-        # self._app.quit()
-
+class TestDropdownBtn(testData.TestCase):
     def testChangeModPriority(self):
         self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
         modTable = self._detailsView.getModTable()

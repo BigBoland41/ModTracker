@@ -1,23 +1,17 @@
-import sys, os, unittest
+import sys, os, unittest, testData
 
 # Add the parent directory to the Python path
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
 
 import mod
-from testData import TestData
 
-_testAPICalls = True
+class TestAPICalls(testData.TestCase):
+    createWindow = False
+    createDetailsView = False
 
-class TestAPICalls(unittest.TestCase):
-    def setUp(self):
-        global _testAPICalls
-        self._data = TestData()
-        _testAPICalls = self._data.testAPICalls
-    
-    @unittest.skipIf(not _testAPICalls, "API tests are off")
     def testModrinthCall(self):
-        if _testAPICalls is False:
+        if self._testAPICalls is False:
             self.skipTest("API tests are off")
 
         modObj1 = mod.Mod(url ="https://modrinth.com/mod/sodium")
@@ -30,9 +24,8 @@ class TestAPICalls(unittest.TestCase):
         self.assertNotEqual(modObj3.getModrinthData(), False)
         self.assertNotEqual(modObj4.getCurseforgeData(), False)
 
-    @unittest.skipIf(not _testAPICalls, "API tests are off")
     def testCurseforgeCall(self):
-        if _testAPICalls is False:
+        if self._testAPICalls is False:
             self.skipTest("API tests are off")
 
         modObj1 = mod.Mod(url = "https://www.curseforge.com/minecraft/mc-mods/sodium") # on both sites
@@ -41,9 +34,8 @@ class TestAPICalls(unittest.TestCase):
         self.assertNotEqual(modObj1.getCurseforgeData(), False)
         self.assertNotEqual(modObj2.getCurseforgeData(), False)
          
-    @unittest.skipIf(not _testAPICalls, "API tests are off")
     def testVersion(self):
-        if _testAPICalls is False:
+        if self._testAPICalls is False:
             self.skipTest("API tests are off")
 
         modObj1 = mod.Mod(url ="https://modrinth.com/mod/sodium")
@@ -58,9 +50,8 @@ class TestAPICalls(unittest.TestCase):
         self.assertEqual(modObj4.getCurrentVersion(), self._data.latestGameVersion)
         self.assertEqual(modObj5.getCurrentVersion(), "1.20.1")
 
-    @unittest.skipIf(not _testAPICalls, "API tests are off")
     def testName(self):
-        if _testAPICalls is False:
+        if self._testAPICalls is False:
             self.skipTest("API tests are off")
 
         modObj1 = mod.Mod(url ="https://modrinth.com/mod/sodium")
@@ -79,9 +70,8 @@ class TestAPICalls(unittest.TestCase):
         self.assertEqual(modObj6.getName(), "WorldEdit")
         self.assertEqual(invalidModObj.getName(), "Untitled Mod")
 
-    @unittest.skipIf(not _testAPICalls, "API tests are off")
     def testUrl(self):
-        if _testAPICalls is False:
+        if self._testAPICalls is False:
             self.skipTest("API tests are off")
 
         modObj1 = mod.Mod(url ="https://modrinth.com/mod/sodium")
@@ -96,9 +86,8 @@ class TestAPICalls(unittest.TestCase):
         self.assertEqual(modObj4.getURL(), "https://www.curseforge.com/minecraft/mc-mods/sodium") # on both sites
         self.assertEqual(modObj5.getURL(), "https://www.curseforge.com/minecraft/mc-mods/ice-cream-mini-sword-and-new-trades") # on both sites
 
-    @unittest.skipIf(not _testAPICalls, "API tests are off")
     def testValidUrl(self):
-        if _testAPICalls is False:
+        if self._testAPICalls is False:
             self.skipTest("API tests are off")
 
         modObj1 = mod.Mod(url ="https://modrinth.com/mod/sodium")
@@ -116,9 +105,8 @@ class TestAPICalls(unittest.TestCase):
 
         self.assertFalse(invalidModObj.verifyURL())
 
-    @unittest.skipIf(not _testAPICalls, "API tests are off")
     def testModSave(self):
-        if _testAPICalls is False:
+        if self._testAPICalls is False:
             self.skipTest("API tests are off")
 
         modObj1 = mod.Mod(url ="https://modrinth.com/mod/sodium")

@@ -8,22 +8,166 @@ _labelFontSize = 12
 _fontelloPath:str
 
 
-# A QTableWidget subclass that reports which row is being hovered during a drag
-# and calls an optional callback after a drop so callers can update state.
-class RowAwareTable(QtWidgets.QTableWidget):
-    def __init__(self, parent=None, on_drop_callback=None):
+# Represents the first cell of a row in the mod table. Displays the mod's name and "open link in browser" icon, as well as holds the mod object.
+class ModTable_NameCell(QtWidgets.QWidget):
+    modObj:mod.Mod
+    _textFontSize = 14
+    _iconFontSize = 12
+
+    def __init__(self, modObj:mod.Mod):
+        self.modObj = modObj
+        super().__init__()
+
+        # Create "open link in browser" icon
+        icon_label = createLabel(labelText="  ", fontSize=self._iconFontSize, useSpecialSymbolFont=True)
+        icon_label.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.TextBrowserInteraction)
+        icon_label.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
+
+        # Make icon clickable (open URL)
+        def open_url():
+            url = self.modObj.getURL()
+            if url:
+                QtGui.QDesktopServices.openUrl(QtCore.QUrl(url))
+        icon_label.mousePressEvent = lambda event: open_url()
+
+        # Name label to show mod name
+        name_label = createLabel(labelText=self.modObj.getName(),fontSize=self._textFontSize)
+
+        # Layout for both labels
+        hbox = QtWidgets.QHBoxLayout()
+        hbox.setContentsMargins(0, 0, 0, 0)
+        hbox.setSpacing(2)  # Reduce spacing
+
+        icon_label.setSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
+        name_label.setSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
+
+        hbox.addWidget(icon_label)
+        hbox.addWidget(name_label)
+        hbox.addStretch(1)  # Push content to the left
+
+        self.setLayout(hbox)
+
+
+# Displays the data held in ModTable_Manager and handles user interaction with the mod table.
+class ModTable_Widget(QtWidgets.QTableWidget):
+    _parentWidget:QtWidgets.QWidget
+    _dropdownBtnList:list['PriorityDropdownBtn'] = []
+     
+    _tableLength = 1000
+    _tableHeight = 900
+    _headingHeight = 40
+    _numColumns = 4
+    _columnNames = ["Mod Name", "Latest Version", "Ready/Priority", ""]
+    _columnWidths = [500, 160, 250, 10]
+    _rowHeight = 50
+
+    # The font size for everything in the table
+    _fontSize = 14
+
+    def __init__(self, parent, onRemoveRow=None, onDropCallback=None, reloadFunc=None):
         super().__init__(parent)
-        self._on_drop_callback = on_drop_callback
+        self._parentWidget = parent
+        self._onRemoveRow = onRemoveRow
+        self._onDropCallback = onDropCallback
+        self._reloadFunc = reloadFunc
+
         self._last_hovered_row = -1
-        # The row index where the current drag originated. Set on mouse press.
-        self._source_row = -1
-        # The row index where the current drag will end. Set on drop.
-        self._destination_row = -1
+        self._source_row = -1  # The row index where the current drag originated. Set on mouse press.
+        self._destination_row = -1  # The row index where the current drag will end. Set on drop.
+
+        self.setGeometry(QtCore.QRect(0, 0, self._tableLength, self._tableHeight))
+        self.setObjectName("tableWidget")
+        self.setColumnCount(self._numColumns)
 
         self.setDragDropOverwriteMode(False)
         self.setDragDropMode(QtWidgets.QAbstractItemView.DragDropMode.InternalMove)
         self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectionBehavior.SelectRows)
         self.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.SingleSelection)
+
+    def loadTable(self, rowCount:int):
+        # set the row count to make the amount of mods in the list
+        self.setRowCount(rowCount)
+
+        # prepare font
+        font = QtGui.QFont()
+        font.setPointSize(self._fontSize)
+        self.setFont(font)
+
+        # configure headings
+        for col in range(self._numColumns):
+            item = QtWidgets.QTableWidgetItem()
+            font = QtGui.QFont()
+            font.setPointSize(18)
+            item.setFont(font)
+            item.setText(self._columnNames[col])
+            self.setHorizontalHeaderItem(col, item)
+            self.setColumnWidth(col, self._columnWidths[col])
+
+    def setAllRows(self, modList, selectedVersion:str, priorityList):
+        for rowNum, mod in enumerate(modList):
+            self.setRow(rowNum, mod, selectedVersion, priorityList)
+
+    def setRow(self, rowNum:int, mod:mod.Mod, selectedVersion:str, priorityList):
+        self.setRowHeight(rowNum, self._rowHeight)
+        
+        self._setRowName(rowNum, mod)
+        self._setRowVersion(rowNum, mod)
+        self._createDropdownBtn(rowNum, mod, selectedVersion, priorityList)
+        self._createDeleteBtn(rowNum)
+
+    def removeTableRow(self, rowNum:int):
+        self.removeRow(rowNum)
+        self._dropdownBtnList.pop(rowNum)
+        
+        if callable(self._onRemoveRow):
+            self._onRemoveRow(rowNum)
+
+    def getRowDropdownBtn(self, rowNum:int):
+        if 0 <= rowNum < len(self._dropdownBtnList):
+            return self._dropdownBtnList[rowNum]
+        
+    def clearDropdownList(self):
+        self._dropdownBtnList.clear()
+
+    def _createBaseItem(self):
+        item = QtWidgets.QTableWidgetItem()
+
+        # create font object and set its font size
+        font = QtGui.QFont()
+        font.setPointSize(self._fontSize)
+        item.setFont(font)
+
+        return item
+
+    def _setRowName(self, rowNum:int, mod:mod.Mod):
+        item = self._createBaseItem()
+
+        item.setText(mod.getName())  # This text won't appear, but it's useful for testing
+        nameItem = ModTable_NameCell(mod)
+        self.setCellWidget(rowNum, 0, nameItem)
+
+        item.setFlags(item.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+        self.setItem(rowNum, 0, item)
+
+    def _setRowVersion(self, rowNum:int, mod:mod.Mod):
+        item = self._createBaseItem()
+
+        item.setText(mod.getCurrentVersion())
+
+        item.setFlags(item.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+        self.setItem(rowNum, 1, item)
+
+    # creates a button that opens the priority dropdown menu
+    def _createDropdownBtn(self, rowNum:int, mod:mod.Mod, selectedVersion:str, priorityList):
+        isReady = selectedVersion in mod.getVersionList()
+        dropdownBtn = PriorityDropdownBtn(self._parentWidget, mod, priorityList, self._reloadFunc, rowNum, isReady, self._fontSize)
+        self.setCellWidget(rowNum, 2, dropdownBtn.getButtonWidget())
+        self._dropdownBtnList.append(dropdownBtn)
+
+    def _createDeleteBtn(self, rowNum:int):
+        deleteBtn = QtWidgets.QPushButton("X")
+        deleteBtn.clicked.connect(lambda : self.removeTableRow(rowNum))
+        self.setCellWidget(rowNum, 3, deleteBtn)
 
     def mousePressEvent(self, event: QtGui.QMouseEvent) -> None:
         try:
@@ -48,9 +192,9 @@ class RowAwareTable(QtWidgets.QTableWidget):
 
         super().dropEvent(event)
 
-        if callable(self._on_drop_callback):
+        if callable(self._onDropCallback):
             try:
-                self._on_drop_callback()
+                self._onDropCallback()
             except Exception:
                 pass
 
@@ -59,35 +203,12 @@ class RowAwareTable(QtWidgets.QTableWidget):
     def getSourceRow(self): return self._source_row
 
 
-# This is the table that displays information about all the mods in a profile, including the
-# mod name, it's latest version, "ready" or it's priority level, and a button to remove the
-# mod from the table. 
-class ModTable():
-    # How long the table is, in pixels
-    _tableLength = 1000
-    # How tall the table is, in pixels
-    _tableHeight = 900
-    # Height of the headings
-    _headingHeight = 40
-
-    # Number of columns in the table
-    _numColumns = 4
-    # Names of the columns
-    _columnNames = ["Mod Name", "Latest Version", "Ready/Priority", ""]
-    # Widths of the columns
-    _columnWidths = [500, 160, 250, 10]
-    # Height of the rows
-    _rowHeight = 50
-
-    # The font size for everything in the table
-    _fontSize = 14
-
+# Manages the data displayed in the mod table and tells ModTable_Widget what to display.
+class ModTable_Manager():
     # The PyQt6 table widget we are managing
-    _tableWidget:RowAwareTable
+    _tableWidget:ModTable_Widget
     # The parent object this widget is attached to
     _parentWidget:QtWidgets.QWidget
-    # List of dropdownBtn objects in the table
-    _dropdownBtnList:list['PriorityDropdownBtn'] = []
 
     # The list of mod to display
     _modList:list[mod.Mod]
@@ -95,18 +216,15 @@ class ModTable():
     _priorityList:list[mod.ModPriority]
     # The selected version for this profile
     _selectedVersion:str
-    # Dictionary of mod names to mod objects
-    _modNames = {}
     
-    def __init__(self, parent:QtWidgets.QWidget, modList:list[mod.Mod], priorityList:list[mod.ModPriority],
-                 selectedVersion:str, reloadFunc, saveFunc):
+    def __init__(self, parent:QtWidgets.QWidget, modList:list[mod.Mod], priorityList:list[mod.ModPriority], selectedVersion:str, reloadFunc, saveFunc):
         self._parentWidget = parent
         self._modList = modList
         self._priorityList = priorityList
         self._selectedVersion = selectedVersion
         self._reloadFunc = reloadFunc
         self._saveFunc = saveFunc
-        self._createTable()
+        self._tableWidget = ModTable_Widget(self._parentWidget, self._onRowRemoved, self._updateRowOrder, self._reloadFunc)
         self.loadTable()
 
     def loadNewData(self, modList, priorityList, selectedVersion):
@@ -125,35 +243,16 @@ class ModTable():
         if selectedVersion != "":
             self._selectedVersion = selectedVersion
 
-        # set the row count to make the amount of mods in the list
-        self._tableWidget.setRowCount(len(self._modList))
-
-        # prepare font
-        font = QtGui.QFont()
-        font.setPointSize(self._fontSize)
-        self._tableWidget.setFont(font)
-
-        # configure headings
-        for col in range(self._numColumns):
-            item = QtWidgets.QTableWidgetItem()
-            font = QtGui.QFont()
-            font.setPointSize(18)
-            item.setFont(font)
-            item.setText(self._columnNames[col])
-            self._tableWidget.setHorizontalHeaderItem(col, item)
-            self._tableWidget.setColumnWidth(col, self._columnWidths[col])
-
-        # add rows to table and set row height
-        for row in range(len(self._modList)):
-            self._setTableRow(row, self._modList[row])
-            self._tableWidget.setRowHeight(row, self._rowHeight)
+        self._tableWidget.loadTable(len(self._modList))
+        self._tableWidget.setAllRows(self._modList, self._selectedVersion, self._priorityList)
 
     def reloadTableRow(self, rowNum:int):
-        self._tableWidget.setRowCount(len(self._modList))
-        self._setTableRow(rowNum, self._modList[rowNum])
+        self._tableWidget.setRow(rowNum, self._modList[rowNum], self._selectedVersion, self._priorityList)
 
     # Getters
     def getModList(self): return self._modList
+
+    def getTableWidget(self): return self._tableWidget
 
     def getRowNameText(self, rowNum:int):
         if 0 <= rowNum < self._tableWidget.rowCount():
@@ -168,8 +267,7 @@ class ModTable():
             return self._tableWidget.cellWidget(rowNum, 2).text()
 
     def getRowDropdownBtn(self, rowNum:int):
-        if 0 <= rowNum < len(self._dropdownBtnList):
-            return self._dropdownBtnList[rowNum]
+        return self._tableWidget.getRowDropdownBtn(rowNum)
         
     def getRowDeleteBtn(self, rowNum:int):
         if 0 <= rowNum < self._tableWidget.rowCount():
@@ -181,119 +279,14 @@ class ModTable():
         if 0 <= rowNum < self._tableWidget.rowCount():
             self._tableWidget.cellWidget(rowNum, 3).click()
 
-    # create and configure table
-    def _createTable(self):
-        self._tableWidget = RowAwareTable(self._parentWidget, on_drop_callback=self._updateRowOrder)
-        self._tableWidget.setGeometry(QtCore.QRect(0, 0, self._tableLength, self._tableHeight))
-        self._tableWidget.setObjectName("tableWidget")
-        self._tableWidget.setColumnCount(self._numColumns)
-    
-    # adds a row to the table with the proper mod information
-    def _setTableRow(self, rowNum:int, mod:mod.Mod):
-        for col in range(self._numColumns):
-            # create table item
-            item = QtWidgets.QTableWidgetItem()
-
-            # create font object and set its font size
-            font = QtGui.QFont()
-            font.setPointSize(self._fontSize)
-            item.setFont(font)
-
-            # set the correct text/widget for each item in the row
-            match col:
-                case 0:
-                    # This text won't appear, but is useful for testing
-                    item.setText(mod.getName())
-
-                    # Add mod name to dictionary. Useful for reordering the list.
-                    self._modNames[mod.getName()] = mod
-
-                    # Load custom font for special symbol
-                    global _fontelloPath
-                    font_path = _fontelloPath
-                    font_id = QtGui.QFontDatabase.addApplicationFont(font_path)
-                    if font_id != -1:
-                        font_families = QtGui.QFontDatabase.applicationFontFamilies(font_id)
-                        fontello_family = font_families[0] if font_families else "Arial"
-                    else:
-                        fontello_family = "Arial"
-
-                    # Icon label with custom font
-                    icon_label = QtWidgets.QLabel("  ")
-                    icon_font = QtGui.QFont(fontello_family)
-                    icon_font.setPointSize(self._fontSize - 2)
-                    icon_label.setFont(icon_font)
-                    icon_label.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.TextBrowserInteraction)
-                    icon_label.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
-
-                    # Make icon clickable (open URL)
-                    def open_url():
-                        url = mod.getURL()
-                        if url:
-                            QtGui.QDesktopServices.openUrl(QtCore.QUrl(url))
-                    icon_label.mousePressEvent = lambda event: open_url()
-
-                    # Name label with Arial
-                    name_label = QtWidgets.QLabel(mod.getName())
-                    name_font = QtGui.QFont()
-                    name_font.setPointSize(self._fontSize)
-                    name_label.setFont(name_font)
-
-                    # Layout for both labels
-                    hbox = QtWidgets.QHBoxLayout()
-                    hbox.setContentsMargins(0, 0, 0, 0)
-                    hbox.setSpacing(2)  # Reduce spacing
-
-                    icon_label.setSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
-                    name_label.setSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
-
-                    hbox.addWidget(icon_label)
-                    hbox.addWidget(name_label)
-                    hbox.addStretch(1)  # Optional: push content to the left
-
-                    container = QtWidgets.QWidget()
-                    container.setLayout(hbox)
-
-                    self._tableWidget.setCellWidget(rowNum, 0, container)
-                case 1:
-                    item.setText(mod.getCurrentVersion())
-                case 2:
-                    # create dropdown button and put add it to this table item
-                    self._createDropdownBtn(rowNum, mod)
-                case 3:
-                    deleteBtn = QtWidgets.QPushButton("X")
-                    deleteBtn.clicked.connect(lambda : self._removeTableRow(mod))
-                    self._tableWidget.setCellWidget(rowNum, 3, deleteBtn)
-
-            # apply changes
-            item.setFlags(item.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-            self._tableWidget.setItem(rowNum, col, item)
-
     # removes a mod from the table and mod list
-    def _removeTableRow(self, mod:mod.Mod):
-        self._tableWidget.removeRow(self._modList.index(mod))
-        self._dropdownBtnList.pop(self._modList.index(mod))
+    def _onRowRemoved(self, rowNum:int):
+        mod = self._modList[rowNum]
         self._modList.remove(mod)
+
         self._reloadFunc()
         if callable(self._saveFunc):
             self._saveFunc()
-
-    # creates all the buttons that reveal the priority dropdown menu
-    def _createDropdownBtn(self, rowNum:int, mod:mod.Mod):
-        dropdownBtn = PriorityDropdownBtn(self._parentWidget, mod, self._priorityList, self._reloadFunc,
-                                  rowNum, self._selectedVersion in mod.getVersionList(), self._fontSize)
-        self._tableWidget.setCellWidget(rowNum, 2, dropdownBtn.getButtonWidget())
-        self._dropdownBtnList.append(dropdownBtn)
-
-    def _getModFromRow(self, rowNum):
-        rowItem = self._tableWidget.item(rowNum, 0)
-        
-        if rowItem:
-            rowName = rowItem.text()
-            modObj:mod.Mod = self._modNames[rowName]
-            return modObj
-        else:
-            return None
 
     # Updates the tablePosition of each mod to match their row's position in _tableWidget.
     # Called after a drag and drop operation.
@@ -315,11 +308,9 @@ class ModTable():
     def _reorderRows(self):
         # for each row (if row is valid), make the corresponding mod's tablePosition match the row's position
         for rowNum in range(self._tableWidget.rowCount()):
-            rowItem = self._tableWidget.item(rowNum, 0)
-            if rowItem:
-                rowName = rowItem.text()
-                modObj:mod.Mod = self._modNames[rowName]
-                modObj.tablePosition = rowNum
+            nameWidget = self._tableWidget.cellWidget(rowNum, 0)
+            if nameWidget:
+                nameWidget.modObj.tablePosition = rowNum
             else:  # an invalid row was found. Stop.
                 break
 

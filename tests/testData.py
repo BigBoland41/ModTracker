@@ -1,18 +1,13 @@
-import sys, os
+import sys, os, unittest
+from PyQt6 import QtWidgets
 
 # Add the parent directory to the Python path
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
 
-import mod
+import windows, mod
 
 class TestData(object):
-    # If false, tests that make API calls will be skipped.
-    # Applies to any test making an API call, not just the testAPICalls class.
-    # It's recommended you turn this off if you plan to run tests many
-    # times in a row, in order to not get our API calls denied or throttled.
-    testAPICalls = True
-
     # Some tests check that the latest version is correct, comparing against this.
     # This variable needs to be periodically updated.
     # It should probably be replaced with a better system at some point.
@@ -97,3 +92,38 @@ class TestData(object):
         ]
 
         return modList
+
+class TestCase(unittest.TestCase):
+    # config options
+    createWindow = True
+    createDetailsView = True
+    createSelectView = False
+
+    _testAPICalls = True
+
+    def setUp(self):
+        self._data = TestData()
+        self._fileName = "tests\\testProfile.json" 
+
+        self._window = QtWidgets.QMainWindow() if self.createWindow else None
+        self._detailsView = windows.DetailsWindow() if self.createDetailsView else None
+        self._selectView = windows.ProfileSelectWindow(self._openDetailsView, allowWriteToFile=False) if self.createSelectView else None
+
+    def _openDetailsView(self, profile:mod.ModProfile):
+        self._detailsView = windows.DetailsWindow(profile.modList, profile.priorityList, profile.selectedVersion, self._closeDetailsView, self._selectView.saveJson)
+
+    def _closeDetailsView(self):
+        self._detailsView.deleteLater()
+
+    def tearDown(self):
+        if self._window:
+            self._window.deleteLater()
+
+        if self._detailsView:
+            self._detailsView.getModList().clear()
+            self._detailsView.getModTable().getTableWidget().clearDropdownList()
+
+        if self._selectView:
+            self._selectView._profileList.clear()
+            self._selectView._priorityList.clear()
+            self._selectView._profileWidgets.clear()

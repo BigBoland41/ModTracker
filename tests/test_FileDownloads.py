@@ -1,34 +1,10 @@
-import sys, os, unittest
-from PyQt6 import QtWidgets, QtTest, QtCore
+import sys, os, unittest, testData
+from PyQt6 import QtWidgets
 
-# Add the parent directory to the Python path
-parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.append(parent_dir)
 
-import windows
-from testData import TestData
-
-_testAPICalls = True
-
-class TestFileDownloads(unittest.TestCase):
-    def setUp(self):
-        # self._app = QtWidgets.QApplication(sys.argv)
-        self._window = QtWidgets.QMainWindow()
-        self._detailsView = windows.DetailsWindow()
-        self._data = TestData()
-
-        global _testAPICalls
-        _testAPICalls = self._data.testAPICalls
-
-    def tearDown(self):
-        self._window.deleteLater()
-        self._detailsView.getModList().clear()
-        self._detailsView.getModTable()._dropdownBtnList.clear()
-        # self._app.quit()
-    
-    @unittest.skipIf(not _testAPICalls, "API tests are off")
+class TestFileDownloads(testData.TestCase):
     def testModrinthDownload(self):
-        if _testAPICalls is False:
+        if self._testAPICalls is False:
             self.skipTest("API tests are off")
 
         self._detailsView.simulate_enterAndAddMod("https://modrinth.com/mod/entityculling")
@@ -48,9 +24,8 @@ class TestFileDownloads(unittest.TestCase):
         self.assertEqual(self._detailsView.simulate_downloadMod(2), [True, False])
         self.assertEqual(self._detailsView.simulate_downloadMod(3), [False, False])
 
-    @unittest.skipIf(not _testAPICalls, "API tests are off")
     def testCurseforgeDownload(self):
-        if _testAPICalls is False:
+        if self._testAPICalls is False:
             self.skipTest("API tests are off")
 
         self._detailsView.simulate_enterAndAddMod("https://www.curseforge.com/minecraft/mc-mods/entityculling")

@@ -1,37 +1,16 @@
-import sys, os, unittest
+import sys, os, unittest, testData
 from PyQt6 import QtWidgets, QtTest, QtCore, QtGui
 
 # Add the parent directory to the Python path
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
 
-import windows, mod
-from testData import TestData
+import mod
 
-class TestDetailsView(unittest.TestCase):
-    def setUp(self):
-        self._window = QtWidgets.QMainWindow()
-        self._detailsView = None
-        self._selectView = windows.ProfileSelectWindow(self._openDetailsView, allowWriteToFile=False)
-        self._data = TestData()
+class TestProfileSelectView(testData.TestCase):
+    createDetailsView = False
+    createSelectView = True
 
-    def tearDown(self):
-        self._window.deleteLater()
-
-        if self._detailsView is not None:
-            self._detailsView.getModList().clear()
-            self._detailsView.getModTable()._dropdownBtnList.clear()
-
-        self._selectView._profileList.clear()
-        self._selectView._priorityList.clear()
-        self._selectView._profileWidgets.clear()
-
-    def _openDetailsView(self, profile:mod.ModProfile):
-        self._detailsView = windows.DetailsWindow(profile.modList, profile.priorityList, profile.selectedVersion, self._closeDetailsView, self._selectView.saveJson)
-
-    def _closeDetailsView(self):
-        self._detailsView.deleteLater()
-    
     def testCreateWindow(self):
         self.assertIsNotNone(self._selectView)
 

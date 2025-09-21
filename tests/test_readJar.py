@@ -1,33 +1,19 @@
-import sys, os, unittest
-from PyQt6 import QtWidgets
+import sys, os, unittest, testData
 
 # Add the parent directory to the Python path
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
 
-import windows, readJarFile, mod
-from testData import TestData
+import readJarFile, mod
 
-_testAPICalls = True
+class TestReadJar(testData.TestCase):
+    createWindow = False
+    createDetailsView = False
 
-class TestReadJar(unittest.TestCase):
-    def setUp(self):
-        # self._app = QtWidgets.QApplication(sys.argv)
-        self._window = QtWidgets.QMainWindow()
-        self._detailsView = windows.DetailsWindow()
-        self._data = TestData()
-
-        global _testAPICalls
-        _testAPICalls = self._data.testAPICalls
-
-    def tearDown(self):
-        self._window.deleteLater()
-        self._detailsView.getModList().clear()
-        self._detailsView.getModTable()._dropdownBtnList.clear()
-        # self._app.quit()
-    
-    @unittest.skipIf(not _testAPICalls, "API tests are off")
     def testExampleModsFolder(self):
+        if self._testAPICalls is False:
+            self.skipTest("API tests are off")
+
         # --------------------------------------------------------------------------------------------------------------------------------------------
         # NOTE: The correct mods for "Fusion (Connected Textures)" and "Ice Cream, Mini Sword And New Trades!" cannot be found using this method.
         #
@@ -59,5 +45,4 @@ class TestReadJar(unittest.TestCase):
             self.assertIn(modObj, expectedMods)
 
 if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
     unittest.main(verbosity=2,failfast=True)
