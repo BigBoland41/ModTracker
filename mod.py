@@ -1,5 +1,5 @@
 from PyQt6 import QtGui
-import callModrinth, callCurseForge, webbrowser
+import callModrinth, callCurseForge, webbrowser, threading, json
 
 class ModPriority(object):
     name:str
@@ -218,12 +218,14 @@ class ModProfile(object):
     selectedVersion:str
     name:str
     
-    def __init__(self, modList:list[Mod] = [],
-                 priorityList:list[ModPriority] = [
-                     ModPriority("High Priority", 255, 85, 0),
-                     ModPriority("Low Priority", 255, 255, 0)],
-                 selectedVersion:str = "1.21.5",
-                 name = "New Profile"):
+    def __init__(
+            self, modList:list[Mod] = [],
+            priorityList:list[ModPriority] = [
+                ModPriority("High Priority", 255, 85, 0),
+                ModPriority("Low Priority", 255, 255, 0)],
+            selectedVersion:str = "1.21.5",
+            name = "New Profile",
+        ):
         # assign variables
         self.modList = modList
         self.priorityList = priorityList
@@ -240,6 +242,69 @@ class ModProfile(object):
             output += "No mods in profile"
 
         return output[:-1]
+    
+    def getModList(self): return self.modList
+
+    def getPriorityList(self): return self.priorityList
+
+    def getSelectedVersion(self): return self.selectedVersion
+
+    # Adds a mod to the profile. Returns True if mod was successfully added. Otherwise, returns false.
+    def addMod(self, inputString):
+        newMod = Mod(url = inputString, modPriority=self.priorityList[0], tablePosition=len(self.modList))
+        
+        if newMod.isValid():
+            self.modList.append(newMod)
+            return True
+        else:
+            return False
+
+    # Refreshes the data for each mod by making fresh API calls
+    def refresh(self, selectedVersion):
+        self.selectedVersion = selectedVersion
+
+        # refresh API. Use a thread for each refresh
+        threadList = []
+        for curMod in self.modList:
+            thread = threading.Thread(target=curMod.refreshMod)
+            thread.start()
+
+        for thread in threadList:
+            thread.join()
+
+    # Downloads every mod that is ready for the selected version
+    def downloadReadyMods(self, selectedModLoader, preventDownload = False):
+        successful_downloads = []
+        
+        for mod in self.modList:
+            if self.selectedVersion in mod.getVersionList():
+                # downloadMod returns True if a mod was downloaded, and False if not. Remember these results by adding them to a list
+                successful_downloads.append(mod.downloadMod(selectedModLoader, self.selectedVersion, preventDownload=preventDownload))
+            else:
+                # Remember that this mod was not successfully downloaded
+                successful_downloads.append(False)
+
+        # return list of results
+        return successful_downloads
+    
+    # Exports the profile as a json file. Returns True if succcessful, False if not.
+    def exportProfile(self, path:str, profileName:str, printDebugMessage = True):
+        if path != False:
+            profile = ModProfile(self.modList, self.priorityList, self.selectedVersion, profileName)
+
+            if printDebugMessage:
+                print(f"Exporting profile data to {path}")
+
+            try:
+                with open(path, "w") as file:
+                    json.dump(profile.createDict(), file, indent=4)
+            except Exception:
+                print("EXCEPTION OCCURRED DURING EXPORT.")
+                return False
+            
+            return True
+        else:
+            return False
 
     # Returns a float that represents how many of the mods in this profile are ready for the selected version, in percentage terms.
     def getPercentReady(self):

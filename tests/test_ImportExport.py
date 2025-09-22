@@ -14,7 +14,7 @@ class TestImportExport(testData.TestCase):
         profile = mod.ModProfile(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion, "Test Profile")
         profileDict = profile.createDict()  # dictionary to test against
 
-        self._detailsView.loadNewData(profile.modList, profile.priorityList, profile.selectedVersion)
+        self._detailsView.loadNewData(profile)
         self._detailsView.simulate_export(self._fileName)
 
         try:

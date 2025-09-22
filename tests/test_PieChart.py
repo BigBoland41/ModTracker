@@ -10,7 +10,7 @@ class TestPieChart(testData.TestCase):
         self.assertEqual(chart.getSliceSizes().get(sliceList[0]), 0)
 
     def testPrepopulatedWindow(self):
-        self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
+        self.populateDetailsView()
         chart = self._detailsView.getPieChart()
         sliceList = list(chart.getSliceSizes().keys())
 
@@ -35,7 +35,7 @@ class TestPieChart(testData.TestCase):
         if self._testAPICalls is False:
             self.skipTest("API tests are off")
 
-        self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
+        self.populateDetailsView()
         chart = self._detailsView.getPieChart()
         sliceList = list(chart.getSliceSizes().keys())
 
@@ -50,7 +50,7 @@ class TestPieChart(testData.TestCase):
         if self._testAPICalls is False:
             self.skipTest("API tests are off")
 
-        self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
+        self.populateDetailsView()
         chart = self._detailsView.getPieChart()
         sliceList = list(chart.getSliceSizes().keys())
 
@@ -67,7 +67,7 @@ class TestPieChart(testData.TestCase):
         newPriorityName = "New Priority"
         newPriorityColor = QtGui.QColor(255, 255, 255)
 
-        self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
+        self.populateDetailsView()
         chart = self._detailsView.getPieChart()
         sliceList = list(chart.getSliceSizes().keys())
         modTable = self._detailsView.getModTable()

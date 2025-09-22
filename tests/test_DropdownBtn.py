@@ -6,7 +6,7 @@ class TestDropdownBtn(testData.TestCase):
         newPriorityName = "New Priority"
         newPriorityColor = QtGui.QColor(255, 255, 255)
         
-        self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
+        self.populateDetailsView()
         modTable = self._detailsView.getModTable()
 
         for i in range(modTable.getNumRows()):
@@ -33,7 +33,7 @@ class TestDropdownBtn(testData.TestCase):
         newPriorityName = "New Priority"
         newPriorityColor = QtGui.QColor(255, 255, 255)
 
-        self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
+        self.populateDetailsView()
         modTable = self._detailsView.getModTable()
         for i in range(modTable.getNumRows()):
             oldPriority = modTable.getRowDropdownBtnText(i)

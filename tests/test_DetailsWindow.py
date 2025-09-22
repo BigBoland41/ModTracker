@@ -5,17 +5,18 @@ from PyQt6 import QtWidgets
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
 
-import windows
+import windows, mod
 import testData
 
 class TestDetailsView(testData.TestCase):
     createDetailsView = False
 
     def testCreateWindow_Prepopulated(self):
-        self._detailsView =  windows.DetailsWindow(
+        profile = mod.ModProfile(
             modList=self._data.constructModList(),
             priorityList=self._data.priorityList, selectedVersion=self._data.selectedVersion
         )
+        self._detailsView =  windows.DetailsWindow(profile)
 
         self.assertIsNotNone(self._detailsView)
         self.assertEqual(self._detailsView.getModTable().getNumRows(), len(self._data.modNames))
@@ -28,7 +29,7 @@ class TestDetailsView(testData.TestCase):
 
     def testCreateWindow_LoadNewData(self):
         self._detailsView = windows.DetailsWindow()
-        self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
+        self.populateDetailsView()
 
         self.assertIsNotNone(self._detailsView)
         self.assertEqual(self._detailsView.getModTable().getNumRows(), len(self._data.modNames))

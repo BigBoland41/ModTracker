@@ -10,14 +10,14 @@ class TestFileDownloads(testData.TestCase):
         self._detailsView.simulate_enterAndAddMod("https://modrinth.com/mod/entityculling")
         self._detailsView.simulate_enterAndAddMod("https://modrinth.com/mod/nether-height-expansion-mod")
 
-        self._detailsView._selectedVersion = "1.21.6"
+        self._detailsView.getProfile().selectedVersion = "1.21.6"
 
         self.assertEqual(self._detailsView.simulate_downloadMod(0), [True, False])
         self.assertEqual(self._detailsView.simulate_downloadMod(1), [True, False])
         self.assertEqual(self._detailsView.simulate_downloadMod(2), [True, False])
         self.assertEqual(self._detailsView.simulate_downloadMod(3), [False, False])
 
-        self._detailsView._selectedVersion = "1.21"
+        self._detailsView.getProfile().selectedVersion = "1.21"
 
         self.assertEqual(self._detailsView.simulate_downloadMod(0), [True, False])
         self.assertEqual(self._detailsView.simulate_downloadMod(1), [True, True])
@@ -31,14 +31,14 @@ class TestFileDownloads(testData.TestCase):
         self._detailsView.simulate_enterAndAddMod("https://www.curseforge.com/minecraft/mc-mods/entityculling")
         self._detailsView.simulate_enterAndAddMod("https://www.curseforge.com/minecraft/mc-mods/ice-cream-mini-sword-and-new-trades")
 
-        self._detailsView._selectedVersion = "1.21.6"
+        self._detailsView.getProfile().selectedVersion = "1.21.6"
 
         self.assertEqual(self._detailsView.simulate_downloadMod(0), [True, False])
         self.assertEqual(self._detailsView.simulate_downloadMod(1), [True, False])
         self.assertEqual(self._detailsView.simulate_downloadMod(2), [True, False])
         self.assertEqual(self._detailsView.simulate_downloadMod(3), [False, False])
 
-        self._detailsView._selectedVersion = "1.20.1"
+        self._detailsView.getProfile().selectedVersion = "1.20.1"
 
         self.assertEqual(self._detailsView.simulate_downloadMod(0), [True, True])
         self.assertEqual(self._detailsView.simulate_downloadMod(1), [True, False])

@@ -109,8 +109,13 @@ class TestCase(unittest.TestCase):
         self._detailsView = windows.DetailsWindow() if self.createDetailsView else None
         self._selectView = windows.ProfileSelectWindow(self._openDetailsView, allowWriteToFile=False) if self.createSelectView else None
 
+    def populateDetailsView(self):
+        profile = mod.ModProfile(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
+        self._detailsView.loadNewData(profile)
+
     def _openDetailsView(self, profile:mod.ModProfile):
-        self._detailsView = windows.DetailsWindow(profile.modList, profile.priorityList, profile.selectedVersion, self._closeDetailsView, self._selectView.saveJson)
+        profile = mod.ModProfile(profile.modList, profile.priorityList, profile.selectedVersion)
+        self._detailsView = windows.DetailsWindow(profile, self._closeDetailsView, self._selectView.saveJson)
 
     def _closeDetailsView(self):
         self._detailsView.deleteLater()

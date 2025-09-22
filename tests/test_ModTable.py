@@ -7,21 +7,21 @@ sys.path.append(parent_dir)
 
 class TestModTable(testData.TestCase):
     def testModNameText(self):
-        self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
+        self.populateDetailsView()
         modTable = self._detailsView.getModTable()
 
         for i in range(len(self._data.modNames)):
             self.assertEqual(modTable.getRowNameText(i), self._data.modNames[i])
 
     def testModVersionsText(self):
-        self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
+        self.populateDetailsView()
         modTable = self._detailsView.getModTable()
 
         for i in range(len(self._data.modNames)):
             self.assertEqual(modTable.getRowVersionText(i), self._data.getModCurrentVersion(i))
 
     def testModPriorityText(self):
-        self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
+        self.populateDetailsView()
         modTable = self._detailsView.getModTable()
 
         for i in range(len(self._data.modNames)):
@@ -31,7 +31,7 @@ class TestModTable(testData.TestCase):
                 self.assertEqual(modTable.getRowDropdownBtnText(i), self._data.getModPriority(i).name)
 
     def testModReady(self):
-        self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
+        self.populateDetailsView()
         modTable = self._detailsView.getModTable()
         for i in range(len(self._data.modNames)):
             self.assertEqual(modTable.getRowVersionText(i), self._data.getModCurrentVersion(i))
@@ -40,7 +40,7 @@ class TestModTable(testData.TestCase):
         if self._testAPICalls is False:
             self.skipTest("API tests are off")
 
-        self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
+        self.populateDetailsView()
 
         modTable = self._detailsView.getModTable()
         oldNumRows = modTable.getNumRows()
@@ -66,6 +66,11 @@ class TestModTable(testData.TestCase):
         oldNumRows = modTable.getNumRows()
 
         self._detailsView.simulate_enterAndAddMod("https://modrinth.com/mod/sodium")
+
+        self.assertEqual(modTable.getRowNameText(modTable.getNumRows() - 1), "Sodium")
+        self.assertEqual(modTable.getRowVersionText(modTable.getNumRows() - 1), self._data.latestGameVersion)
+        self.assertEqual(modTable.getRowDropdownBtnText(modTable.getNumRows() - 1), "Ready")
+
         self._detailsView.simulate_enterAndAddMod("https://modrinth.com/mod/nether-height-expansion-mod")
 
         self.assertEqual(modTable.getRowNameText(modTable.getNumRows() - 2), "Sodium")
@@ -79,7 +84,7 @@ class TestModTable(testData.TestCase):
         self.assertEqual(modTable.getNumRows(), oldNumRows + 2)
 
     def testRemoveMod(self):
-        self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
+        self.populateDetailsView()
 
         modTable = self._detailsView.getModTable()
         oldNumRows = modTable.getNumRows()
@@ -93,7 +98,7 @@ class TestModTable(testData.TestCase):
         self.assertEqual(modTable.getNumRows(), oldNumRows - 1)
 
     def testRemoveAllMods(self):
-        self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
+        self.populateDetailsView()
 
         modTable = self._detailsView.getModTable()
         oldNumRows = modTable.getNumRows()
@@ -105,12 +110,12 @@ class TestModTable(testData.TestCase):
         self.assertEqual(modTable.getNumRows(), 0)
 
     def testMoveMod(self):
-        self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
+        self.populateDetailsView()
         tableLength = len(self._detailsView.getModList())
         self._testRowLocations(0, tableLength, self._moveMod)
 
     def testSwapMod(self):
-        self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
+        self.populateDetailsView()
         tableLength = len(self._detailsView.getModList())
         self._testRowLocations(0, tableLength, self._swapMod)
 

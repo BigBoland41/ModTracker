@@ -48,7 +48,7 @@ class WindowManager(QtWidgets.QStackedWidget):
         self._selectView.sortModLists()
 
     def _openDetailsView(self, profile:mod.ModProfile):
-        self._detailsView = DetailsWindow(profile.modList, profile.priorityList, profile.selectedVersion, self._closeDetailsView, self._selectView.saveJson)
+        self._detailsView = DetailsWindow(profile, self._closeDetailsView, self._selectView.saveJson)
         self.addWidget(self._detailsView)
         self.setCurrentWidget(self._detailsView)
         self._selectView.hide()
@@ -145,12 +145,10 @@ class MultipleChoiceWindow(QtWidgets.QDialog):
             return None
 
 
-# The display that shows the user a detailed view of a specific mod profile and allows them to manipulate it
+# Displays a detailed view of a specific mod profile and allows them to manipulate it
 class DetailsWindow(QtWidgets.QWidget):
     # Parameters
-    _modList:list[mod.Mod]
-    _priorityList:list[mod.ModPriority]
-    _selectedVersion:str
+    _profile:mod.ModProfile
     
     # Complex Widgets
     _modTable:widgets.ModTable_Manager
@@ -171,45 +169,35 @@ class DetailsWindow(QtWidgets.QWidget):
     _errorLabel:QtWidgets.QLabel
     
     # Constructor. Creates window and runs functions to create widgets
-    def __init__(self, modList:list[mod.Mod] = [],
-                 priorityList:list[mod.ModPriority] = [
-                     mod.ModPriority("High Priority", 255, 85, 0),
-                     mod.ModPriority("Low Priority", 255, 255, 0)],
-                 selectedVersion:str = "1.21.5",
-                 onBackButtonClick = None,
-                 savefunc = None):
+    def __init__(self, profile:mod.ModProfile = None, onBackButtonClick = None, savefunc = None):
         super().__init__()
 
-        # assign variables
-        self._modList = modList
-        self._priorityList = priorityList
-        self._selectedVersion = selectedVersion
-        self._onBackBtnClick = onBackButtonClick
-        self._savefunc = savefunc
+        if not profile:
+            profile = mod.ModProfile()
 
+        self._profile = profile
+        self._onBackBtnClick = onBackButtonClick
+        self._saveFunc = savefunc
         self._createWidgets()
 
     # Inserts new data to diplay instead. Used for testing.
-    def loadNewData(self, modList:list[mod.Mod], priorityList:list[mod.ModPriority], selectedVersion:str):
-        self._modList = modList
-        self._priorityList = priorityList
-        self._selectedVersion = selectedVersion
+    def loadNewData(self, detailsWindowData:mod.ModProfile = None):
+        self._profile = detailsWindowData
 
-        self._modTable.loadNewData(self._modList, self._priorityList, self._selectedVersion)
-        self._pieChart.loadNewData(self._modList, self._priorityList, self._selectedVersion)
+        self._modTable.loadNewData(self._profile.getModList(), self._profile.getPriorityList(), self._profile.getSelectedVersion())
+        self._pieChart.loadNewData(self._profile.getModList(), self._profile.getPriorityList(), self._profile.getSelectedVersion())
 
     # Refreshes all the widgets on screen
     def reloadWidgets(self, rowNum = 0, reloadEverything = False):
-        self._pieChart.loadChart(self._selectedVersion)
+        self._pieChart.loadChart(self._profile.getSelectedVersion())
 
         if (reloadEverything):
-            self._modTable.loadTable(self._selectedVersion)
+            self._modTable.loadTable(self._profile.getSelectedVersion())
         else:
             # self._modTable.reloadTableRow(rowNum)
-            self._modTable.loadTable(self._selectedVersion) # required for tests to work properly
+            self._modTable.loadTable(self._profile.getSelectedVersion()) # required for tests to work properly
         
-        if self._savefunc is not None:
-            self._savefunc(updatedProfile=mod.ModProfile(self._modList, self._priorityList, self._selectedVersion))
+        self._callSaveFunction()
 
     # Simulates the user typing a URL and clicking the add mod button. Used for testing
     def simulate_enterAndAddMod(self, modURL:str):
@@ -235,17 +223,19 @@ class DetailsWindow(QtWidgets.QWidget):
     
     def getPieChart(self): return self._pieChart
 
-    def getModList(self): return self._modList
+    def getProfile(self): return self._profile
 
-    def getPriorityList(self): return self._priorityList
+    def getModList(self): return self._profile.getModList()
 
-    def getSelectedVersion(self): return self._selectedVersion
+    def getPriorityList(self): return self._profile.getPriorityList()
+
+    def getSelectedVersion(self): return self._profile.getSelectedVersion()
 
     def _createWidgets(self):
         # create complex widgets
-        self._pieChart = widgets.PieChart(self, self._modList, self._selectedVersion)
-        self._modTable = widgets.ModTable_Manager(self, self._modList, self._priorityList,
-                                              self._selectedVersion, self.reloadWidgets, self._savefunc)
+        self._pieChart = widgets.PieChart(self, self._profile.getModList(), self._profile.getSelectedVersion())
+        self._modTable = widgets.ModTable_Manager(self, self._profile.getModList(), self._profile.getPriorityList(),
+                                                  self._profile.getSelectedVersion(), self.reloadWidgets, self._callSaveFunction)
 
         # create add mod widget
         self._addModBtn = widgets.createButton(self, "Add Mod", QtCore.QRect(800, 910, 200, 70), self._addMod, objectName="addModBtn")
@@ -256,7 +246,7 @@ class DetailsWindow(QtWidgets.QWidget):
         # create selected version widget
         self._selectedVersionLabel = widgets.createLabel(self, "Selected Version:", QtCore.QRect(1505, 10, 120, 50), objectName="selectedVersionLabel")
         self._selectedVersionTextField = widgets.createTextField(self, "", QtCore.QRect(1630, 10, 120, 50), objectName="selectedVersionTextField")
-        self._selectedVersionTextField.setText(self._selectedVersion)
+        self._selectedVersionTextField.setText(self._profile.getSelectedVersion())
 
         # create download widget
         self._downloadBtn = widgets.createButton(self, "Download Ready Mods", QtCore.QRect(1525, 910, 275, 70), self._downloadReadyMods, objectName="downloadBtn")
@@ -271,70 +261,41 @@ class DetailsWindow(QtWidgets.QWidget):
 
     # Adds a mod to the profile. Triggered when the add mod button is clicked
     def _addMod(self):
-        # When the button is clicked, this function will run. Add your code here
-        inputString = self._addModTextField.text()  # this gets the input from the text field
+        inputString = self._addModTextField.text()
+        success = self._profile.addMod(inputString)
 
-        newMod = mod.Mod(url = inputString, modPriority=self._priorityList[0], tablePosition=len(self._modList))
-        if newMod.isValid():
-            self._modList.append(newMod)
-            if self._savefunc is not None:
-                self._savefunc(updatedProfile=mod.ModProfile(self._modList, self._priorityList, self._selectedVersion))
+        if success:
             self.reloadWidgets(reloadEverything=True)
+            self._callSaveFunction()
             self._errorLabel.setVisible(False)
         else:
             self._errorLabel.setVisible(True)
 
     # Refreshes the data for each mod by making API calls and reloading the widgets
     def _refresh(self):
-        self._selectedVersion = self._selectedVersionTextField.text()
-
-        # refresh API. Use a thread for each refresh
-        threadList = []
-        for curMod in self._modList:
-            thread = threading.Thread(target=curMod.refreshMod)
-            thread.start()
-
-        for thread in threadList:
-            thread.join()
-
+        selectedVersion = self._selectedVersionTextField.text()
+        self._profile.refresh(selectedVersion)
         self.reloadWidgets()
-        if self._savefunc is not None:
-            self._savefunc(updatedProfile=mod.ModProfile(self._modList, self._priorityList, self._selectedVersion))
+        self._callSaveFunction()
 
     # Downloads every mod that is marked as ready in the mod table
     def _downloadReadyMods(self, preventDownload = False):
-        successful_downloads = []
-        
         if preventDownload == False:
             # create a pop up box that asks the user if they want to proceed
             popup = QtWidgets.QMessageBox(self)
             popup.setWindowTitle("Download Warning")
-            popup.setText(f"Mod Tracker is about to open up to {len(self._modList)} tabs in your web browser to download your mods. Do you want to continue?")
+            popup.setText(f"Mod Tracker is about to open up to {len(self._profile.getModList())} tabs in your web browser to download your mods. Do you want to continue?")
             popup.setIcon(QtWidgets.QMessageBox.Icon.Information)
             popup.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.Cancel)
             popupAnswer = popup.exec()
 
             # if the user does want to continue, download each mod that's ready
             if popupAnswer == QtWidgets.QMessageBox.StandardButton.Yes:
-                for mod in self._modList:
-                    if self._selectedVersion in mod.getVersionList():
-                        # downloadMod returns True if a mod was downloaded, and False if not. Remember these results by adding them to a list
-                        successful_downloads.append(mod.downloadMod(self._modLoaderDropdown.getSelectedOption(), self._selectedVersion, preventDownload=preventDownload))
-                    else:
-                        # Remember that this mod was not successfully downloaded
-                        successful_downloads.append(False)
+                return self._profile.downloadReadyMods(self._modLoaderDropdown.getSelectedOption(), preventDownload)
+            else:
+                return []
         else:
-            # download each mod that's ready
-            for mod in self._modList:
-                if self._selectedVersion in mod.getVersionList():
-                    # downloadMod returns True if a mod was downloaded, and False if not. Remember these results by adding them to a list
-                    successful_downloads.append(mod.downloadMod(self._modLoaderDropdown.getSelectedOption(), self._selectedVersion, preventDownload=preventDownload))
-                else:
-                    # Remember that this mod was not successfully downloaded
-                    successful_downloads.append(False)
-
-        # return list of results
-        return successful_downloads
+            return self._profile.downloadReadyMods(self._modLoaderDropdown.getSelectedOption(), preventDownload)
     
     # Has the user select a directory and enter a file name, and then exports the profile as a json file
     def _exportProfile(self, directPath:str=False, printDebugMessage=True):
@@ -353,21 +314,17 @@ class DetailsWindow(QtWidgets.QWidget):
             path = directPath
             fileName = "Test Profile"
 
-        if path != False:
-            profile = mod.ModProfile(self._modList, self._priorityList, self._selectedVersion, fileName)
-
-            if printDebugMessage:
-                print(f"Exporting profile data to {path}")
-            with open(path, "w") as file:
-                json.dump(profile.createDict(), file, indent=4)
-            
-            self._exportLabel.setVisible(True)
+        success = self._profile.exportProfile(path, fileName, printDebugMessage)    
+        self._exportLabel.setVisible(success)
 
     # Closes the details window and returns to the profile select window
     def _closeView(self):
-        if self._savefunc is not None:
-            self._savefunc(updatedProfile=mod.ModProfile(self._modList, self._priorityList, self._selectedVersion))
+        self._callSaveFunction()
         self._onBackBtnClick()
+
+    def _callSaveFunction(self):
+        if self._saveFunc is not None:
+            self._saveFunc(updatedProfile=self._profile)
 
 
 # The display that allows the user to view all their profiles, and select one to open
