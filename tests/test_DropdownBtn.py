@@ -3,6 +3,9 @@ from PyQt6 import QtWidgets, QtGui
 
 class TestDropdownBtn(testData.TestCase):
     def testChangeModPriority(self):
+        newPriorityName = "New Priority"
+        newPriorityColor = QtGui.QColor(255, 255, 255)
+        
         self._detailsView.loadNewData(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
         modTable = self._detailsView.getModTable()
 

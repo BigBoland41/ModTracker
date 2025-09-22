@@ -8,7 +8,8 @@ _labelFontSize = 12
 _fontelloPath:str
 
 
-# Represents the first cell of a row in the mod table. Displays the mod's name and "open link in browser" icon, as well as holds the mod object.
+# Represents the first cell of a row in the mod table.
+# Displays the mod's name and "open link in browser" icon, as well as holds the mod object.
 class ModTable_NameCell(QtWidgets.QWidget):
     modObj:mod.Mod
     _textFontSize = 14
@@ -51,7 +52,7 @@ class ModTable_NameCell(QtWidgets.QWidget):
 # Displays the data held in ModTable_Manager and handles user interaction with the mod table.
 class ModTable_Widget(QtWidgets.QTableWidget):
     _parentWidget:QtWidgets.QWidget
-    _dropdownBtnList:list['PriorityDropdownBtn'] = []
+    _dropdownBtnList:list['PriorityDropdownManager'] = []
      
     _tableLength = 1000
     _tableHeight = 900
@@ -160,7 +161,7 @@ class ModTable_Widget(QtWidgets.QTableWidget):
     # creates a button that opens the priority dropdown menu
     def _createDropdownBtn(self, rowNum:int, mod:mod.Mod, selectedVersion:str, priorityList):
         isReady = selectedVersion in mod.getVersionList()
-        dropdownBtn = PriorityDropdownBtn(self._parentWidget, mod, priorityList, self._reloadFunc, rowNum, isReady, self._fontSize)
+        dropdownBtn = PriorityDropdownManager(self._parentWidget, mod, priorityList, self._reloadFunc, rowNum, isReady, self._fontSize)
         self.setCellWidget(rowNum, 2, dropdownBtn.getButtonWidget())
         self._dropdownBtnList.append(dropdownBtn)
 
@@ -333,9 +334,104 @@ class ModTable_Manager():
             print(f"Failed to swap rows {sourceRow} and {destinationRow}, whose mods were {sourceMod} and {destinationMod}")
 
 
-# This is the dropdown menu that appears in the third column of the table which allows
+# Button that when clicked, displays a dropdown menu.
+class DropdownBtn():
+    _parentWidget:QtWidgets.QWidget
+    _menuOptions:list[str]
+    _buttonRect:QtCore.QRect
+    _selectedOption:int
+    _fontSize:int
+    _includeCarrot:bool
+    _customButtonText:str
+
+    _buttonWidget:QtWidgets.QPushButton
+    _menuWidget:QtWidgets.QMenu
+
+
+    def __init__(self, parentWidget:QtWidgets.QWidget, menuOptions:list[str], onOptionClick = None,
+                 buttonRect:QtCore.QRect = None, selectedOption = 0, buttonFontSize = 14,
+                 includeCarrot = True, customButtonText:str = None):
+        self._parentWidget = parentWidget
+        self._menuOptions = menuOptions
+        self._onOptionClick = onOptionClick
+        self._buttonRect = buttonRect
+        self._selectedOption = selectedOption
+        self._fontSize = buttonFontSize
+        self._includeCarrot = includeCarrot
+        self._customButtonText = customButtonText
+
+        self._createButtonWidget()
+        self._createMenuWidget()
+
+    def clickDropdownOption(self, index):
+        if self._menuOptions and 0 <= index < len(self._menuWidget.actions()):
+            self._clickOption(index)
+
+    def setStyleSheet(self, backgroundColor = "gray", textColor = "black", fontSize:int = None):
+        if not fontSize:
+            fontSize = self._fontSize
+
+        self._buttonWidget.setStyleSheet(f"background-color: {backgroundColor};"
+                                          + f"color: {textColor};"
+                                          + f"font-size: {fontSize}px;")
+        
+    def setCustomButtonText(self, customButtonText:str):
+        self._customButtonText = customButtonText
+        self._buttonWidget.setText(self._customButtonText)
+
+    def getSelectedOption(self):
+        return self._menuOptions[self._selectedOption]
+    
+    def getOptions(self):
+        return self._menuOptions
+
+    def getButtonWidget(self):
+        return self._buttonWidget
+    
+    def getMenuWidget(self):
+        return self._menuWidget
+
+    def _createButtonWidget(self):
+        # create font for button
+        buttonFont = QtGui.QFont()
+        buttonFont.setPointSize(self._fontSize)
+        
+        # create button
+        self._buttonWidget = QtWidgets.QPushButton(parent=self._parentWidget)
+        if self._buttonRect:
+            self._buttonWidget.setGeometry(self._buttonRect)
+        self._buttonWidget.setFont(buttonFont)
+        self._updateButtonText()
+
+        self._buttonWidget.clicked.connect(
+            lambda : self._menuWidget.exec(
+                self._buttonWidget.mapToGlobal(self._buttonWidget.rect().bottomLeft())))
+        
+    def _createMenuWidget(self):
+        self._menuWidget = QtWidgets.QMenu(self._parentWidget)
+
+        for i in range(len(self._menuOptions)):
+            self._menuWidget.addAction(self._menuOptions[i], lambda index=i : self._clickOption(index))
+
+    def _clickOption(self, index):
+        self._selectedOption = index
+        self._updateButtonText()
+        
+        if self._onOptionClick and callable(self._onOptionClick):
+            self._onOptionClick(index)
+
+    def _updateButtonText(self):
+        if self._customButtonText:
+            self._buttonWidget.setText(self._customButtonText)
+        elif self._includeCarrot:
+            self._buttonWidget.setText(self._menuOptions[self._selectedOption] + " ▾")
+        else:
+            self._buttonWidget.setText(self._menuOptions[self._selectedOption])
+
+
+# Manages the dropdown menu that appears in the third column of the table which allows
 # the user to select a priorty level, or create a new priority level.
-class PriorityDropdownBtn():
+class PriorityDropdownManager():
     _parentWidget:QtWidgets.QWidget
     _buttonWidget:QtWidgets.QPushButton
     _menuWidget:QtWidgets.QMenu
@@ -355,68 +451,60 @@ class PriorityDropdownBtn():
         self._fontSize = fontSize
 
         # run setup functions
-        self._createButtonWidget()
-        self._createMenuWidget()
+        self._createDropdownWidget()
         self._customizeAppearance(isReady)
 
-    def clickDropdownOption(self, index, priorityName = "New Priority Level", priorityColor = QtGui.QColor(255, 0, 0)):
-        if 0 <= index < len(self._menuWidget.actions()) - 1:
+    def clickDropdownOption(self, index, priorityName:str = None, priorityColor:QtGui.QColor = None):
+        menuWidget = self._dropdownWidget.getMenuWidget()
+        listLength = len(menuWidget.actions()) - 1
+
+        if 0 <= index < listLength:
             self._changeModPriority(index)
-        elif index == len(self._menuWidget.actions()) - 1:
-            self._addModPriority(priorityName, priorityColor)
+        elif index == listLength:
+            if priorityName:
+                self._addModPriority(priorityName, priorityColor)
+            else:
+                self._showPrompts()
+
+    def getDropdownWidget(self):
+        return self._dropdownWidget
 
     def getButtonWidget(self):
-        return self._buttonWidget
+        return self._dropdownWidget.getButtonWidget()
     
     def getMenuWidget(self):
-        return self._menuWidget
+        return self._dropdownWidget.getMenuWidget()
 
-    def _createButtonWidget(self):
-        # create button
-        self._buttonWidget = QtWidgets.QPushButton(parent=self._parentWidget)
-
-        # making the lambda its own function doesn't work for some reason
-        self._buttonWidget.clicked.connect(
-            lambda : self._menuWidget.exec(
-                self._buttonWidget.mapToGlobal(self._buttonWidget.rect().bottomLeft())))
-        
-    def _createMenuWidget(self):
-        # create dropdown menu
-        self._menuWidget = QtWidgets.QMenu(self._parentWidget)
-
-        # add priority levels to action list
-        i = 0
+    def _createDropdownWidget(self):
+        dropdownOptions = []
         for priorityLevel in self._priorityList:
-            self._menuWidget.addAction(priorityLevel.name,
-                                        lambda index=i : self._changeModPriority(index))
-            i += 1
-        self._menuWidget.addAction("Add Priority Level", self._showColorPicker)
+            dropdownOptions.append(priorityLevel.name)
+        dropdownOptions.append("Add Priority Level")
+
+        try:
+            curPriorityIndex = self._priorityList.index(self._mod.priority)
+        except ValueError:
+            curPriorityIndex = 0
+
+        self._dropdownWidget = DropdownBtn(self._parentWidget, dropdownOptions, self.clickDropdownOption, selectedOption=curPriorityIndex, includeCarrot=False)
 
     def _customizeAppearance(self, isReady:bool):
-        # If the mod version matches the selected version...
         if (isReady):
-            # set color to green and set text to ready
             backgroundColor = QtGui.QColor(0, 255, 0)
-            self._buttonWidget.setText("Ready")
+            self._dropdownWidget.setCustomButtonText("Ready")
         else:
-            # set color to priority level color and set text to priority level name
             backgroundColor = self._mod.priority.color
-            self._buttonWidget.setText(self._mod.priority.name)
         
-        # set the background color the one chosen above
-        self._buttonWidget.setStyleSheet(f"background-color: {backgroundColor.name()};"
-                                          + f"color: black;"
-                                          + f"font-size: {self._fontSize}px;")
+        self._dropdownWidget.setStyleSheet(backgroundColor.name())
 
     def _changeModPriority(self, index, refreshEverything = False):
         self._mod.priority = self._priorityList[index]
-        if callable(self._refreshFunc):
+
+        if self._refreshFunc and callable(self._refreshFunc):
             self._refreshFunc(self._rowNum, refreshEverything)
 
-    def _showColorPicker(self):
-        inputStr, okPressed = QtWidgets.QInputDialog.getText(
-            self._parentWidget, "Create new priority level", "Priority name:"
-        )
+    def _showPrompts(self):
+        inputStr, okPressed = QtWidgets.QInputDialog.getText(self._parentWidget, "Create new priority level", "Priority name:")
         
         if okPressed:
             selectedColor = QtWidgets.QColorDialog.getColor()
@@ -424,8 +512,11 @@ class PriorityDropdownBtn():
                 self._addModPriority(inputStr, selectedColor)
 
     def _addModPriority(self, modName:str, color:QtGui.QColor):
+        if not modName:
+            modName = "New Priority Level"
+
         self._priorityList.append(mod.ModPriority(modName, color=color))
-        self._changeModPriority(len(self._priorityList) - 1, True)
+        self._changeModPriority(len(self._priorityList) - 1, True)  # select new priority level
 
 
 # This is the pie chart that displays how many of the mods in this profile are ready,
@@ -527,74 +618,6 @@ class PieChart():
             if darkTheme:
                 slice.setLabelColor(QtGui.QColor("white"))
             i += 1
-
-
-# This is the dropdown menu that appears next to the download button that allows
-# the user to select which mod loader they prefer.
-class ModLoaderDropdownBtn():
-    _selectedModLoader:int
-
-    _parentWidget:QtWidgets.QWidget
-    _buttonRect:QtCore.QRect
-
-    _buttonWidget:QtWidgets.QPushButton
-    _menuWidget:QtWidgets.QMenu
-
-    _modLoaderList = ["Forge", "Fabric", "NeoForge", "Quilt"]
-
-    def __init__(self, parentWidget:QtWidgets.QWidget, selectedModLoader:int, buttonRect:QtCore.QRect):
-        # set attributes
-        self._parentWidget = parentWidget
-        self._selectedModLoader = selectedModLoader
-        self._buttonRect = buttonRect
-
-        # run setup functions
-        self._createButtonWidget()
-        self._createMenuWidget()
-
-    def clickDropdownOption(self, index):
-        if 0 <= index < len(self._menuWidget.actions()):
-            self._changeModLoader(index)
-
-    def getSelectedModLoader(self):
-        return self._modLoaderList[self._selectedModLoader]
-
-    def getButtonWidget(self):
-        return self._buttonWidget
-    
-    def getMenuWidget(self):
-        return self._menuWidget
-
-    def _createButtonWidget(self):
-        # create font for button
-        buttonFont = QtGui.QFont()
-        buttonFont.setPointSize(14)
-        
-        # create button
-        self._buttonWidget = QtWidgets.QPushButton(parent=self._parentWidget)
-        self._buttonWidget.setGeometry(self._buttonRect)
-        self._buttonWidget.setFont(buttonFont)
-        self._buttonWidget.setText(self._modLoaderList[self._selectedModLoader] + " ▾")
-
-        # making the lambda its own function doesn't work for some reason
-        self._buttonWidget.clicked.connect(
-            lambda : self._menuWidget.exec(
-                self._buttonWidget.mapToGlobal(self._buttonWidget.rect().bottomLeft())))
-        
-    def _createMenuWidget(self):
-        # create dropdown menu
-        self._menuWidget = QtWidgets.QMenu(self._parentWidget)
-
-        # add priority levels to action list
-        i = 0
-        for modLoader in self._modLoaderList:
-            self._menuWidget.addAction(self._modLoaderList[i],
-                                        lambda index=i : self._changeModLoader(index))
-            i += 1
-
-    def _changeModLoader(self, index):
-        self._selectedModLoader = index
-        self._buttonWidget.setText(self._modLoaderList[self._selectedModLoader] + " ▾")
 
 
 # Automatically runs when widgets is imported in another file.

@@ -155,7 +155,7 @@ class DetailsWindow(QtWidgets.QWidget):
     # Complex Widgets
     _modTable:widgets.ModTable_Manager
     _pieChart:widgets.PieChart
-    _modLoaderDropdown:widgets.ModLoaderDropdownBtn
+    _modLoaderDropdown:widgets.DropdownBtn
 
     # Buttons
     _addModBtn:QtWidgets.QPushButton
@@ -260,7 +260,7 @@ class DetailsWindow(QtWidgets.QWidget):
 
         # create download widget
         self._downloadBtn = widgets.createButton(self, "Download Ready Mods", QtCore.QRect(1525, 910, 275, 70), self._downloadReadyMods, objectName="downloadBtn")
-        self._modLoaderDropdown = widgets.ModLoaderDropdownBtn(self, 0, QtCore.QRect(1800, 910, 110, 70))
+        self._modLoaderDropdown = widgets.DropdownBtn(self, ["Forge", "Fabric", "NeoForge", "Quilt"], buttonRect=QtCore.QRect(1800, 910, 110, 70))
 
         # create utility buttons
         self._refreshBtn = widgets.createButton(self, "", QtCore.QRect(1755, 10, 50, 50), self._refresh, objectName="refreshBtn", useSpecialSymbolFont=True)
@@ -319,7 +319,7 @@ class DetailsWindow(QtWidgets.QWidget):
                 for mod in self._modList:
                     if self._selectedVersion in mod.getVersionList():
                         # downloadMod returns True if a mod was downloaded, and False if not. Remember these results by adding them to a list
-                        successful_downloads.append(mod.downloadMod(self._modLoaderDropdown.getSelectedModLoader(), self._selectedVersion, preventDownload=preventDownload))
+                        successful_downloads.append(mod.downloadMod(self._modLoaderDropdown.getSelectedOption(), self._selectedVersion, preventDownload=preventDownload))
                     else:
                         # Remember that this mod was not successfully downloaded
                         successful_downloads.append(False)
@@ -328,7 +328,7 @@ class DetailsWindow(QtWidgets.QWidget):
             for mod in self._modList:
                 if self._selectedVersion in mod.getVersionList():
                     # downloadMod returns True if a mod was downloaded, and False if not. Remember these results by adding them to a list
-                    successful_downloads.append(mod.downloadMod(self._modLoaderDropdown.getSelectedModLoader(), self._selectedVersion, preventDownload=preventDownload))
+                    successful_downloads.append(mod.downloadMod(self._modLoaderDropdown.getSelectedOption(), self._selectedVersion, preventDownload=preventDownload))
                 else:
                     # Remember that this mod was not successfully downloaded
                     successful_downloads.append(False)
