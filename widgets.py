@@ -1,5 +1,5 @@
 from PyQt6 import QtCore, QtGui, QtWidgets, QtCharts
-import mod, os
+import mod, os, sys
 
 _btnFontSize = 18
 _specialSymbolFontSize = 16
@@ -143,7 +143,10 @@ class ModTable_Widget(QtWidgets.QTableWidget):
     def _setRowName(self, rowNum:int, mod:mod.Mod):
         item = self._createBaseItem()
 
-        item.setText(mod.getName())  # This text won't appear, but it's useful for testing
+        # if we're running from a file that isn't main.py, show testing text.
+        if sys.argv[0][-7:] != "main.py":
+            item.setText(mod.getName())
+
         nameItem = ModTable_NameCell(mod)
         self.setCellWidget(rowNum, 0, nameItem)
 
