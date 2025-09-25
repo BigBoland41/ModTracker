@@ -623,6 +623,79 @@ class PieChart():
             i += 1
 
 
+# Displays basic information about a profile that when clicked, will open the details view for that profile.
+# Can optionally be set to only display a + sign instead of default labels.
+class ProfileButton(QtWidgets.QPushButton):
+    profile:mod.ModProfile
+    widgetNum:int
+
+    _widgetSize = 400
+    _titleFontSize = 24
+    _subtitleFontSize = 20
+    _plusSignFontSize = 32
+
+    _nameLabel:QtWidgets.QLabel
+    _modCountLabel:QtWidgets.QLabel
+    _percentReadyLabel:QtWidgets.QLabel
+    _deleteBtn:QtWidgets.QPushButton
+
+    def __init__(self, onClick, profile:mod.ModProfile = None, onDelete = None, widgetNum:int = None, onlyDisplayPlusSign = False):
+        self.profile = profile
+        self.widgetNum = widgetNum
+        self._onClick = onClick
+        self._onDelete = onDelete
+        super().__init__()
+
+        self.setFixedSize(self._widgetSize, self._widgetSize)
+        self.clicked.connect(self._clicked)
+
+        if onlyDisplayPlusSign:
+            self.setText("+")
+            font = QtGui.QFont()
+            font.setPointSize(self._titleFontSize)
+            font.setBold(True)
+            self.setFont(font)
+        else:
+            self._nameLabel = createLabel(
+                self,
+                self.profile.name,
+                QtCore.QRect(10, 25, self._widgetSize - 20, 150),
+                fontSize=self._titleFontSize,
+                bold=True,
+                alignment=QtCore.Qt.AlignmentFlag.AlignCenter,
+                wordWrap=True
+            )
+
+            self._modCountLabel = createLabel(
+                self,
+                f"{len(self.profile.modList)} mods",
+                QtCore.QRect(10, 215, self._widgetSize - 20, 30),
+                fontSize=self._subtitleFontSize,
+                alignment=QtCore.Qt.AlignmentFlag.AlignCenter
+            )
+
+            self._percentReadyLabel = createLabel(
+                self,
+                f"{self.profile.getPercentReady():.2f}% ready\nfor {self.profile.selectedVersion}",
+                QtCore.QRect(10, 280, self._widgetSize - 20, 60),
+                fontSize=self._subtitleFontSize,
+                alignment=QtCore.Qt.AlignmentFlag.AlignCenter
+            )
+            
+            if self._onDelete and callable(self._onDelete):
+                self._deleteBtn = createButton(self, "X", QtCore.QRect(self._widgetSize - 55, 5, 50, 50), self._deleteBtnClicked)
+
+    def _clicked(self):
+        if self._onClick and callable(self._onClick):
+            if self.widgetNum is None:
+                self._onClick()
+            else:
+                self._onClick(self.widgetNum)
+
+    def _deleteBtnClicked(self):
+        if self._onDelete and callable(self._onDelete):
+            self._onDelete(self.widgetNum)
+
 # Automatically runs when widgets is imported in another file.
 def setFontelloPath():
     global _fontelloPath

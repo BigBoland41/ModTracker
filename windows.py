@@ -327,7 +327,7 @@ class DetailsWindow(QtWidgets.QWidget):
             self._saveFunc(updatedProfile=self._profile)
 
 
-# The display that allows the user to view all their profiles, and select one to open
+# The display that allows the user to view all their profiles, select one to view in detail, or create a new one.
 class ProfileSelectWindow(QtWidgets.QWidget):
     _profileList:list[mod.ModProfile]
     _priorityList:list[mod.ModPriority]
@@ -373,14 +373,14 @@ class ProfileSelectWindow(QtWidgets.QWidget):
             if okPressed and len(inputStr) > 0:
                 newProfile.name = inputStr
                 self._profileList.append(newProfile)
-                self._createProfileWidget()
+                self._createProfileWidget(newProfile)
                 self.sortModLists()
                 self.saveJson()
         else:
             newProfile.name = profileName
             self._profileList.append(newProfile)
             self._updatePriorityLists()
-            self._createProfileWidget()
+            self._createProfileWidget(newProfile)
             self.sortModLists()
 
         if saveToFile:
@@ -457,7 +457,7 @@ class ProfileSelectWindow(QtWidgets.QWidget):
             self._createAddProfileWidget()
         else:
             for profile in self._profileList:
-                self._createProfileWidget()
+                self._createProfileWidget(profile)
 
     def _deleteWidgetRows(self):
         while self._layout.count():
@@ -470,41 +470,16 @@ class ProfileSelectWindow(QtWidgets.QWidget):
         self._numWidgets = 0
 
     # Create a new widget that will display basic information about a profile and when clicked, will open the details view for that profile
-    def _createProfileWidget(self):
+    def _createProfileWidget(self, profile:mod.ModProfile):
         if (self._numWidgets >= self._maxWidgets):
             return
 
         # Create a profile widget, which is a button that will be used to open the profile
-        profileWidget = QtWidgets.QPushButton()
-        profileWidget.setFixedSize(self._widgetSize, self._widgetSize)
-
-        # Connect _openDetailsView() to the underlying button
-        profileWidget.clicked.connect(lambda checked, id = self._numWidgets: self._openDetailsView(id))
-
-        # Profile name label
-        widgets.createLabel(profileWidget, self._profileList[self._numWidgets].name, QtCore.QRect(10, 25, self._widgetSize - 20, 150),
-                            fontSize=self._titleFontSize, bold=True, alignment=QtCore.Qt.AlignmentFlag.AlignCenter, wordWrap=True)
-
-        # Mod count label
-        widgets.createLabel(profileWidget, f"{len(self._profileList[self._numWidgets].modList)} mods", QtCore.QRect(10, 215, self._widgetSize - 20, 30),
-                            fontSize=self._subtitleFontSize, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
-
-        # Readiness label
-        widgets.createLabel(profileWidget, f"{self._profileList[self._numWidgets].getPercentReady():.2f}% ready\nfor {self._profileList[self._numWidgets].selectedVersion}",
-                            QtCore.QRect(10, 280, self._widgetSize - 20, 60), fontSize=self._subtitleFontSize, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
-        
-        # Delete button
-        widgets.createButton(profileWidget, "X", QtCore.QRect(self._widgetSize - 55, 5, 50, 50), lambda checked, id = self._numWidgets: self.deleteProfile(id))
+        profileWidget = widgets.ProfileButton(self._openDetailsView, profile=profile, onDelete=self.deleteProfile, widgetNum=self._numWidgets)
 
         # Add to list of profile widgets
         self._profileWidgets.append(profileWidget)
-
-        # Add the widget to the grid layout
-        row = self._numWidgets // self._widgetsPerRow
-        col = self._numWidgets % self._widgetsPerRow
-        self._layout.addWidget(profileWidget, row, col)
-
-        # Increment the widget count and create add profile widget
+        self._insertWidget(profileWidget)
         self._numWidgets += 1
 
         self._createAddProfileWidget()
@@ -512,26 +487,19 @@ class ProfileSelectWindow(QtWidgets.QWidget):
     # Creates an additional widget with a plus sign that when clicked, will create a new profile
     def _createAddProfileWidget(self):
         # delete previous profile widget
-        if (self._addProfileWidget is not None):
+        if self._addProfileWidget:
             self._addProfileWidget.deleteLater()
 
         if (self._numWidgets >= self._maxWidgets or self._numWidgets < len(self._profileList)):
             return
 
-        self._addProfileWidget = QtWidgets.QPushButton(text="+")
-        self._addProfileWidget.setFixedSize(self._widgetSize, self._widgetSize)
-        self._addProfileWidget.clicked.connect(self._chooseCreateProfileOption)
+        self._addProfileWidget = widgets.ProfileButton(self._chooseCreateProfileOption, onlyDisplayPlusSign=True)
+        self._insertWidget(self._addProfileWidget)
 
-        # Set font
-        font = QtGui.QFont()
-        font.setPointSize(self._titleFontSize)
-        font.setBold(True)
-        self._addProfileWidget.setFont(font)
-
-        # Add the widget to the grid layout
+    def _insertWidget(self, profileButton:widgets.ProfileButton):
         row = self._numWidgets // self._widgetsPerRow
         col = self._numWidgets % self._widgetsPerRow
-        self._layout.addWidget(self._addProfileWidget, row, col)
+        self._layout.addWidget(profileButton, row, col)
 
     # Open details view for a given profile
     def _openDetailsView(self, profileNum: int):
