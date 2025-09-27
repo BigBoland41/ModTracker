@@ -11,7 +11,7 @@ class TestImportExport(testData.TestCase):
     createSelectView = True
 
     def testExport(self):
-        profile = mod.ModProfile(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion, "Test Profile")
+        profile = mod.Profile(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion, "Test Profile")
         profileDict = profile.createDict()  # dictionary to test against
 
         self._detailsView.loadNewData(profile)
@@ -25,11 +25,12 @@ class TestImportExport(testData.TestCase):
             self.fail("Output file could not be found.")
 
     def testImport(self):
-        profile = mod.ModProfile(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion, "Test Profile")
+        profile = mod.Profile(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion, "Test Profile")
         
         self._selectView.simulate_import(f"{parent_dir}\\{self._fileName}", requireValidModURL=False)
-        importedProfile = self._selectView.getProfileList()[0]
+        importedProfile = self._selectView.getProfile(0)
 
+        self.assertIsNotNone(importedProfile)
         self.assertEqual(profile.modList[0], importedProfile.modList[0])
 
 if __name__ == "__main__":

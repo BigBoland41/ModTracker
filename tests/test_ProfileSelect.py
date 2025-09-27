@@ -15,13 +15,13 @@ class TestProfileSelectView(testData.TestCase):
         self.assertIsNotNone(self._selectView)
 
     def testAddProfile(self):
-        testDataProfile = mod.ModProfile(self._data.constructModList())
-        manualProfile = mod.ModProfile(
-            [mod.Mod("Mod 1", -1, ["1.19.2", "1.21.1"], mod.ModPriority("custom priority level 1")),
-            mod.Mod("Mod 2", -1, ["1.21.1", "1.21.3"], mod.ModPriority("custom priority level 2")),
-            mod.Mod("Mod 3", -1, ["1.16.4", "1.19.2"], mod.ModPriority("custom priority level 3"))]
+        testDataProfile = mod.Profile(self._data.constructModList())
+        manualProfile = mod.Profile(
+            [mod.Mod("Mod 1", -1, ["1.19.2", "1.21.1"], mod.Priority("custom priority level 1")),
+            mod.Mod("Mod 2", -1, ["1.21.1", "1.21.3"], mod.Priority("custom priority level 2")),
+            mod.Mod("Mod 3", -1, ["1.16.4", "1.19.2"], mod.Priority("custom priority level 3"))]
         )
-        emptyProfile = mod.ModProfile()
+        emptyProfile = mod.Profile()
 
         self._selectView.addProfile(testDataProfile, profileName="New Profile", saveToFile=False)
         self._selectView.addProfile(manualProfile, profileName="New Profile", saveToFile=False)
@@ -38,7 +38,7 @@ class TestProfileSelectView(testData.TestCase):
         self.assertEqual(profileList[2], emptyProfile)
 
     def testOpenDetailsView(self):
-        testDataProfile = mod.ModProfile(self._data.constructModList())
+        testDataProfile = mod.Profile(self._data.constructModList())
         self._selectView.addProfile(testDataProfile, profileName="New Profile", saveToFile=False)
 
         QtTest.QTest.mouseClick(self._selectView._profileWidgets[0], QtCore.Qt.MouseButton.LeftButton)
@@ -55,7 +55,7 @@ class TestProfileSelectView(testData.TestCase):
         newPriorityName = "New Priority"
         newPriorityColor = QtGui.QColor(255, 255, 255)
         
-        testDataProfile = mod.ModProfile(self._data.constructModList())
+        testDataProfile = mod.Profile(self._data.constructModList())
         self._selectView.addProfile(testDataProfile, profileName="New Profile")
         QtTest.QTest.mouseClick(self._selectView._profileWidgets[0], QtCore.Qt.MouseButton.LeftButton)
 
@@ -72,8 +72,8 @@ class TestProfileSelectView(testData.TestCase):
 
     def testAddTooManyProfiles(self):
         # max amount of profiles is 8. There should only be 8 widgets, even if there's 9 profiles.
-        profileList = [mod.ModProfile(), mod.ModProfile(), mod.ModProfile(), mod.ModProfile(),
-                       mod.ModProfile(), mod.ModProfile(), mod.ModProfile(), mod.ModProfile(), mod.ModProfile()]
+        profileList = [mod.Profile(), mod.Profile(), mod.Profile(), mod.Profile(),
+                       mod.Profile(), mod.Profile(), mod.Profile(), mod.Profile(), mod.Profile()]
 
         for profile in profileList:
             self._selectView.addProfile(profile, profileName="New Profile", saveToFile=False)
@@ -82,8 +82,8 @@ class TestProfileSelectView(testData.TestCase):
         self.assertFalse(self._selectView._addProfileWidget.isHidden())
 
     def testDeleteProfile(self):
-        profile1 = mod.ModProfile()
-        profile2 = mod.ModProfile()
+        profile1 = mod.Profile()
+        profile2 = mod.Profile()
 
         self._selectView.addProfile(profile1, profileName="New Profile", saveToFile=False)
         self._selectView.addProfile(profile2, profileName="New Profile", saveToFile=False)

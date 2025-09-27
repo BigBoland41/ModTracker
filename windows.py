@@ -1,10 +1,11 @@
-import mod, widgets, load, json, threading, os, readJarFile
+import mod, widgets, load, os
 from PyQt6 import QtCore, QtGui, QtWidgets, QtTest
 
 
 # Manages the two primary displays in the main window, including communication and switching displays. Also manages the small loading window.
 class WindowManager(QtWidgets.QStackedWidget):
     _selectView:'ProfileSelectWindow'
+    _profileManager:mod.ProfileManager
     _detailsView:'DetailsWindow'
     _loadingWindow:'LoadingWindow'
     
@@ -20,8 +21,9 @@ class WindowManager(QtWidgets.QStackedWidget):
         self.setGeometry(QtCore.QRect(0, 0, 1920, 1080))
         window.setCentralWidget(self)
 
-        # create select view
-        self._selectView = ProfileSelectWindow(self._openDetailsView)
+        # create profile manager and select view
+        self._profileManager = mod.ProfileManager()
+        self._selectView = ProfileSelectWindow(self._openDetailsView, self._profileManager)
         self._selectView.setParent(self)
         self._selectView.setGeometry(QtCore.QRect(0, 0, 1920, 1080))
 
@@ -45,10 +47,11 @@ class WindowManager(QtWidgets.QStackedWidget):
         profiles = load.createProfileList()
         for profile in profiles:
             self._selectView.addProfile(profile, "New Profile", saveToFile=False)
+
         self._selectView.sortModLists()
 
-    def _openDetailsView(self, profile:mod.ModProfile):
-        self._detailsView = DetailsWindow(profile, self._closeDetailsView, self._selectView.saveJson)
+    def _openDetailsView(self, profile:mod.Profile):
+        self._detailsView = DetailsWindow(profile, self._closeDetailsView, self._selectView.saveAndRefresh)
         self.addWidget(self._detailsView)
         self.setCurrentWidget(self._detailsView)
         self._selectView.hide()
@@ -148,7 +151,7 @@ class MultipleChoiceWindow(QtWidgets.QDialog):
 # Displays a detailed view of a specific mod profile and allows them to manipulate it
 class DetailsWindow(QtWidgets.QWidget):
     # Parameters
-    _profile:mod.ModProfile
+    _profile:mod.Profile
     
     # Complex Widgets
     _modTable:widgets.ModTable_Manager
@@ -169,11 +172,11 @@ class DetailsWindow(QtWidgets.QWidget):
     _errorLabel:QtWidgets.QLabel
     
     # Constructor. Creates window and runs functions to create widgets
-    def __init__(self, profile:mod.ModProfile = None, onBackButtonClick = None, savefunc = None):
+    def __init__(self, profile:mod.Profile = None, onBackButtonClick = None, savefunc = None):
         super().__init__()
 
         if not profile:
-            profile = mod.ModProfile()
+            profile = mod.Profile()
 
         self._profile = profile
         self._onBackBtnClick = onBackButtonClick
@@ -181,7 +184,7 @@ class DetailsWindow(QtWidgets.QWidget):
         self._createWidgets()
 
     # Inserts new data to diplay instead. Used for testing.
-    def loadNewData(self, detailsWindowData:mod.ModProfile = None):
+    def loadNewData(self, detailsWindowData:mod.Profile = None):
         self._profile = detailsWindowData
 
         self._modTable.loadNewData(self._profile.getModList(), self._profile.getPriorityList(), self._profile.getSelectedVersion())
@@ -327,15 +330,13 @@ class DetailsWindow(QtWidgets.QWidget):
             self._saveFunc(updatedProfile=self._profile)
 
 
-# The display that allows the user to view all their profiles, select one to view in detail, or create a new one.
+# Displays all profiles in the profile manager and allows the user createa new profile or select one to view in detail.
 class ProfileSelectWindow(QtWidgets.QWidget):
-    _profileList:list[mod.ModProfile]
-    _priorityList:list[mod.ModPriority]
-    _allowWriteToFile:bool
-
+    _profileManager:mod.ProfileManager
+    
     _profileWidgets:list[QtWidgets.QPushButton] = [] # currently unused
     _addProfileWidget:QtWidgets.QPushButton
-    _currentProfileIndex:int # the index of the profile that's currently being displayed in the details view
+    _editedProfileIndex:int # the index of the profile that's currently being displayed in the details view
 
     _widgetSize = 400 # size of the profile widget (width and height)
     _widgetSpacing = 35 # spacing between profile widgets
@@ -348,14 +349,12 @@ class ProfileSelectWindow(QtWidgets.QWidget):
     _subtitleFontSize = 20  # size of the rest of the text on a profile widget
     _plusSignFontSize = 32  # size of the plus sign on the add profile widget
 
-    def __init__(self, onProfileClick, profileList:list[mod.ModProfile] = [], priorityList:list[mod.ModPriority] = [], allowWriteToFile = True):
+    def __init__(self, onProfileClick, profileManager = mod.ProfileManager()):
         super().__init__()  # Initialize QWidget
+        self._profileManager = profileManager
         self._onProfileClick = onProfileClick
-        self._profileList = profileList
-        self._priorityList = priorityList
-        self._allowWriteToFile = allowWriteToFile
 
-        self._updatePriorityLists()
+        self._profileManager.updatePriorityLists()
 
         self._addProfileWidget = None
 
@@ -366,46 +365,22 @@ class ProfileSelectWindow(QtWidgets.QWidget):
 
         self._createWidgetRows()
 
-    def addProfile(self, newProfile:mod.ModProfile, profileName:str = None, saveToFile = True):
+    def addProfile(self, newProfile:mod.Profile, profileName:str = None, saveToFile = True):
         if not profileName or profileName == "":
             dialog = QtWidgets.QInputDialog(self)
             inputStr, okPressed = dialog.getText(self, "Create new mod profile", "New mod profile name:")
             if okPressed and len(inputStr) > 0:
-                newProfile.name = inputStr
-                self._profileList.append(newProfile)
-                self._createProfileWidget(newProfile)
-                self.sortModLists()
-                self.saveJson()
+                profileName = inputStr
+            else:
+                return
         else:
             newProfile.name = profileName
-            self._profileList.append(newProfile)
-            self._updatePriorityLists()
-            self._createProfileWidget(newProfile)
-            self.sortModLists()
+        
+        self._profileManager.addProfile(newProfile, profileName)
+        self._createProfileWidget(newProfile)
 
-        if saveToFile:
-            self.saveJson()
-
-    # Write the details of each profile to a json file
-    def saveJson(self, filename="mods.json", updatedProfile:mod.ModProfile = None):
-        # Update the profile that was just changed in the details view. Don't change the name
-        if updatedProfile is not None:
-            currentProfile = self._profileList[self._currentProfileIndex]
-            currentProfile.modList = updatedProfile.modList
-            currentProfile.priorityList = updatedProfile.priorityList
-            currentProfile.selectedVersion = updatedProfile.selectedVersion
-
-        if self._allowWriteToFile:
-            appdata = os.getenv('APPDATA')
-            directory = os.path.join(appdata, 'ModTracker')
-            os.makedirs(directory, exist_ok=True)
-            json_path = os.path.join(directory, filename)
-
-            print(f"Saving data to {json_path}")
-            with open(json_path, "w") as file:
-                json.dump([profile.createDict() for profile in self._profileList], file, indent=4)
-
-        # reload UI
+    def saveAndRefresh(self, filename="mods.json", updatedProfile:mod.Profile = None):
+        self._profileManager.saveToJson(filename, updatedProfile, self._editedProfileIndex)
         self._createWidgetRows()
 
     def deleteProfile(self, numProfile):
@@ -414,16 +389,10 @@ class ProfileSelectWindow(QtWidgets.QWidget):
         self._layout.removeWidget(profileWidget)
         profileWidget.deleteLater()
 
-        self._profileList.remove(self._profileList[numProfile])
+        self._profileManager.deleteProfile(numProfile)
 
         self._deleteWidgetRows()
-        self._updatePriorityLists()
-        self.sortModLists()
-        self.saveJson()
-
-    def sortModLists(self):
-        for profile in self._profileList:
-            profile.modList.sort()
+        self._createWidgetRows()
 
     # Simulates importing a mod. Used for testing. RequireValidMod will allow mods without a valid URL to be tested.
     def simulate_import(self, directPath:str=False, requireValidModURL=True):
@@ -432,31 +401,27 @@ class ProfileSelectWindow(QtWidgets.QWidget):
         else:
             fileName = "tests/testProfile"
 
-        self._importFromJSON(directPath=fileName, profileName="Test Profile", requireValidModURL=requireValidModURL)
+        profile = self._importFromJSON(directPath=fileName, requireValidModURL=requireValidModURL)
+        self.addProfile(profile, "Test Profile")
 
     # Getters
-    def getProfileList(self): return self._profileList
+    def getProfile(self, index): return self._profileManager.getProfile(index)
 
-    def getPriorityList(self): return self._priorityList
+    def getNumProfiles(self): return self._profileManager.getNumProfiles()
 
-    def _updatePriorityLists(self):
-        for profile in self._profileList:
-            for mod in profile.modList:
-                if mod.priority not in self._priorityList:
-                    self._priorityList.append(mod.priority)
-        
-        for profile in self._profileList:
-            profile.priorityList = self._priorityList
+    def getProfileList(self): return self._profileManager.getProfileList()
+
+    def getPriorityList(self): return self._profileManager.getPriorityList()
 
     # Creates all profile widgets. Creates an add profile widget if there are no profiles
     def _createWidgetRows(self):
         self._profileWidgets = []
         self._numWidgets = 0
 
-        if (len(self._profileList) == 0):
+        if (self._profileManager.getNumProfiles() == 0):
             self._createAddProfileWidget()
         else:
-            for profile in self._profileList:
+            for profile in self._profileManager.getProfileList():
                 self._createProfileWidget(profile)
 
     def _deleteWidgetRows(self):
@@ -470,7 +435,7 @@ class ProfileSelectWindow(QtWidgets.QWidget):
         self._numWidgets = 0
 
     # Create a new widget that will display basic information about a profile and when clicked, will open the details view for that profile
-    def _createProfileWidget(self, profile:mod.ModProfile):
+    def _createProfileWidget(self, profile:mod.Profile):
         if (self._numWidgets >= self._maxWidgets):
             return
 
@@ -490,7 +455,7 @@ class ProfileSelectWindow(QtWidgets.QWidget):
         if self._addProfileWidget:
             self._addProfileWidget.deleteLater()
 
-        if (self._numWidgets >= self._maxWidgets or self._numWidgets < len(self._profileList)):
+        if (self._numWidgets >= self._maxWidgets or self._numWidgets < self._profileManager.getNumProfiles()):
             return
 
         self._addProfileWidget = widgets.ProfileButton(self._chooseCreateProfileOption, onlyDisplayPlusSign=True)
@@ -503,8 +468,8 @@ class ProfileSelectWindow(QtWidgets.QWidget):
 
     # Open details view for a given profile
     def _openDetailsView(self, profileNum: int):
-        self._currentProfileIndex = profileNum
-        profile = self._profileList[profileNum]
+        self._editedProfileIndex = profileNum
+        profile = self._profileManager.getProfile(profileNum)
         self._onProfileClick(profile)
 
     # Opens dialog to enter a profile name and choose an import option. Runs when the import button is pressed.
@@ -522,25 +487,23 @@ class ProfileSelectWindow(QtWidgets.QWidget):
 
         match choice:
             case 1:
-                self.addProfile(mod.ModProfile(), profileName=profileName)
+                profile = mod.Profile()
             case 2:
-                self._importFromJSON(profileName=profileName)
+                profile = self._importFromJSON()
             case 3:
-                self._importFromFolder(profileName=profileName)
+                profile = self._importFromFolder()
 
-    def _importFromJSON(self, directPath:str=False, profileName = None, requireValidModURL = True):
+        self.addProfile(profile, profileName=profileName)
+
+    def _importFromJSON(self, directPath:str=None, requireValidModURL = True):
         if directPath:
             path = directPath
         else:
             path, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Select a json file", filter="JSON Files (*.json)")
 
-        if path:
-            profile = load.createProfile(path, requireValidModURL=requireValidModURL)
+        return self._profileManager.importFromJSON(path, requireValidModURL)
 
-            if profile:
-                self.addProfile(profile, profileName)
-
-    def _importFromFolder(self, profileName = None, directory:str = None, showPopups = True):
+    def _importFromFolder(self, directory:str = None, showPopups = True):
         if not directory:
             modsFolder = os.path.join(os.environ["APPDATA"], ".minecraft", "mods")
             directory = QtWidgets.QFileDialog.getExistingDirectory(None, "Select a directory", modsFolder)
@@ -564,10 +527,11 @@ class ProfileSelectWindow(QtWidgets.QWidget):
 
             self._loadingWindow = LoadingWindow()
             self._loadingWindow.show()
-        
-        newProfile = readJarFile.createProfileFromFolder(directory)
+
+        profile = self._profileManager.importFromFolder(directory)
 
         if showPopups:
             self._loadingWindow.close()
 
-        self.addProfile(newProfile, profileName)
+        return profile
+

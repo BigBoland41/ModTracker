@@ -8,11 +8,11 @@ def createProfileFromFolder(directory:str = None, printDebug = True):
     if printDebug:
         print(f"Creating a mod object for each jar file found in {directory}...")
         
-    profile = mod.ModProfile(name="Mods Folder")
+    profile = mod.Profile(name="Mods Folder")
     
     threadList = []
 
-    def threadHelper(filename, directory, profile:mod.ModProfile):
+    def threadHelper(filename, directory, profile:mod.Profile):
         jarData = getDataFromJar(filename, directory)
 
         if jarData:
@@ -91,9 +91,9 @@ def createModFromJarData(jarData, loader):
     best_result = _closestMatch(modName, siteData)
 
     if best_result == siteData[1]:
-        modObj = mod.Mod(curseforgeData=best_result, modPriority=mod.ModPriority("High Priority", 255, 85, 0))
+        modObj = mod.Mod(curseforgeData=best_result, modPriority=mod.Priority("High Priority", 255, 85, 0))
     else:
-        modObj = mod.Mod(url=f"https://modrinth.com/mod/{best_result['slug']}", modPriority=mod.ModPriority("High Priority", 255, 85, 0))
+        modObj = mod.Mod(url=f"https://modrinth.com/mod/{best_result['slug']}", modPriority=mod.Priority("High Priority", 255, 85, 0))
 
     return modObj
 

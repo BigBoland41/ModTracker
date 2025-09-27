@@ -1,7 +1,7 @@
 from PyQt6 import QtGui
-import callModrinth, callCurseForge, webbrowser, threading, json
+import callModrinth, callCurseForge, webbrowser, threading, json, os, readJarFile, load
 
-class ModPriority(object):
+class Priority(object):
     name:str
     color:QtGui.QColor
     r:int
@@ -34,7 +34,7 @@ class ModPriority(object):
         return f"{self.name}"
     
     def __eq__(self, other):
-        if not isinstance(other, ModPriority):
+        if not isinstance(other, Priority):
             return False
         elif self.name == other.name and self.r == other.r and self.g == other.g and self.b == other.b:
             return True
@@ -46,7 +46,7 @@ class ModPriority(object):
         return hash((self.name, self.r, self.g, self.b))
 
 class Mod(object):
-    priority:ModPriority
+    priority:Priority
     _name:str
     _url:str
     _ID:int
@@ -64,7 +64,7 @@ class Mod(object):
     # can pass mod info directly for testing, but can also just call with a url and it will get relevant info from the api,
     # or directlty insert raw modrinth or curseforge json data.
     def __init__(self, modName = "Untitled Mod", modID = -1, modVersions = ["No versions found"],
-                 modPriority = ModPriority(), url:str = None, tablePosition = -1, modrinthData = None, curseforgeData = None):
+                 modPriority = Priority(), url:str = None, tablePosition = -1, modrinthData = None, curseforgeData = None):
         self.priority = modPriority
         self._name = modName
         self._ID = modID
@@ -212,17 +212,17 @@ class Mod(object):
         if not self._url:
             self._url = self._curseforgeData["links"]["websiteUrl"]
     
-class ModProfile(object):
+class Profile(object):
     modList:list[Mod]
-    priorityList:list[ModPriority]
+    priorityList:list[Priority]
     selectedVersion:str
     name:str
     
     def __init__(
             self, modList:list[Mod] = [],
-            priorityList:list[ModPriority] = [
-                ModPriority("High Priority", 255, 85, 0),
-                ModPriority("Low Priority", 255, 255, 0)],
+            priorityList:list[Priority] = [
+                Priority("High Priority", 255, 85, 0),
+                Priority("Low Priority", 255, 255, 0)],
             selectedVersion:str = "1.21.5",
             name = "New Profile",
         ):
@@ -290,7 +290,7 @@ class ModProfile(object):
     # Exports the profile as a json file. Returns True if succcessful, False if not.
     def exportProfile(self, path:str, profileName:str, printDebugMessage = True):
         if path != False:
-            profile = ModProfile(self.modList, self.priorityList, self.selectedVersion, profileName)
+            profile = Profile(self.modList, self.priorityList, self.selectedVersion, profileName)
 
             if printDebugMessage:
                 print(f"Exporting profile data to {path}")
@@ -329,3 +329,85 @@ class ModProfile(object):
             "version":self.selectedVersion,
             "modlist":modlist
         }
+
+
+# Manages all the user's profiles based on their interactions with ProfileSelectWindow
+class ProfileManager():
+    _profileList:list[Profile]
+    _priorityList:list[Priority]
+    _allowWriteToFile:bool
+    
+    def __init__(self, profileList:list[Profile] = [], priorityList:list[Priority] = [], allowWriteToFile = True):
+        self._profileList = profileList
+        self._priorityList = priorityList
+        self._allowWriteToFile = allowWriteToFile
+
+    # Getters
+    def getNumProfiles(self): return len(self._profileList)
+
+    def getProfileList(self): return self._profileList
+
+    def getPriorityList(self): return self._priorityList
+
+    def getProfile(self, index):
+        if self._profileList:
+            return self._profileList[index]
+        else:
+            return None
+
+    def addProfile(self, newProfile:Profile, profileName:str, saveToFile = True):
+        if not newProfile:
+            return
+
+        newProfile.name = profileName
+        self._profileList.append(newProfile)
+        self.updatePriorityLists()
+        self.sortModLists()
+
+        if saveToFile and self._allowWriteToFile:
+            self.saveToJson()
+
+    # Write the details of each profile to a json file
+    def saveToJson(self, filename="mods.json", updatedProfile:Profile = None, editedProfileIndex = -1):
+        # Update the profile that was just changed in the details view. Don't change the name
+        if updatedProfile and editedProfileIndex >= 0:
+            currentProfile = self._profileList[editedProfileIndex]
+            oldName = currentProfile.name
+            currentProfile = updatedProfile
+            currentProfile.name = oldName
+
+        if self._allowWriteToFile:
+            appdata = os.getenv('APPDATA')
+            directory = os.path.join(appdata, 'ModTracker')
+            os.makedirs(directory, exist_ok=True)
+            json_path = os.path.join(directory, filename)
+
+            print(f"Saving data to {json_path}")
+            with open(json_path, "w") as file:
+                json.dump([profile.createDict() for profile in self._profileList], file, indent=4)
+
+    def deleteProfile(self, numProfile):
+        self._profileList.remove(self._profileList[numProfile])
+        self.sortModLists()
+        self.updatePriorityLists()
+        self.saveToJson()
+
+    def sortModLists(self):
+        for profile in self._profileList:
+            profile.modList.sort()
+
+    def updatePriorityLists(self):
+        for profile in self._profileList:
+            for mod in profile.modList:
+                if mod.priority not in self._priorityList:
+                    self._priorityList.append(mod.priority)
+        
+        for profile in self._profileList:
+            profile.priorityList = self._priorityList
+
+    def importFromJSON(self, path:str, requireValidModURL = True):
+        if path:
+            return load.createProfile(path, requireValidModURL=requireValidModURL)
+
+    def importFromFolder(self, directory:str):
+        return readJarFile.createProfileFromFolder(directory)

@@ -3,7 +3,7 @@ import mod, json, threading, os
 # Convert json data for a mod into a mod object
 def _dictToMod(data):
     priorityData = data["priority"]
-    priorityLevel = mod.ModPriority(priorityData["name"], red=priorityData["r"], green=priorityData["g"], blue=priorityData["b"])
+    priorityLevel = mod.Priority(priorityData["name"], red=priorityData["r"], green=priorityData["g"], blue=priorityData["b"])
 
     if "tablePosition" in data:
         tablePos = data["tablePosition"]
@@ -34,7 +34,7 @@ def _dictToModProfile(data, requireValidModURL=True):
     for thread in threadList:
         thread.join()
 
-    return mod.ModProfile(modList = newModList, name=data["name"], selectedVersion=data["version"])
+    return mod.Profile(modList = newModList, name=data["name"], selectedVersion=data["version"])
 
 # Open a json file, read the data, and create a list of mod profiles from it
 def createProfileList(filename="mods.json"):

@@ -217,11 +217,11 @@ class ModTable_Manager():
     # The list of mod to display
     _modList:list[mod.Mod]
     # The list of priority levels
-    _priorityList:list[mod.ModPriority]
+    _priorityList:list[mod.Priority]
     # The selected version for this profile
     _selectedVersion:str
     
-    def __init__(self, parent:QtWidgets.QWidget, modList:list[mod.Mod], priorityList:list[mod.ModPriority], selectedVersion:str, reloadFunc, saveFunc):
+    def __init__(self, parent:QtWidgets.QWidget, modList:list[mod.Mod], priorityList:list[mod.Priority], selectedVersion:str, reloadFunc, saveFunc):
         self._parentWidget = parent
         self._modList = modList
         self._priorityList = priorityList
@@ -439,11 +439,11 @@ class PriorityDropdownManager():
     _buttonWidget:QtWidgets.QPushButton
     _menuWidget:QtWidgets.QMenu
     _mod:mod.Mod
-    _priorityList:list[mod.ModPriority]
+    _priorityList:list[mod.Priority]
     _rowNum:int
     _fontSize:int
 
-    def __init__(self, parentWidget:QtWidgets.QWidget, mod:mod.Mod, priorityList:list[mod.ModPriority],
+    def __init__(self, parentWidget:QtWidgets.QWidget, mod:mod.Mod, priorityList:list[mod.Priority],
                  refreshFunc, rowNum:int, isReady:bool, fontSize:int):
         # set attributes
         self._parentWidget = parentWidget
@@ -518,7 +518,7 @@ class PriorityDropdownManager():
         if not modName:
             modName = "New Priority Level"
 
-        self._priorityList.append(mod.ModPriority(modName, color=color))
+        self._priorityList.append(mod.Priority(modName, color=color))
         self._changeModPriority(len(self._priorityList) - 1, True)  # select new priority level
 
 
@@ -531,7 +531,7 @@ class PieChart():
 
     _chartView: QtCharts.QChartView
     _series: QtCharts.QPieSeries
-    _readySlice = mod.ModPriority("Ready", 0, 255, 0)
+    _readySlice = mod.Priority("Ready", 0, 255, 0)
     _sliceSizes = {_readySlice: 0}
 
     _titleFontSize = 24
@@ -626,7 +626,7 @@ class PieChart():
 # Displays basic information about a profile that when clicked, will open the details view for that profile.
 # Can optionally be set to only display a + sign instead of default labels.
 class ProfileButton(QtWidgets.QPushButton):
-    profile:mod.ModProfile
+    profile:mod.Profile
     widgetNum:int
 
     _widgetSize = 400
@@ -639,7 +639,7 @@ class ProfileButton(QtWidgets.QPushButton):
     _percentReadyLabel:QtWidgets.QLabel
     _deleteBtn:QtWidgets.QPushButton
 
-    def __init__(self, onClick, profile:mod.ModProfile = None, onDelete = None, widgetNum:int = None, onlyDisplayPlusSign = False):
+    def __init__(self, onClick, profile:mod.Profile = None, onDelete = None, widgetNum:int = None, onlyDisplayPlusSign = False):
         self.profile = profile
         self.widgetNum = widgetNum
         self._onClick = onClick

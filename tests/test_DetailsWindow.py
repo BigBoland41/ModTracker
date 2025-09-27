@@ -12,7 +12,7 @@ class TestDetailsView(testData.TestCase):
     createDetailsView = False
 
     def testCreateWindow_Prepopulated(self):
-        profile = mod.ModProfile(
+        profile = mod.Profile(
             modList=self._data.constructModList(),
             priorityList=self._data.priorityList, selectedVersion=self._data.selectedVersion
         )

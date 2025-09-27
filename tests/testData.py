@@ -14,8 +14,8 @@ class TestData(object):
     latestGameVersion = "1.21.8"
 
     selectedVersion = "1.21.5"
-    highPriority = mod.ModPriority("High Priority", 255, 85, 0)
-    lowPriority = mod.ModPriority("Low Priority", 255, 255, 0)
+    highPriority = mod.Priority("High Priority", 255, 85, 0)
+    lowPriority = mod.Priority("Low Priority", 255, 255, 0)
     priorityList = [highPriority, lowPriority]
 
     _versionList5 = ["1.21","1.21.1","1.21.2","1.21.3", "1.21.4", "1.21.5"]
@@ -62,8 +62,8 @@ class TestData(object):
         return self._modVersions[index][-1]
     
     def old_initMockData(window):
-        highPriority = mod.ModPriority("High Priority", 255, 85, 0)
-        lowPriority = mod.ModPriority("Low Priority", 255, 255, 0)
+        highPriority = mod.Priority("High Priority", 255, 85, 0)
+        lowPriority = mod.Priority("Low Priority", 255, 255, 0)
         
         modList = [
             mod.Mod("Sodium", 1, ["1.21","1.21.1","1.21.2","1.21.3", "1.21.4", "1.21.5"], highPriority, url = "https://modrinth.com/mod/sodium"),
@@ -107,15 +107,15 @@ class TestCase(unittest.TestCase):
 
         self._window = QtWidgets.QMainWindow() if self.createWindow else None
         self._detailsView = windows.DetailsWindow() if self.createDetailsView else None
-        self._selectView = windows.ProfileSelectWindow(self._openDetailsView, allowWriteToFile=False) if self.createSelectView else None
+        self._selectView = windows.ProfileSelectWindow(self._openDetailsView, mod.ProfileManager(allowWriteToFile=False)) if self.createSelectView else None
 
     def populateDetailsView(self):
-        profile = mod.ModProfile(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
+        profile = mod.Profile(self._data.constructModList(), self._data.priorityList, self._data.selectedVersion)
         self._detailsView.loadNewData(profile)
 
-    def _openDetailsView(self, profile:mod.ModProfile):
-        profile = mod.ModProfile(profile.modList, profile.priorityList, profile.selectedVersion)
-        self._detailsView = windows.DetailsWindow(profile, self._closeDetailsView, self._selectView.saveJson)
+    def _openDetailsView(self, profile:mod.Profile):
+        profile = mod.Profile(profile.modList, profile.priorityList, profile.selectedVersion)
+        self._detailsView = windows.DetailsWindow(profile, self._closeDetailsView, self._selectView.saveAndRefresh)
 
     def _closeDetailsView(self):
         self._detailsView.deleteLater()
@@ -129,6 +129,6 @@ class TestCase(unittest.TestCase):
             self._detailsView.getModTable().getTableWidget().clearDropdownList()
 
         if self._selectView:
-            self._selectView._profileList.clear()
-            self._selectView._priorityList.clear()
+            self._selectView._profileManager.getProfileList().clear()
+            self._selectView._profileManager.getPriorityList().clear()
             self._selectView._profileWidgets.clear()
