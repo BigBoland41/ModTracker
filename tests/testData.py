@@ -11,7 +11,7 @@ class TestData(object):
     # Some tests check that the latest version is correct, comparing against this.
     # This variable needs to be periodically updated.
     # It should probably be replaced with a better system at some point.
-    latestGameVersion = "1.21.8"
+    latestGameVersion = "1.21.9"
 
     selectedVersion = "1.21.5"
     highPriority = mod.Priority("High Priority", 255, 85, 0)
@@ -114,7 +114,6 @@ class TestCase(unittest.TestCase):
         self._detailsView.loadNewData(profile)
 
     def _openDetailsView(self, profile:mod.Profile):
-        profile = mod.Profile(profile.modList, profile.priorityList, profile.selectedVersion)
         self._detailsView = windows.DetailsWindow(profile, self._closeDetailsView, self._selectView.saveAndRefresh)
 
     def _closeDetailsView(self):
@@ -131,4 +130,4 @@ class TestCase(unittest.TestCase):
         if self._selectView:
             self._selectView._profileManager.getProfileList().clear()
             self._selectView._profileManager.getPriorityList().clear()
-            self._selectView._profileWidgets.clear()
+            self._selectView._layout._profileWidgets.clear()

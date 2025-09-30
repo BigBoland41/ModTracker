@@ -696,6 +696,104 @@ class ProfileButton(QtWidgets.QPushButton):
         if self._onDelete and callable(self._onDelete):
             self._onDelete(self.widgetNum)
 
+
+#
+class ProfileSelectLayout(QtWidgets.QGridLayout):
+    _profileWidgets:list[QtWidgets.QPushButton] = [] # currently unused
+    _addProfileWidget:QtWidgets.QPushButton
+
+    _widgetSize = 400 # size of the profile widget (width and height)
+    _widgetSpacing = 35 # spacing between profile widgets
+    _widgetsPerRow = 4 # number of profile widgets per row
+    _maxWidgets = 8 # maximum number of profile widgets
+    _numWidgets = 0 # current number of profile widgets
+    _rowPadding = 30 # padding between the first row of profile widgets and the top of the window
+
+    _titleFontSize = 24  # size of the profile widget's name text
+    _subtitleFontSize = 20  # size of the rest of the text on a profile widget
+    _plusSignFontSize = 32  # size of the plus sign on the add profile widget
+
+    def __init__(self, parent, onProfileClick, onCreateProfile, onProfileDelete, getProfileList):
+        super().__init__(parent)
+        self._onProfileClick = onProfileClick
+        self._onCreateProfile = onCreateProfile
+        self._onProfileDelete = onProfileDelete
+        self._getProfileList = getProfileList
+
+        self._addProfileWidget = None
+
+        self.setSpacing(self._widgetSpacing)
+
+    # Creates all profile widgets. Creates an add profile widget if there are no profiles
+    def createWidgetRows(self):
+        profileList = self._getProfileList()
+            
+        self._profileWidgets = []
+        self._numWidgets = 0
+
+        if (len(profileList) == 0):
+            self._createAddProfileWidget()
+        else:
+            for profile in profileList:
+                self.createProfileWidget(profile)
+
+    # Create a new widget that will display basic information about a profile and when clicked, will open the details view for that profile
+    def createProfileWidget(self, profile:mod.Profile):
+        if (self._numWidgets >= self._maxWidgets):
+            return
+
+        # Create a profile widget, which is a button that will be used to open the profile
+        profileWidget = ProfileButton(self._onProfileClick, profile=profile, onDelete=self._deleteProfile, widgetNum=self._numWidgets)
+
+        # Add to list of profile widgets
+        self._profileWidgets.append(profileWidget)
+        self._insertWidget(profileWidget)
+        self._numWidgets += 1
+
+        self._createAddProfileWidget()
+
+    def _deleteWidgetRows(self):
+        while self.count():
+            item = self.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.setParent(None)
+                widget.deleteLater()
+
+        self._numWidgets = 0
+    
+    def _deleteProfile(self, numProfile):
+        profileWidget = self._profileWidgets[numProfile]
+        self._profileWidgets.remove(profileWidget)
+        self.removeWidget(profileWidget)
+        profileWidget.deleteLater()
+
+        self._onProfileDelete(numProfile)
+
+        self._deleteWidgetRows()
+        self.createWidgetRows()
+
+    # Creates an additional widget with a plus sign that when clicked, will create a new profile
+    def _createAddProfileWidget(self):
+        # delete previous profile widget
+        if self._addProfileWidget:
+            self._addProfileWidget.deleteLater()
+
+        if (self._numWidgets >= self._maxWidgets):
+            return
+
+        self._addProfileWidget = ProfileButton(self._onCreateProfile, onlyDisplayPlusSign=True)
+        self._insertWidget(self._addProfileWidget)
+
+    def _insertWidget(self, profileButton:ProfileButton):
+        row = self._numWidgets // self._widgetsPerRow
+        col = self._numWidgets % self._widgetsPerRow
+        self.addWidget(profileButton, row, col)
+
+# ------------------------------
+# HELPER FUNCTIONS FUNCTIONS
+# ------------------------------
+
 # Automatically runs when widgets is imported in another file.
 def setFontelloPath():
     global _fontelloPath

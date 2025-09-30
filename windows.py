@@ -46,7 +46,7 @@ class WindowManager(QtWidgets.QStackedWidget):
         # call create profile list and add the resulting data to the select view
         profiles = load.createProfileList()
         for profile in profiles:
-            self._selectView.addProfile(profile, "New Profile", saveToFile=False)
+            self._selectView.addProfile(profile, profileName=profile.name, saveToFile=False)
 
         self._selectView.sortModLists()
 
@@ -332,22 +332,11 @@ class DetailsWindow(QtWidgets.QWidget):
 
 # Displays all profiles in the profile manager and allows the user createa new profile or select one to view in detail.
 class ProfileSelectWindow(QtWidgets.QWidget):
+    _layout:widgets.ProfileSelectLayout
     _profileManager:mod.ProfileManager
     
-    _profileWidgets:list[QtWidgets.QPushButton] = [] # currently unused
-    _addProfileWidget:QtWidgets.QPushButton
-    _editedProfileIndex:int # the index of the profile that's currently being displayed in the details view
-
-    _widgetSize = 400 # size of the profile widget (width and height)
-    _widgetSpacing = 35 # spacing between profile widgets
-    _widgetsPerRow = 4 # number of profile widgets per row
-    _maxWidgets = 8 # maximum number of profile widgets
-    _numWidgets = 0 # current number of profile widgets
-    _rowPadding = 30 # padding between the first row of profile widgets and the top of the window
-
-    _titleFontSize = 24  # size of the profile widget's name text
-    _subtitleFontSize = 20  # size of the rest of the text on a profile widget
-    _plusSignFontSize = 32  # size of the plus sign on the add profile widget
+    # the index of the profile that's currently being (or most recently been) displayed in the details view
+    _editedProfileIndex:int
 
     def __init__(self, onProfileClick, profileManager = mod.ProfileManager()):
         super().__init__()  # Initialize QWidget
@@ -356,14 +345,11 @@ class ProfileSelectWindow(QtWidgets.QWidget):
 
         self._profileManager.updatePriorityLists()
 
-        self._addProfileWidget = None
-
-        # Create a grid layout for managing widgets
-        self._layout = QtWidgets.QGridLayout()
-        self._layout.setSpacing(self._widgetSpacing)
+        self._layout = widgets.ProfileSelectLayout(None, self._openDetailsView, self._chooseCreateProfileOption, self._profileManager.deleteProfile, self._profileManager.getProfileList)
+        self._layout.createWidgetRows()
         self.setLayout(self._layout)
 
-        self._createWidgetRows()
+        self._editedProfileIndex = -1
 
     def addProfile(self, newProfile:mod.Profile, profileName:str = None, saveToFile = True):
         if not profileName or profileName == "":
@@ -376,23 +362,14 @@ class ProfileSelectWindow(QtWidgets.QWidget):
         else:
             newProfile.name = profileName
         
-        self._profileManager.addProfile(newProfile, profileName)
-        self._createProfileWidget(newProfile)
+        self._profileManager.addProfile(newProfile, profileName, saveToFile)
+        self._layout.createProfileWidget(newProfile)
 
     def saveAndRefresh(self, filename="mods.json", updatedProfile:mod.Profile = None):
         self._profileManager.saveToJson(filename, updatedProfile, self._editedProfileIndex)
-        self._createWidgetRows()
+        self._layout.createWidgetRows()
 
-    def deleteProfile(self, numProfile):
-        profileWidget = self._profileWidgets[numProfile]
-        self._profileWidgets.remove(profileWidget)
-        self._layout.removeWidget(profileWidget)
-        profileWidget.deleteLater()
-
-        self._profileManager.deleteProfile(numProfile)
-
-        self._deleteWidgetRows()
-        self._createWidgetRows()
+    def sortModLists(self): self._profileManager.sortModLists()
 
     # Simulates importing a mod. Used for testing. RequireValidMod will allow mods without a valid URL to be tested.
     def simulate_import(self, directPath:str=False, requireValidModURL=True):
@@ -412,59 +389,6 @@ class ProfileSelectWindow(QtWidgets.QWidget):
     def getProfileList(self): return self._profileManager.getProfileList()
 
     def getPriorityList(self): return self._profileManager.getPriorityList()
-
-    # Creates all profile widgets. Creates an add profile widget if there are no profiles
-    def _createWidgetRows(self):
-        self._profileWidgets = []
-        self._numWidgets = 0
-
-        if (self._profileManager.getNumProfiles() == 0):
-            self._createAddProfileWidget()
-        else:
-            for profile in self._profileManager.getProfileList():
-                self._createProfileWidget(profile)
-
-    def _deleteWidgetRows(self):
-        while self._layout.count():
-            item = self._layout.takeAt(0)
-            widget = item.widget()
-            if widget is not None:
-                widget.setParent(None)
-                widget.deleteLater()
-
-        self._numWidgets = 0
-
-    # Create a new widget that will display basic information about a profile and when clicked, will open the details view for that profile
-    def _createProfileWidget(self, profile:mod.Profile):
-        if (self._numWidgets >= self._maxWidgets):
-            return
-
-        # Create a profile widget, which is a button that will be used to open the profile
-        profileWidget = widgets.ProfileButton(self._openDetailsView, profile=profile, onDelete=self.deleteProfile, widgetNum=self._numWidgets)
-
-        # Add to list of profile widgets
-        self._profileWidgets.append(profileWidget)
-        self._insertWidget(profileWidget)
-        self._numWidgets += 1
-
-        self._createAddProfileWidget()
-
-    # Creates an additional widget with a plus sign that when clicked, will create a new profile
-    def _createAddProfileWidget(self):
-        # delete previous profile widget
-        if self._addProfileWidget:
-            self._addProfileWidget.deleteLater()
-
-        if (self._numWidgets >= self._maxWidgets or self._numWidgets < self._profileManager.getNumProfiles()):
-            return
-
-        self._addProfileWidget = widgets.ProfileButton(self._chooseCreateProfileOption, onlyDisplayPlusSign=True)
-        self._insertWidget(self._addProfileWidget)
-
-    def _insertWidget(self, profileButton:widgets.ProfileButton):
-        row = self._numWidgets // self._widgetsPerRow
-        col = self._numWidgets % self._widgetsPerRow
-        self._layout.addWidget(profileButton, row, col)
 
     # Open details view for a given profile
     def _openDetailsView(self, profileNum: int):
@@ -492,6 +416,8 @@ class ProfileSelectWindow(QtWidgets.QWidget):
                 profile = self._importFromJSON()
             case 3:
                 profile = self._importFromFolder()
+            case _:
+                return
 
         self.addProfile(profile, profileName=profileName)
 

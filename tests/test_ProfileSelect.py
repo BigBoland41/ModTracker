@@ -41,7 +41,7 @@ class TestProfileSelectView(testData.TestCase):
         testDataProfile = mod.Profile(self._data.constructModList())
         self._selectView.addProfile(testDataProfile, profileName="New Profile", saveToFile=False)
 
-        QtTest.QTest.mouseClick(self._selectView._profileWidgets[0], QtCore.Qt.MouseButton.LeftButton)
+        QtTest.QTest.mouseClick(self._selectView._layout._profileWidgets[0], QtCore.Qt.MouseButton.LeftButton)
 
         self.assertIsNotNone(self._detailsView)
 
@@ -57,7 +57,7 @@ class TestProfileSelectView(testData.TestCase):
         
         testDataProfile = mod.Profile(self._data.constructModList())
         self._selectView.addProfile(testDataProfile, profileName="New Profile")
-        QtTest.QTest.mouseClick(self._selectView._profileWidgets[0], QtCore.Qt.MouseButton.LeftButton)
+        QtTest.QTest.mouseClick(self._selectView._layout._profileWidgets[0], QtCore.Qt.MouseButton.LeftButton)
 
         priorityList = self._selectView.getPriorityList()
         self.assertEqual(len(priorityList), 2)
@@ -78,8 +78,8 @@ class TestProfileSelectView(testData.TestCase):
         for profile in profileList:
             self._selectView.addProfile(profile, profileName="New Profile", saveToFile=False)
 
-        self.assertEqual(len(self._selectView._profileWidgets), 8)
-        self.assertFalse(self._selectView._addProfileWidget.isHidden())
+        self.assertEqual(len(self._selectView._layout._profileWidgets), 8)
+        self.assertFalse(self._selectView._layout._addProfileWidget.isHidden())
 
     def testDeleteProfile(self):
         profile1 = mod.Profile()
@@ -88,10 +88,10 @@ class TestProfileSelectView(testData.TestCase):
         self._selectView.addProfile(profile1, profileName="New Profile", saveToFile=False)
         self._selectView.addProfile(profile2, profileName="New Profile", saveToFile=False)
 
-        self._selectView.deleteProfile(0)
+        self._selectView._layout._deleteProfile(0)
 
         profileList = self._selectView.getProfileList()
-        widgetList = self._selectView._profileWidgets
+        widgetList = self._selectView._layout._profileWidgets
 
         self.assertEqual(profileList[0], profile2)
         self.assertNotIn(profile1, profileList)
