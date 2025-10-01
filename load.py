@@ -48,7 +48,7 @@ def createProfileList(filename="mods.json"):
         with open(json_path, "r") as f:
             data = json.load(f)
             for entry in data:
-                newProfileList.append(_dictToModProfile(entry))
+                newProfileList.append(_dictToModProfile(entry, requireValidModURL=False))
     except FileNotFoundError or json.JSONDecodeError or json.decoder.JSONDecodeError:
         print("Failed to read file. No data recovered.")
         return []

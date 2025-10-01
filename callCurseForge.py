@@ -20,18 +20,29 @@ def _genericCurseforgeCall(url:str, requestParameters:dict = None):
             response = requests.get(url, headers=headers, timeout=_requestTimeout)
         else:
             response = requests.get(url, headers=headers, params=requestParameters, timeout=_requestTimeout)
-    except requests.exceptions.Timeout:
-        print(f"Curseforge API request timed out after {_requestTimeout} seconds")
 
-    if response.status_code == 200:
-        return response.json()
-    else:
-        print(f"Error: {response.status_code}, {response.text}")
+        if response.status_code == 200:
+            return response.json()
+        else:
+            print(f"Error reaching CurseForge API: {response.status_code}, {response.text}")
+            return False
+    except requests.exceptions.Timeout:
+        print(f"CurseForge API request timed out after {_requestTimeout} seconds")
         return False
+    except requests.exceptions.ConnectionError:
+        print(f"Failed to reach CurseForge API")
+        return False
+    
+def ping():
+    placeholder_mod_slug = "sodium"
+    return _genericCurseforgeCall(f"https://api.curseforge.com/v1/mods/search?gameId=432&slug={placeholder_mod_slug}") != False
 
 def modData(mod_slug):
     url = f"https://api.curseforge.com/v1/mods/search?gameId=432&slug={mod_slug}"
     json = _genericCurseforgeCall(url)
+
+    if not json:
+        return False
 
     try:
         # take the first search result that is not a custom map, texture pack, or anything that isn't a mod
@@ -96,6 +107,9 @@ def downloadMod(curseforgeJson, mod_id:int, loader:str, version:str):
 def searchCurseforge(modName:str):
     validResults = []
     result = _genericCurseforgeCall("https://api.curseforge.com/v1/mods/search", {"gameId": 432, "searchFilter": modName, "pageSize": 1})
+
+    if not result:
+        return False
 
     for entry in result["data"]:
         if entry["primaryCategoryId"] in _allowedCategoryIDs:

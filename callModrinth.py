@@ -3,7 +3,6 @@ import requests, re
 _modrinthRegex = r"^https:\/\/(www\.)?modrinth\.com\/mod\/[a-zA-Z0-9-_]+\/?$"
 _requestTimeout = 10.0 # How many seconds to wait for an API call before timeout.
 
-
 # Verify if the URL this mod was initialized with is specifically a Modrinth URL
 def verifyURL(url:str):
     modrinth = re.compile(_modrinthRegex)
@@ -19,10 +18,17 @@ def _genericModrinthCall(url:str, requestParameters:dict = None):
         if response.status_code == 200:
             return response.json()  
         else:
-            print(f"Error: {response.status_code}, {response.text}")
+            print(f"Error reaching Modrinth API: {response.status_code}, {response.text}")
             return False
     except requests.exceptions.Timeout:
         print(f"Mondrinth API request timed out after {_requestTimeout} seconds")
+        return False
+    except requests.exceptions.ConnectionError:
+        print(f"Failed to reach Modrinth API")
+        return False
+    
+def ping():
+    return _genericModrinthCall("https://api.modrinth.com/") != False
 
 def modData(mod_slug:str):
     url = f"https://api.modrinth.com/v2/project/{mod_slug}"
@@ -54,7 +60,7 @@ def searchModrinth(modName:str, numResults:int):
     params = {"query": modName, "limit": numResults, "facets": '[["project_type:mod"]]'}
     response = _genericModrinthCall(search_url, params)
 
-    if response == False:
+    if not response:
         return False
     else:
         results = response["hits"]

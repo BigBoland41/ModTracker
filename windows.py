@@ -40,6 +40,13 @@ class WindowManager(QtWidgets.QStackedWidget):
                 self._loadingWindow.close()
 
     def _loadProfile(self, printLoadingText=True):
+        import callModrinth, callCurseForge
+        pingModrinth = callModrinth.ping()
+        pingCurseForge = callCurseForge.ping()
+
+        if not pingModrinth or not pingCurseForge:
+            self._showPingErrorPopup(pingModrinth, pingCurseForge)
+
         if printLoadingText:
             print("Loading profiles...")
 
@@ -49,6 +56,25 @@ class WindowManager(QtWidgets.QStackedWidget):
             self._selectView.addProfile(profile, profileName=profile.name, saveToFile=False)
 
         self._selectView.sortModLists()
+
+    def _showPingErrorPopup(self, canReachModrinth, canReachCurseForge):
+        unreachableServices = ""
+        if canReachModrinth and canReachCurseForge:
+            return
+        elif canReachCurseForge:
+            unreachableServices = "CurseForge API"
+        elif canReachModrinth:
+            unreachableServices = "Modrinth API"
+        else:
+            unreachableServices = "Modrinth and CurseForge APIs"
+
+        popup = QtWidgets.QMessageBox(self)
+        popup.setWindowTitle("Warning")
+        popup.setText(f"WARNING: Failed to reach {unreachableServices}. Please check your internet connection.\n\n"
+                      + "Mod Tracker may be unable to show up-to-date information, and some features may not work as intended. "
+                      + "Please proceed with caution and report any bugs at https://github.com/BigBoland41/ModTracker/issues.")
+        popup.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+        popup.exec()
 
     def _openDetailsView(self, profile:mod.Profile):
         self._detailsView = DetailsWindow(profile, self._closeDetailsView, self._selectView.saveAndRefresh)

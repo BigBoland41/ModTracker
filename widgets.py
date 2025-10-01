@@ -697,7 +697,7 @@ class ProfileButton(QtWidgets.QPushButton):
             self._onDelete(self.widgetNum)
 
 
-#
+# Grid layout embedded in the profile select window that contains all the profile buttons.
 class ProfileSelectLayout(QtWidgets.QGridLayout):
     _profileWidgets:list[QtWidgets.QPushButton] = [] # currently unused
     _addProfileWidget:QtWidgets.QPushButton

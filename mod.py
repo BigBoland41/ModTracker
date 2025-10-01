@@ -128,7 +128,7 @@ class Mod(object):
     
     # A mod is considered valid if it has valid modrinth data or valid curseforge data
     def isValid(self):
-        return self._modrinthData != False or self._curseforgeData != False
+        return self._modrinthData or self._curseforgeData
     
     # Verify if the URL this mod was initialized with is valid
     def verifyURL(self):
@@ -329,7 +329,6 @@ class Profile(object):
             "version":self.selectedVersion,
             "modlist":modlist
         }
-
 
 # Manages all the user's profiles based on their interactions with ProfileSelectWindow
 class ProfileManager():
