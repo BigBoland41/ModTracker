@@ -1,6 +1,6 @@
 # Mod Tracker
 
-Make downloading and keeping track of all your mods easy and seemless!
+Make downloading and keeping track of all your mods easy and seamless!
 
 Mod tracker is a windows app that keeps track of the mods you're waiting on to update to the latest Minecraft version. It also lets you download all them with a single click, easily share them with your friends, and more! Say goodbye to that mile long bookmark folder of Mondrinth and CurseForge links - Mod Tracker will do the job for you!
 
@@ -27,7 +27,7 @@ Alternatively, you can install the executable directly from the latest action on
 
 
 ## Changes in Beta 4.0
-- **Import a profile based on your mods folder!** A new option when creating a profile has been added: import from mods folder. This option will look through a given folder (mods folder by default) and download mods based on the information inside the jar files. Unfortunately, this isn't guarenteed to find the correct mods, so be sure to double check the profile after creating it!
+- **Import a profile based on your mods folder!** A new option when creating a profile has been added: import from mods folder. This option will look through a given folder (mods folder by default) and download mods based on the information inside the jar files. Unfortunately, this isn't guaranteed to find the correct mods, so be sure to double check the profile after creating it!
 - **Reorganize mods in the table** by drag and dropping the rows! Either drag a row in between two other rows to insert it, or drag a row directly on top another row to swap the two.
 - Mod Tracker no longer crashes when Modrinth or CurseForge APIs cannot be reached. Instead, a warning is shown and Mod Tracker proceeds with its saved data. Please note that "offline mode" is still not properly supported and some features may not work as intended.
 - Using a new CurseForge API key.
@@ -54,4 +54,4 @@ To generate your own installer:
 
 To run unit tests, run the tests.py file. You can also test specific modules using a file with the test_ prefix, found in the tests directory.
 
-<sup> README updated 8/30/2025 (unless I forgot to update this)
+<sup> README updated 10/1/2025 (unless I forgot to update this)
