@@ -1,4 +1,4 @@
-import mod, widgets, load, os
+import mod, widgets, load, os, modTable
 from PyQt6 import QtCore, QtGui, QtWidgets, QtTest
 
 
@@ -180,7 +180,7 @@ class DetailsWindow(QtWidgets.QWidget):
     _profile:mod.Profile
     
     # Complex Widgets
-    _modTable:widgets.ModTable_Manager
+    _modTable:modTable.tableManager
     _pieChart:widgets.PieChart
     _modLoaderDropdown:widgets.DropdownBtn
 
@@ -263,7 +263,7 @@ class DetailsWindow(QtWidgets.QWidget):
     def _createWidgets(self):
         # create complex widgets
         self._pieChart = widgets.PieChart(self, self._profile.getModList(), self._profile.getSelectedVersion())
-        self._modTable = widgets.ModTable_Manager(self, self._profile.getModList(), self._profile.getPriorityList(),
+        self._modTable = modTable.tableManager(self, self._profile.getModList(), self._profile.getPriorityList(),
                                                   self._profile.getSelectedVersion(), self.reloadWidgets, self._callSaveFunction)
 
         # create add mod widget

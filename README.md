@@ -26,12 +26,11 @@ Mod tracker is a windows app that keeps track of the mods you're waiting on to u
 Alternatively, you can install the executable directly from the latest action on our [actions page](https://github.com/BigBoland41/ModTracker/actions/workflows/build-test.yml). Note that there is currently a bug where the unittest results will be blank.
 
 
-## Changes in Beta 3.0 - Downloading and Exporting!
-- **Download all your mods with one click!** A new "download all ready mods" button has been added to the profile details screen, along with a dropdown that lets you select the mod loader to use. Currently, the options are Forge, Fabric, Neoforge, and Quilt, but if there's demand for more, it shouldn't be too difficult to add!
-- **Importing and exporting profiles!** Share your mod profile with a friend by clicking the new export button in the profile details screen. They can import it using the new import button in the profile select screen.
-- Profiles can now be deleted from the profile select screen.
-- Clicking on a mod's name from the mod list will open that mod's Modrinth or Curseforge page in your web browser.
-- New pretty button icons have been added by importing Fontello - a font containing lots of commonly used icons. The license is included in the font folder.
+## Changes in Beta 4.0
+- **Import a profile based on your mods folder!** A new option when creating a profile has been added: import from mods folder. This option will look through a given folder (mods folder by default) and download mods based on the information inside the jar files. Unfortunately, this isn't guarenteed to find the correct mods, so be sure to double check the profile after creating it!
+- **Reorganize mods in the table** by drag and dropping the rows! Either drag a row in between two other rows to insert it, or drag a row directly on top another row to swap the two.
+- Mod Tracker no longer crashes when Modrinth or CurseForge APIs cannot be reached. Instead, a warning is shown and Mod Tracker proceeds with its saved data. Please note that "offline mode" is still not properly supported and some features may not work as intended.
+- Using a new CurseForge API key.
 - Bugfixes and refactoring.
 
 If there are any issues with this version Mod Tracker, report it on our [issues page](https://github.com/BigBoland41/ModTracker/issues).
