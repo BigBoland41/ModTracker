@@ -2,8 +2,8 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Mod Tracker"
-#define MyAppVersion "b3.0"
-#define MyAppPublisher "Stephen Nuttall, Andrew Boland, Jon Masucci"
+#define MyAppVersion "b4.0"
+#define MyAppPublisher "Stephen Nuttall, Andrew Boland"
 #define MyAppURL "https://github.com/BigBoland41/ModTracker"
 #define MyAppExeName "Mod Tracker.exe"
 #define MyAppAssocName MyAppName + " File"

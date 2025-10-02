@@ -482,6 +482,9 @@ class ProfileSelectWindow(QtWidgets.QWidget):
 
         profile = self._profileManager.importFromFolder(directory)
 
+        for i, mod in enumerate(profile.modList):
+            mod.tablePosition = i
+
         if showPopups:
             self._loadingWindow.close()
 

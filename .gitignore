@@ -7,3 +7,6 @@ fonts/demo.html
 deprecated
 /__pycache__
 __pycache__/readJarFile.cpython-312.pyc
+/build
+/dist
+*.spec
