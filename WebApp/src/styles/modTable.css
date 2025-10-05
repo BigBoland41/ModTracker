@@ -1,0 +1,42 @@
+.mod-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: Arial, sans-serif;
+}
+
+.mod-table th,
+.mod-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.mod-table th {
+    /* background-color: #555555; */
+    /* Change this to your preferred color */
+    color: white;
+    /* Optional: Change text color for better contrast */
+}
+
+.priority-dropdown {
+    padding: 4px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+.delete-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #ff4444;
+    font-weight: bold;
+}
+
+.delete-button:hover {
+    color: #cc0000;
+}
+
+.add-mod-button {
+    margin-bottom: 10px;
+    padding: 8px 16px;
+}

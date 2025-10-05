@@ -72,7 +72,7 @@ class WindowManager(QtWidgets.QStackedWidget):
         popup.setWindowTitle("Warning")
         popup.setText(f"WARNING: Failed to reach {unreachableServices}. Please check your internet connection.\n\n"
                       + "Mod Tracker may be unable to show up-to-date information, and some features may not work as intended. "
-                      + "Please proceed with caution and report any bugs at https://github.com/BigBoland41/ModTracker/issues.")
+                      + "Please proceed with caution and report any bugs at https://github.com/Stephen-Nuttall/ModTracker/issues.")
         popup.setIcon(QtWidgets.QMessageBox.Icon.Warning)
         popup.exec()
 

@@ -10,20 +10,20 @@ Mod tracker is a windows app that keeps track of the mods you're waiting on to u
 - **New!** Share your mods easily by exporting your profile.
 - Assign priority levels to categorize your must-have mods your nice-to-have mods. (This is reflected in the pie chart!)
 
-**[Download here!](https://github.com/BigBoland41/ModTracker/releases)**
+**[Download here!](https://github.com/Stephen-Nuttall/ModTracker/releases)**
 [Click here for instructions](#how-to-download)
 
 ![alt text](screenshot%201.png)
 
-*Please note that this app is still in beta, so expect some bugs. If you encounter a bug or have ideas to improve Mod Tracker, create an issue on our [issues page](https://github.com/BigBoland41/ModTracker/issues).*
+*Please note that this app is still in beta, so expect some bugs. If you encounter a bug or have ideas to improve Mod Tracker, create an issue on our [issues page](https://github.com/Stephen-Nuttall/ModTracker/issues).*
 
 
 ## How to Download
-1. Go to our [releases page](https://github.com/BigBoland41/ModTracker/releases).
+1. Go to our [releases page](https://github.com/Stephen-Nuttall/ModTracker/releases).
 2. Open the assets dropdown on the latest release, and download the installer.
 3. Run the installer, and you should be good!
 
-Alternatively, you can install the executable directly from the latest action on our [actions page](https://github.com/BigBoland41/ModTracker/actions/workflows/build-test.yml). Note that there is currently a bug where the unittest results will be blank.
+Alternatively, you can install the executable directly from the latest action on our [actions page](https://github.com/Stephen-Nuttall/ModTracker/actions/workflows/build-test.yml). Note that there is currently a bug where the unittest results will be blank.
 
 
 ## Changes in Beta 4.0
@@ -33,7 +33,7 @@ Alternatively, you can install the executable directly from the latest action on
 - Using a new CurseForge API key.
 - Bugfixes and refactoring.
 
-If there are any issues with this version Mod Tracker, report it on our [issues page](https://github.com/BigBoland41/ModTracker/issues).
+If there are any issues with this version Mod Tracker, report it on our [issues page](https://github.com/Stephen-Nuttall/ModTracker/issues).
 
 ## Technical Details
 For those who want to download this repository on your own computer, here's some helpful information.
