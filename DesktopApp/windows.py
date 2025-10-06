@@ -1,4 +1,9 @@
-import mod, widgets, load, os, modTable
+# Add the parent directory to the Python path
+import sys, os
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(parent_dir)
+
+import Backend.mod as mod, DesktopApp.widgets as widgets, Backend.loadFromJson as loadFromJson, DesktopApp.modTable as modTable
 from PyQt6 import QtCore, QtGui, QtWidgets, QtTest
 
 
@@ -40,7 +45,7 @@ class WindowManager(QtWidgets.QStackedWidget):
                 self._loadingWindow.close()
 
     def _loadProfile(self, printLoadingText=True):
-        import callModrinth, callCurseForge
+        import Backend.callModrinth as callModrinth, Backend.callCurseForge as callCurseForge
         pingModrinth = callModrinth.ping()
         pingCurseForge = callCurseForge.ping()
 
@@ -51,7 +56,7 @@ class WindowManager(QtWidgets.QStackedWidget):
             print("Loading profiles...")
 
         # call create profile list and add the resulting data to the select view
-        profiles = load.createProfileList()
+        profiles = loadFromJson.createProfileList()
         for profile in profiles:
             self._selectView.addProfile(profile, profileName=profile.name, saveToFile=False)
 
@@ -103,7 +108,7 @@ class LoadingWindow(QtWidgets.QWidget):
         gif_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
 
         # Load and set the GIF
-        self._movie = QtGui.QMovie("loading.gif")
+        self._movie = QtGui.QMovie("assets/loading.gif")
         self._movie.setScaledSize(QtCore.QSize(150, 150))
         gif_label.setMovie(self._movie)
         self._movie.start()

@@ -1,4 +1,4 @@
-import zipfile, json, os, tomllib, Levenshtein, callModrinth, callCurseForge, mod, threading
+import zipfile, json, os, tomllib, Levenshtein, Backend.callModrinth as callModrinth, Backend.callCurseForge as callCurseForge, Backend.mod as mod, threading
 
 # Creates a mod profile by matching the jar files the user's .minecraft/mods folder with mods on modrinth and curseforge.
 def createProfileFromFolder(directory:str = None, printDebug = True):

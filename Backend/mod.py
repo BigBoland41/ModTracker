@@ -1,5 +1,5 @@
 from PyQt6 import QtGui
-import callModrinth, callCurseForge, webbrowser, threading, json, os, readJarFile, load
+import Backend.callModrinth as callModrinth, Backend.callCurseForge as callCurseForge, webbrowser, threading, json, os, Backend.loadFromJar as loadFromJar, Backend.loadFromJson as loadFromJson
 
 class Priority(object):
     name:str
@@ -406,7 +406,7 @@ class ProfileManager():
 
     def importFromJSON(self, path:str, requireValidModURL = True):
         if path:
-            return load.createProfile(path, requireValidModURL=requireValidModURL)
+            return loadFromJson.createProfile(path, requireValidModURL=requireValidModURL)
 
     def importFromFolder(self, directory:str):
-        return readJarFile.createProfileFromFolder(directory)
+        return loadFromJar.createProfileFromFolder(directory)

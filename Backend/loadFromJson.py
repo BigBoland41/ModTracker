@@ -1,4 +1,4 @@
-import mod, json, threading, os
+import Backend.mod as mod, json, threading, os
 
 # Convert json data for a mod into a mod object
 def _dictToMod(data):

@@ -5,7 +5,7 @@ from PyQt6 import QtWidgets
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
 
-import windows, mod
+import DesktopApp.windows as windows, Backend.mod as mod
 import testData
 
 class TestDetailsView(testData.TestCase):

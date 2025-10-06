@@ -4,7 +4,7 @@ import sys, os, unittest, testData
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
 
-import mod
+import Backend.mod as mod
 
 class TestAPICalls(testData.TestCase):
     createWindow = False

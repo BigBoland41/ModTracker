@@ -5,7 +5,7 @@ from PyQt6 import QtWidgets
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
 
-import windows, mod
+import DesktopApp.windows as windows, Backend.mod as mod
 
 class TestData(object):
     # Some tests check that the latest version is correct, comparing against this.

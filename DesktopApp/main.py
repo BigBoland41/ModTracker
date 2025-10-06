@@ -17,7 +17,7 @@ if __name__ == "__main__":
         base_path = os.path.abspath(".")
 
     # set app icon
-    icon_path = os.path.join(base_path, "icon.ico")
+    icon_path = os.path.join(base_path, "assets/icon.ico")
     icon = QtGui.QIcon(icon_path)
 
     mainWindow = QtWidgets.QMainWindow()

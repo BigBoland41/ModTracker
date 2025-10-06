@@ -4,7 +4,7 @@ import sys, os, unittest, testData
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
 
-import readJarFile, mod
+import Backend.loadFromJar as loadFromJar, Backend.mod as mod
 
 class TestReadJar(testData.TestCase):
     createWindow = False
@@ -39,7 +39,7 @@ class TestReadJar(testData.TestCase):
             mod.Mod(url="https://modrinth.com/mod/sodium"),                         # Sodium
         ]
 
-        newProfile = readJarFile.createProfileFromFolder("tests/testJars", printDebug=False)
+        newProfile = loadFromJar.createProfileFromFolder("tests/testJars", printDebug=False)
         
         for modObj in newProfile.modList:
             self.assertIn(modObj, expectedMods)
