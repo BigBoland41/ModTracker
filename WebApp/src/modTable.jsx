@@ -15,16 +15,17 @@ const ModTable = ({ mods, onPriorityChange, onDelete }) => {
                 {mods.map((mod) => (
                     <tr key={mod.tablePos}>
                         <td>{mod.name}</td>
-                        <td>{mod.version}</td>
+                        <td>{mod.versions.at(-1)}</td>
                         <td>
                             <select
-                                value={mod.priority}
+                                value={mod.priority.name}
                                 onChange={(e) => onPriorityChange(mod.tablePos, e.target.value)}
                                 className="priority-dropdown"
                             >
-                                <option value="Low">Low</option>
-                                <option value="Medium">Medium</option>
-                                <option value="High">High</option>
+                                <option value="Low Priority">Low Priority</option>
+                                <option value="Medium Priority">Medium Priority</option>
+                                <option value="High Priority">High Priority</option>
+                                <option value={mod.priority.name}>{mod.priority.name}</option>
                             </select>
                         </td>
                         <td>

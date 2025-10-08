@@ -1,5 +1,7 @@
 from PyQt6 import QtGui
-import Backend.callModrinth as callModrinth, Backend.callCurseForge as callCurseForge, webbrowser, threading, json, os, Backend.loadFromJar as loadFromJar, Backend.loadFromJson as loadFromJson
+import webbrowser, threading, json, os
+import Backend.callModrinth as callModrinth, Backend.callCurseForge as callCurseForge
+import Backend.loadFromJar as loadFromJar, Backend.loadFromJson as loadFromJson
 
 class Priority(object):
     name:str
@@ -330,7 +332,7 @@ class Profile(object):
             "modlist":modlist
         }
 
-# Manages all the user's profiles based on their interactions with ProfileSelectWindow
+# Manages all the user's profiles based on their interactions with the front end.
 class ProfileManager():
     _profileList:list[Profile]
     _priorityList:list[Priority]
@@ -410,3 +412,18 @@ class ProfileManager():
 
     def importFromFolder(self, directory:str):
         return loadFromJar.createProfileFromFolder(directory)
+    
+    def createDict(self):
+        profileList = []
+        priorityList = []
+        
+        for profile in self._profileList:
+            profileList.append(profile.createDict())
+
+        for priority in self._priorityList:
+            priorityList.append(priority.createDict())
+
+        return {
+            "profileList" : profileList,
+            "priorityList" : priorityList
+        }

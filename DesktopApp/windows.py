@@ -365,9 +365,7 @@ class DetailsWindow(QtWidgets.QWidget):
 class ProfileSelectWindow(QtWidgets.QWidget):
     _layout:widgets.ProfileSelectLayout
     _profileManager:mod.ProfileManager
-    
-    # the index of the profile that's currently being (or most recently been) displayed in the details view
-    _editedProfileIndex:int
+    _editedProfileIndex:int  # the index of the profile that's currently being (or most recently been) displayed in the details view
 
     def __init__(self, onProfileClick, profileManager = mod.ProfileManager()):
         super().__init__()  # Initialize QWidget

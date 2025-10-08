@@ -1,53 +1,97 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 
 import ModTable from './modTable';
 import TextInputBox from './textInputBox';
 
 function App() {
+    const blankProfileData = {
+        profile: {
+            "name": "No Data",
+            "version": "No Data",
+            "modlist": []
+        },
+        modListLength: 0,
+        errorMessage: "None"
+    }
+
+    const [profileData, setProfileData] = useState(blankProfileData)
     const [mods, setMods] = useState([]);
     const [input, setInput] = useState('');
     const [output, setOutput] = useState('');
-    const [tempMod, setTempMod] = useState()
+
+    useEffect(() => { updateProfileData() }, [])
+
+    useEffect(() => {
+        let modList = []
+        for (let i = 0; i < profileData.modListLength; i++) {
+            const modData = profileData.profile.modlist[i]
+            const newMod = {
+                name: modData.name,
+                id: modData.id,
+                url: modData.url,
+                versions: modData.versions,
+                priority: modData.priority,
+                tablePos: i
+            };
+            modList = [...modList, newMod]
+        }
+        setMods(modList);
+    }, [profileData])
+
+    const genericCall = async (callName, params) => {
+        try {
+            const url = `http://localhost:8000/${callName}`
+            console.log('Making post to ' + url + ' with data ' + JSON.stringify(params))
+            const response = await axios.post(url, params);
+            // console.log('Post successful!')
+            return response.data
+        } catch (error) {
+            console.error('Error:\n', error);
+            setOutput('Error calling API:\n' + error);
+        }
+    }
 
     const handlePriorityChange = (tablePos, newPriority) => {
+        console.log("Changing priority functionality coming soon!")
         setMods(mods.map(mod =>
             mod.tablePos === tablePos ? { ...mod, priority: newPriority } : mod
         ));
     };
 
     const handleDelete = (tablePosition) => {
-        setMods(mods.filter(mod => mod.tablePos !== tablePosition));
+        console.log("Delete functionality coming soon!")
+        // setMods(mods.filter(mod => mod.tablePos !== tablePosition));
     };
+
+    const updateProfileData = async () => {
+        const data = await genericCall("get-profile", { profileIndex: 0 })
+        setProfileData(data)
+
+        if (profileData.errorMessage != "None") {
+            console.log("ERROR:\n" + profileData.errorMessage)
+            setOutput("ERROR:\n" + profileData.errorMessage)
+        }
+    }
 
     const addMod = async () => {
-        try {
-            const response = await axios.post('http://localhost:8000/run-test', {
-                url: input,
-            });
+        const data = await genericCall("add-mod", { url: input, profileIndex: 0 })
 
-            if (response.data.name == "Untitled Mod") {
-                setOutput('Could not find this mod. Check that the URL you provided is valid.')
-            }
-            else {
-                setOutput('Added ' + response.data.name)
+        if (data.errorMessage != "None")
+            setOutput("ERROR:\n" + data.errorMessage)
+        else
+            setOutput('Mod successfully added')
 
-                const newMod = {
-                    tablePos: mods.length > 0 ? Math.max(...mods.map(mod => mod.tablePos)) + 1 : 1,
-                    name: "" + response.data.name,
-                    version: "" + response.data.version,
-                    priority: "" + response.data.priority
-                };
-                setMods([...mods, newMod]);
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            setOutput('Error calling API:\n' + error);
-        }
-    };
+        updateProfileData()
+    }
 
     return (
         <>
+            <div>
+                <h2>{profileData.profile.name}</h2>
+                <pre>Selected Version: {profileData.profile.version}</pre>
+                <pre>{profileData.modListLength} mods</pre>
+            </div>
             <div>
                 <ModTable
                     mods={mods}
